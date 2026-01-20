@@ -84,6 +84,19 @@ The app uses a custom theming system with automatic light/dark mode:
 
 Components accept `lightColor` and `darkColor` props to override theme defaults.
 
+### Typography
+
+Custom fonts are loaded via expo-font in the root layout:
+- **Bakbak One**: Used for titles, subtitles, and important/bold text (`defaultSemiBold` type)
+- **Roboto**: Used for standard body text and links
+
+Font usage in `ThemedText` component:
+- `type="title"` and `type="subtitle"`: Bakbak One
+- `type="defaultSemiBold"`: Bakbak One (for bold/important inline text)
+- `type="default"` and `type="link"`: Roboto
+
+Font files are located in `assets/fonts/` and loaded synchronously at app startup. The splash screen remains visible until fonts are loaded.
+
 ### Path Aliases
 
 TypeScript is configured with `@/*` alias mapping to the project root. Use this for all imports:
