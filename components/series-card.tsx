@@ -1,6 +1,6 @@
 /**
  * SeriesCard Component
- * Displays a series with progress bar
+ * Displays a series with progress bar and read status
  * Neo-Memphis style with visible borders and offset shadows
  */
 
@@ -21,13 +21,15 @@ import type { Series } from '@/types/book';
 interface SeriesCardProps {
   series: Series;
   ownedCount: number;
+  readCount: number;
 }
 
-export function SeriesCard({ series, ownedCount }: SeriesCardProps) {
+export function SeriesCard({ series, ownedCount, readCount }: SeriesCardProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
 
   const progressPercent = (ownedCount / series.totalVolumes) * 100;
+  const allRead = readCount === ownedCount && ownedCount > 0;
 
   return (
     <Link href={{ pathname: '/book/[id]', params: { id: series.id } }} asChild>
@@ -42,9 +44,32 @@ export function SeriesCard({ series, ownedCount }: SeriesCardProps) {
           pressed && styles.pressed,
         ]}
       >
-        {/* Series name */}
-        <Text style={[styles.seriesName, { color: colors.text }]}>
-          {series.name}
+        {/* Header with name and read status */}
+        <View style={styles.header}>
+          <Text style={[styles.seriesName, { color: colors.text }]}>
+            {series.name}
+          </Text>
+          <View
+            style={[
+              styles.statusBadge,
+              {
+                backgroundColor: allRead ? colors.secondary : colors.accent1,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.statusText, { color: colors.text }]}>
+              {t('detail.readProgress', { read: readCount })}
+            </Text>
+          </View>
+        </View>
+
+        {/* Author */}
+        <Text
+          style={[styles.author, { color: colors.textSecondary }]}
+          numberOfLines={1}
+        >
+          {series.author}
         </Text>
 
         {/* Progress section */}
@@ -89,9 +114,29 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.96 }, { translateY: 2 }],
     shadowOffset: { width: 0, height: 1 },
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
   seriesName: {
-    ...typography.subtitle,
-    marginBottom: spacing.sm,
+    ...typography.title,
+    flex: 1,
+  },
+  statusBadge: {
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+    borderWidth: borderWidths.thin,
+    borderRadius: borderRadius.sm,
+  },
+  statusText: {
+    ...typography.labelSmall,
+  },
+  author: {
+    ...typography.body,
+    marginBottom: spacing.md,
   },
   progressSection: {
     gap: spacing.xs,

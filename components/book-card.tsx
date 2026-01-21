@@ -3,10 +3,18 @@
  * Displays a standalone book in Neo-Memphis style
  */
 
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import { spacing, borders, shadows, typography } from '@/constants';
+import {
+  spacing,
+  borders,
+  shadows,
+  typography,
+  borderWidths,
+  borderRadius,
+} from '@/constants';
 import type { Book } from '@/types/book';
 
 interface BookCardProps {
@@ -14,6 +22,7 @@ interface BookCardProps {
 }
 
 export function BookCard({ book }: BookCardProps) {
+  const { t } = useTranslation();
   const colors = useThemeColors();
 
   return (
@@ -29,12 +38,27 @@ export function BookCard({ book }: BookCardProps) {
           pressed && styles.pressed,
         ]}
       >
-        <Text
-          style={[styles.title, { color: colors.text }]}
-          numberOfLines={2}
-        >
-          {book.title}
-        </Text>
+        <View style={styles.header}>
+          <Text
+            style={[styles.title, { color: colors.text }]}
+            numberOfLines={2}
+          >
+            {book.title}
+          </Text>
+          <View
+            style={[
+              styles.statusBadge,
+              {
+                backgroundColor: book.isRead ? colors.secondary : colors.accent1,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.statusText, { color: colors.text }]}>
+              {book.isRead ? t('status.read') : t('status.unread')}
+            </Text>
+          </View>
+        </View>
         <Text
           style={[styles.author, { color: colors.textSecondary }]}
           numberOfLines={1}
@@ -56,9 +80,25 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.96 }, { translateY: 2 }],
     shadowOffset: { width: 0, height: 1 },
   },
-  title: {
-    ...typography.subtitle,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
     marginBottom: spacing.xs,
+  },
+  title: {
+    ...typography.title,
+    flex: 1,
+  },
+  statusBadge: {
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+    borderWidth: borderWidths.thin,
+    borderRadius: borderRadius.sm,
+  },
+  statusText: {
+    ...typography.labelSmall,
   },
   author: {
     ...typography.body,

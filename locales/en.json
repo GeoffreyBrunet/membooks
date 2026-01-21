@@ -21,7 +21,12 @@
     "author": "Author",
     "volume": "Volume {{number}}",
     "ownedVolumes": "Owned volumes",
-    "progress": "{{owned}} of {{total}}"
+    "progress": "{{owned}} of {{total}}",
+    "readProgress": "{{read}} read"
+  },
+  "status": {
+    "read": "Read",
+    "unread": "To read"
   },
   "bookType": {
     "novel": "Novel",

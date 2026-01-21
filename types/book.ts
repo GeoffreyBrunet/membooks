@@ -18,12 +18,16 @@ export type BookCategory =
   | 'mystery'
   | 'biography';
 
+// Read status
+export type ReadStatus = 'read' | 'unread';
+
 export interface Book {
   id: string;
   title: string;
   author: string;
   bookType: BookType;
   categories: BookCategory[];
+  isRead: boolean;
   seriesId?: string;
   volumeNumber?: number;
 }
@@ -31,6 +35,7 @@ export interface Book {
 export interface Series {
   id: string;
   name: string;
+  author: string;
   totalVolumes: number;
   bookType: BookType;
   categories: BookCategory[];

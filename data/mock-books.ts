@@ -8,6 +8,7 @@ export const mockSeries: Series[] = [
   {
     id: 'series-1',
     name: 'Harry Potter',
+    author: 'J.K. Rowling',
     totalVolumes: 7,
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
@@ -15,6 +16,7 @@ export const mockSeries: Series[] = [
   {
     id: 'series-2',
     name: 'Le Seigneur des Anneaux',
+    author: 'J.R.R. Tolkien',
     totalVolumes: 3,
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
@@ -22,6 +24,7 @@ export const mockSeries: Series[] = [
   {
     id: 'series-3',
     name: 'Dune',
+    author: 'Frank Herbert',
     totalVolumes: 6,
     bookType: 'novel',
     categories: ['sf'],
@@ -29,6 +32,7 @@ export const mockSeries: Series[] = [
   {
     id: 'series-4',
     name: 'One Piece',
+    author: 'Eiichiro Oda',
     totalVolumes: 109,
     bookType: 'manga',
     categories: ['adventure', 'fantasy'],
@@ -36,13 +40,14 @@ export const mockSeries: Series[] = [
 ];
 
 export const mockBooks: Book[] = [
-  // Harry Potter series (owned: 4/7)
+  // Harry Potter series (owned: 4/7, read: 3/4)
   {
     id: 'book-1',
     title: "Harry Potter à l'école des sorciers",
     author: 'J.K. Rowling',
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
+    isRead: true,
     seriesId: 'series-1',
     volumeNumber: 1,
   },
@@ -52,6 +57,7 @@ export const mockBooks: Book[] = [
     author: 'J.K. Rowling',
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
+    isRead: true,
     seriesId: 'series-1',
     volumeNumber: 2,
   },
@@ -61,6 +67,7 @@ export const mockBooks: Book[] = [
     author: 'J.K. Rowling',
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
+    isRead: true,
     seriesId: 'series-1',
     volumeNumber: 3,
   },
@@ -70,16 +77,18 @@ export const mockBooks: Book[] = [
     author: 'J.K. Rowling',
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
+    isRead: false,
     seriesId: 'series-1',
     volumeNumber: 4,
   },
-  // Le Seigneur des Anneaux (owned: 2/3)
+  // Le Seigneur des Anneaux (owned: 2/3, read: 1/2)
   {
     id: 'book-5',
     title: "La Communauté de l'Anneau",
     author: 'J.R.R. Tolkien',
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
+    isRead: true,
     seriesId: 'series-2',
     volumeNumber: 1,
   },
@@ -89,26 +98,29 @@ export const mockBooks: Book[] = [
     author: 'J.R.R. Tolkien',
     bookType: 'novel',
     categories: ['fantasy', 'adventure'],
+    isRead: false,
     seriesId: 'series-2',
     volumeNumber: 2,
   },
-  // Dune (owned: 1/6)
+  // Dune (owned: 1/6, read: 1/1)
   {
     id: 'book-7',
     title: 'Dune',
     author: 'Frank Herbert',
     bookType: 'novel',
     categories: ['sf'],
+    isRead: true,
     seriesId: 'series-3',
     volumeNumber: 1,
   },
-  // One Piece (owned: 3/109)
+  // One Piece (owned: 3/109, read: 3/3)
   {
     id: 'book-11',
     title: 'One Piece - Tome 1',
     author: 'Eiichiro Oda',
     bookType: 'manga',
     categories: ['adventure', 'fantasy'],
+    isRead: true,
     seriesId: 'series-4',
     volumeNumber: 1,
   },
@@ -118,6 +130,7 @@ export const mockBooks: Book[] = [
     author: 'Eiichiro Oda',
     bookType: 'manga',
     categories: ['adventure', 'fantasy'],
+    isRead: true,
     seriesId: 'series-4',
     volumeNumber: 2,
   },
@@ -127,6 +140,7 @@ export const mockBooks: Book[] = [
     author: 'Eiichiro Oda',
     bookType: 'manga',
     categories: ['adventure', 'fantasy'],
+    isRead: true,
     seriesId: 'series-4',
     volumeNumber: 3,
   },
@@ -137,6 +151,7 @@ export const mockBooks: Book[] = [
     author: 'George Orwell',
     bookType: 'novel',
     categories: ['sf', 'thriller'],
+    isRead: true,
   },
   {
     id: 'book-9',
@@ -144,6 +159,7 @@ export const mockBooks: Book[] = [
     author: 'Antoine de Saint-Exupéry',
     bookType: 'novel',
     categories: ['sliceOfLife'],
+    isRead: true,
   },
   {
     id: 'book-10',
@@ -151,5 +167,6 @@ export const mockBooks: Book[] = [
     author: 'Albert Camus',
     bookType: 'novel',
     categories: ['sliceOfLife'],
+    isRead: false,
   },
 ];

@@ -17,7 +17,7 @@ import type { Book, Series } from '@/types/book';
 
 type LibraryItem =
   | { type: 'book'; data: Book }
-  | { type: 'series'; data: Series; ownedCount: number };
+  | { type: 'series'; data: Series; ownedCount: number; readCount: number };
 
 export default function Home() {
   const { t } = useTranslation();
@@ -28,12 +28,17 @@ export default function Home() {
   const { libraryItems, totalBookCount } = useMemo(() => {
     const items: LibraryItem[] = [];
     const seriesBookCounts = new Map<string, number>();
+    const seriesReadCounts = new Map<string, number>();
 
-    // Count books per series
+    // Count books per series and read books per series
     for (const book of mockBooks) {
       if (book.seriesId) {
         const count = seriesBookCounts.get(book.seriesId) ?? 0;
         seriesBookCounts.set(book.seriesId, count + 1);
+        if (book.isRead) {
+          const readCount = seriesReadCounts.get(book.seriesId) ?? 0;
+          seriesReadCounts.set(book.seriesId, readCount + 1);
+        }
       }
     }
 
@@ -41,7 +46,8 @@ export default function Home() {
     for (const series of mockSeries) {
       const ownedCount = seriesBookCounts.get(series.id);
       if (ownedCount) {
-        items.push({ type: 'series', data: series, ownedCount });
+        const readCount = seriesReadCounts.get(series.id) ?? 0;
+        items.push({ type: 'series', data: series, ownedCount, readCount });
       }
     }
 
@@ -102,7 +108,7 @@ export default function Home() {
         {libraryItems.map((item, index) => (
           <View key={item.data.id}>
             {item.type === 'series' ? (
-              <SeriesCard series={item.data} ownedCount={item.ownedCount} />
+              <SeriesCard series={item.data} ownedCount={item.ownedCount} readCount={item.readCount} />
             ) : (
               <BookCard book={item.data} />
             )}

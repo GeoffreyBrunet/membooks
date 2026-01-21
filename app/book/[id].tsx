@@ -194,12 +194,29 @@ export default function BookDetail() {
                     {seriesBook.volumeNumber}
                   </Text>
                 </View>
-                <Text
-                  style={[styles.bookTitle, { color: colors.text }]}
-                  numberOfLines={2}
-                >
-                  {seriesBook.title}
-                </Text>
+                <View style={styles.bookItemContent}>
+                  <Text
+                    style={[styles.bookTitle, { color: colors.text }]}
+                    numberOfLines={2}
+                  >
+                    {seriesBook.title}
+                  </Text>
+                  {seriesBook.isRead && (
+                    <View
+                      style={[
+                        styles.readTag,
+                        {
+                          backgroundColor: colors.secondary,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.readTagText, { color: colors.text }]}>
+                        {t('status.read')}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
             ))}
           </View>
@@ -312,9 +329,22 @@ const styles = StyleSheet.create({
   volumeNumber: {
     ...typography.button,
   },
+  bookItemContent: {
+    flex: 1,
+    gap: spacing.xs,
+  },
   bookTitle: {
     ...typography.body,
-    flex: 1,
+  },
+  readTag: {
+    alignSelf: 'flex-start',
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+    borderWidth: borderWidths.thin,
+    borderRadius: borderRadius.sm,
+  },
+  readTagText: {
+    ...typography.labelSmall,
   },
   errorText: {
     ...typography.body,
