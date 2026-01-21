@@ -1,0 +1,22 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  },
+  "home": {
+    "title": "Welcome to Membooks",
+    "subtitle": "Edit app/index.tsx to edit this screen."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageEnglish": "English",
+    "languageFrench": "French"
+  }
+}
