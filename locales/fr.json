@@ -15,7 +15,13 @@
     "bookCount_one": "{{count}} livre",
     "bookCount_other": "{{count}} livres",
     "series": "Séries",
-    "standaloneBooks": "Livres hors série"
+    "standaloneBooks": "Livres hors série",
+    "tabs": {
+      "myBooks": "Mes Livres",
+      "wishlist": "Wishlist",
+      "releases": "Sorties"
+    },
+    "comingSoon": "Bientôt disponible"
   },
   "detail": {
     "author": "Auteur",
@@ -52,5 +58,11 @@
     "language": "Langue",
     "languageEnglish": "Anglais",
     "languageFrench": "Français"
+  },
+  "nav": {
+    "home": "Accueil",
+    "camera": "Scanner",
+    "search": "Recherche",
+    "proposals": "Suggestions"
   }
 }

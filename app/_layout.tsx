@@ -5,7 +5,10 @@ import "@/lib/i18n";
 export default function RootLayout() {
   return (
     <LanguageProvider>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="book/[id]" />
+      </Stack>
     </LanguageProvider>
   );
 }

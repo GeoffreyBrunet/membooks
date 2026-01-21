@@ -15,7 +15,13 @@
     "bookCount_one": "{{count}} book",
     "bookCount_other": "{{count}} books",
     "series": "Series",
-    "standaloneBooks": "Standalone Books"
+    "standaloneBooks": "Standalone Books",
+    "tabs": {
+      "myBooks": "My Books",
+      "wishlist": "Wishlist",
+      "releases": "Releases"
+    },
+    "comingSoon": "Coming soon"
   },
   "detail": {
     "author": "Author",
@@ -52,5 +58,11 @@
     "language": "Language",
     "languageEnglish": "English",
     "languageFrench": "French"
+  },
+  "nav": {
+    "home": "Home",
+    "camera": "Scan",
+    "search": "Search",
+    "proposals": "Suggestions"
   }
 }
