@@ -64,5 +64,13 @@
     "camera": "Scanner",
     "search": "Recherche",
     "proposals": "Suggestions"
+  },
+  "scanner": {
+    "scanning": "Scannez un code-barres ISBN",
+    "searching": "Recherche en cours...",
+    "bookAdded": "Livre ajouté !",
+    "bookNotFound": "Livre non trouvé",
+    "alreadyOwned": "Vous possédez déjà ce livre",
+    "scanAnother": "Scanner un autre"
   }
 }

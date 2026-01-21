@@ -64,5 +64,13 @@
     "camera": "Scan",
     "search": "Search",
     "proposals": "Suggestions"
+  },
+  "scanner": {
+    "scanning": "Scan an ISBN barcode",
+    "searching": "Searching...",
+    "bookAdded": "Book added!",
+    "bookNotFound": "Book not found",
+    "alreadyOwned": "You already own this book",
+    "scanAnother": "Scan another"
   }
 }

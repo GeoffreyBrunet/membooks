@@ -5,13 +5,13 @@
  */
 
 import { useMemo, useState } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useBooks } from '@/contexts/books-context';
 import { BookCard } from '@/components/book-card';
 import { SeriesCard } from '@/components/series-card';
-import { mockBooks, mockSeries } from '@/data/mock-books';
 import { spacing, typography, borders, shadows } from '@/constants';
 import type { Book, Series } from '@/types/book';
 
@@ -27,6 +27,7 @@ export default function Home() {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const { books, series, isLoading } = useBooks();
   const [activeTab, setActiveTab] = useState<TabKey>('myBooks');
 
   // Build unified library list sorted alphabetically
@@ -36,7 +37,7 @@ export default function Home() {
     const seriesReadCounts = new Map<string, number>();
 
     // Count books per series and read books per series
-    for (const book of mockBooks) {
+    for (const book of books) {
       if (book.seriesId) {
         const count = seriesBookCounts.get(book.seriesId) ?? 0;
         seriesBookCounts.set(book.seriesId, count + 1);
@@ -48,16 +49,16 @@ export default function Home() {
     }
 
     // Add series
-    for (const series of mockSeries) {
-      const ownedCount = seriesBookCounts.get(series.id);
+    for (const s of series) {
+      const ownedCount = seriesBookCounts.get(s.id);
       if (ownedCount) {
-        const readCount = seriesReadCounts.get(series.id) ?? 0;
-        items.push({ type: 'series', data: series, ownedCount, readCount });
+        const readCount = seriesReadCounts.get(s.id) ?? 0;
+        items.push({ type: 'series', data: s, ownedCount, readCount });
       }
     }
 
     // Add standalone books
-    for (const book of mockBooks) {
+    for (const book of books) {
       if (!book.seriesId) {
         items.push({ type: 'book', data: book });
       }
@@ -72,9 +73,21 @@ export default function Home() {
 
     return {
       libraryItems: items,
-      totalBookCount: mockBooks.length,
+      totalBookCount: books.length,
     };
-  }, []);
+  }, [books, series]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+          {t('common.loading')}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -184,6 +197,15 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  loadingText: {
+    ...typography.body,
+  },
   container: {
     flex: 1,
   },

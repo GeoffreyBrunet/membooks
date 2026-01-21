@@ -8,7 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import { mockBooks, mockSeries } from '@/data/mock-books';
+import { useBooks } from '@/contexts/books-context';
 import {
   spacing,
   typography,
@@ -17,7 +17,7 @@ import {
   borderWidths,
   borderRadius,
 } from '@/constants';
-import type { Book, Series, BookType, BookCategory } from '@/types/book';
+import type { BookType, BookCategory } from '@/types/book';
 
 export default function BookDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,19 +25,16 @@ export default function BookDetail() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { books, series: allSeries, getBooksForSeries, getSeriesById, getBookById } = useBooks();
 
   // Find if it's a series or a standalone book
-  const series = mockSeries.find((s) => s.id === id);
-  const book = !series ? mockBooks.find((b) => b.id === id) : null;
+  const seriesData = getSeriesById(id ?? '');
+  const book = !seriesData ? getBookById(id ?? '') : null;
 
   // Get books in series if applicable
-  const seriesBooks = series
-    ? mockBooks
-        .filter((b) => b.seriesId === series.id)
-        .sort((a, b) => (a.volumeNumber ?? 0) - (b.volumeNumber ?? 0))
-    : [];
+  const seriesBooks = seriesData ? getBooksForSeries(seriesData.id) : [];
 
-  if (!series && !book) {
+  if (!seriesData && !book) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.errorText, { color: colors.text }]}>
@@ -47,11 +44,11 @@ export default function BookDetail() {
     );
   }
 
-  const title = series ? series.name : book!.title;
-  const author = book?.author ?? seriesBooks[0]?.author;
-  const bookType: BookType = series ? series.bookType : book!.bookType;
-  const categories: BookCategory[] = series
-    ? series.categories
+  const title = seriesData ? seriesData.name : book!.title;
+  const author = book?.author ?? seriesData?.author ?? seriesBooks[0]?.author;
+  const bookType: BookType = seriesData ? seriesData.bookType : book!.bookType;
+  const categories: BookCategory[] = seriesData
+    ? seriesData.categories
     : book!.categories;
 
   return (
@@ -129,7 +126,7 @@ export default function BookDetail() {
       </View>
 
       {/* Series progress and books list */}
-      {series && (
+      {seriesData && (
         <View style={styles.seriesSection}>
           {/* Progress */}
           <View style={styles.progressHeader}>
@@ -139,7 +136,7 @@ export default function BookDetail() {
             <Text style={[styles.progressText, { color: colors.textSecondary }]}>
               {t('detail.progress', {
                 owned: seriesBooks.length,
-                total: series.totalVolumes,
+                total: seriesData.totalVolumes,
               })}
             </Text>
           </View>
@@ -158,7 +155,7 @@ export default function BookDetail() {
               style={[
                 styles.progressBarFill,
                 {
-                  width: `${(seriesBooks.length / series.totalVolumes) * 100}%`,
+                  width: `${(seriesBooks.length / seriesData.totalVolumes) * 100}%`,
                   backgroundColor: colors.primary,
                 },
               ]}
