@@ -119,4 +119,8 @@ export const darkColors = {
 } as const;
 
 export type ColorToken = keyof typeof lightColors;
-export type Colors = typeof lightColors;
+
+// Colors type with string values (compatible with both themes)
+export type Colors = {
+  [K in ColorToken]: string;
+};

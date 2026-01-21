@@ -7,11 +7,40 @@
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
-    "close": "Close"
+    "close": "Close",
+    "back": "Back"
   },
   "home": {
-    "title": "Welcome to Membooks",
-    "subtitle": "Edit app/index.tsx to edit this screen."
+    "title": "My Library",
+    "bookCount_one": "{{count}} book",
+    "bookCount_other": "{{count}} books",
+    "series": "Series",
+    "standaloneBooks": "Standalone Books"
+  },
+  "detail": {
+    "author": "Author",
+    "volume": "Volume {{number}}",
+    "ownedVolumes": "Owned volumes",
+    "progress": "{{owned}} of {{total}}"
+  },
+  "bookType": {
+    "novel": "Novel",
+    "comic": "Comic",
+    "manga": "Manga",
+    "artbook": "Artbook",
+    "essay": "Essay"
+  },
+  "category": {
+    "sf": "Sci-Fi",
+    "fantasy": "Fantasy",
+    "thriller": "Thriller",
+    "romance": "Romance",
+    "horror": "Horror",
+    "adventure": "Adventure",
+    "sliceOfLife": "Slice of Life",
+    "historical": "Historical",
+    "mystery": "Mystery",
+    "biography": "Biography"
   },
   "settings": {
     "title": "Settings",

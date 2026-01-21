@@ -1,18 +1,18 @@
 /**
  * Shadow Styles
- * Neo-Memphis: hard, offset shadows (no blur)
- * Shadows are offset to bottom-right for depth effect
+ * Neo-Memphis: hard shadows, bottom only (no horizontal offset)
+ * No blur, visible borders
  */
 
 import type { ViewStyle } from 'react-native';
 
-// Shadow offset values
+// Shadow offset values (vertical only, no horizontal)
 export const shadowOffsets = {
-  none: { x: 0, y: 0 },
-  sm: { x: 2, y: 2 },
-  md: { x: 4, y: 4 },
-  lg: { x: 6, y: 6 },
-  xl: { x: 8, y: 8 },
+  none: 0,
+  sm: 2,
+  md: 4,
+  lg: 6,
+  xl: 8,
 } as const;
 
 // Type for shadow style (platform-agnostic base)
@@ -23,12 +23,12 @@ type ShadowStyle = Pick<
 
 // Shadow factory - creates platform-compatible shadow styles
 // Note: Color should be applied from theme (lightColors.shadow or darkColors.shadow)
-function createShadow(offset: { x: number; y: number }): ShadowStyle {
+function createShadow(offsetY: number): ShadowStyle {
   return {
-    shadowOffset: { width: offset.x, height: offset.y },
+    shadowOffset: { width: 0, height: offsetY },
     shadowOpacity: 1,
-    shadowRadius: 0, // Neo-Memphis: no blur
-    elevation: Math.max(offset.x, offset.y), // Android approximation
+    shadowRadius: 0, // No blur
+    elevation: offsetY, // Android approximation
   };
 }
 

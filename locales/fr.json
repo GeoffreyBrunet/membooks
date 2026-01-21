@@ -7,11 +7,40 @@
     "save": "Enregistrer",
     "delete": "Supprimer",
     "edit": "Modifier",
-    "close": "Fermer"
+    "close": "Fermer",
+    "back": "Retour"
   },
   "home": {
-    "title": "Bienvenue sur Membooks",
-    "subtitle": "Modifiez app/index.tsx pour modifier cet écran."
+    "title": "Ma Bibliothèque",
+    "bookCount_one": "{{count}} livre",
+    "bookCount_other": "{{count}} livres",
+    "series": "Séries",
+    "standaloneBooks": "Livres hors série"
+  },
+  "detail": {
+    "author": "Auteur",
+    "volume": "Tome {{number}}",
+    "ownedVolumes": "Tomes possédés",
+    "progress": "{{owned}} sur {{total}}"
+  },
+  "bookType": {
+    "novel": "Roman",
+    "comic": "BD",
+    "manga": "Manga",
+    "artbook": "Artbook",
+    "essay": "Essai"
+  },
+  "category": {
+    "sf": "S.F.",
+    "fantasy": "Fantasy",
+    "thriller": "Policier",
+    "romance": "Romance",
+    "horror": "Horreur",
+    "adventure": "Aventure",
+    "sliceOfLife": "Slice of Life",
+    "historical": "Historique",
+    "mystery": "Mystère",
+    "biography": "Biographie"
   },
   "settings": {
     "title": "Paramètres",
