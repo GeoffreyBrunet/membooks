@@ -1,7 +1,8 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# Personal notes for CLaude
+# Personal notes for Claude and me
 Notes.md
+Todo.md
 
 # dependencies
 node_modules/
