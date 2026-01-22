@@ -18,11 +18,14 @@ import type { Book, Series } from '@/types/book';
 interface BooksContextValue {
   books: Book[];
   series: Series[];
+  ownedBooks: Book[];
+  wishlistBooks: Book[];
   isLoading: boolean;
   addBook: (book: Book) => Promise<void>;
   addSeries: (series: Series) => Promise<void>;
   updateBook: (id: string, updates: Partial<Book>) => Promise<void>;
   removeBook: (id: string) => Promise<void>;
+  moveToOwned: (id: string) => Promise<void>;
   getBookById: (id: string) => Book | undefined;
   getSeriesById: (id: string) => Series | undefined;
   getBooksForSeries: (seriesId: string) => Book[];
@@ -129,6 +132,32 @@ export function BooksProvider({ children }: BooksProviderProps) {
     }
   }, []);
 
+  const moveToOwned = useCallback(async (id: string) => {
+    try {
+      // Update in database
+      await db.updateBook(id, { inWishlist: false });
+
+      // Update state
+      setBooks((prev) =>
+        prev.map((book) => (book.id === id ? { ...book, inWishlist: false } : book))
+      );
+    } catch (error) {
+      console.error('Failed to move book to owned:', error);
+      throw error;
+    }
+  }, []);
+
+  // Filtered lists
+  const ownedBooks = useMemo(
+    () => books.filter((book) => !book.inWishlist),
+    [books]
+  );
+
+  const wishlistBooks = useMemo(
+    () => books.filter((book) => book.inWishlist),
+    [books]
+  );
+
   const getBookById = useCallback(
     (id: string) => books.find((book) => book.id === id),
     [books]
@@ -151,11 +180,14 @@ export function BooksProvider({ children }: BooksProviderProps) {
     () => ({
       books,
       series,
+      ownedBooks,
+      wishlistBooks,
       isLoading,
       addBook,
       addSeries,
       updateBook,
       removeBook,
+      moveToOwned,
       getBookById,
       getSeriesById,
       getBooksForSeries,
@@ -163,11 +195,14 @@ export function BooksProvider({ children }: BooksProviderProps) {
     [
       books,
       series,
+      ownedBooks,
+      wishlistBooks,
       isLoading,
       addBook,
       addSeries,
       updateBook,
       removeBook,
+      moveToOwned,
       getBookById,
       getSeriesById,
       getBooksForSeries,

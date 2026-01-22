@@ -41,6 +41,7 @@ export async function initDatabase(): Promise<void> {
       bookType TEXT NOT NULL,
       categories TEXT NOT NULL,
       isRead INTEGER NOT NULL DEFAULT 0,
+      inWishlist INTEGER NOT NULL DEFAULT 0,
       seriesId TEXT,
       volumeNumber INTEGER,
       createdAt INTEGER DEFAULT (strftime('%s', 'now')),
@@ -51,6 +52,28 @@ export async function initDatabase(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_books_seriesId ON books(seriesId);
     CREATE INDEX IF NOT EXISTS idx_books_isRead ON books(isRead);
   `);
+
+  // Run migrations for existing databases
+  await runMigrations(db);
+}
+
+/**
+ * Run database migrations for schema updates
+ */
+async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
+  // Check if inWishlist column exists
+  const tableInfo = await database.getAllAsync<{ name: string }>(
+    "PRAGMA table_info(books)"
+  );
+  const hasInWishlist = tableInfo.some((col) => col.name === 'inWishlist');
+
+  if (!hasInWishlist) {
+    // Add inWishlist column with default value 0 (not in wishlist)
+    await database.execAsync(`
+      ALTER TABLE books ADD COLUMN inWishlist INTEGER NOT NULL DEFAULT 0;
+      CREATE INDEX IF NOT EXISTS idx_books_inWishlist ON books(inWishlist);
+    `);
+  }
 }
 
 /**
@@ -77,6 +100,7 @@ export async function getAllBooks(): Promise<Book[]> {
     bookType: string;
     categories: string;
     isRead: number;
+    inWishlist: number;
     seriesId: string | null;
     volumeNumber: number | null;
   }>('SELECT * FROM books ORDER BY title');
@@ -88,6 +112,7 @@ export async function getAllBooks(): Promise<Book[]> {
     bookType: row.bookType as BookType,
     categories: JSON.parse(row.categories) as BookCategory[],
     isRead: row.isRead === 1,
+    inWishlist: row.inWishlist === 1,
     seriesId: row.seriesId ?? undefined,
     volumeNumber: row.volumeNumber ?? undefined,
   }));
@@ -105,6 +130,7 @@ export async function getBookById(id: string): Promise<Book | null> {
     bookType: string;
     categories: string;
     isRead: number;
+    inWishlist: number;
     seriesId: string | null;
     volumeNumber: number | null;
   }>('SELECT * FROM books WHERE id = ?', [id]);
@@ -118,6 +144,7 @@ export async function getBookById(id: string): Promise<Book | null> {
     bookType: row.bookType as BookType,
     categories: JSON.parse(row.categories) as BookCategory[],
     isRead: row.isRead === 1,
+    inWishlist: row.inWishlist === 1,
     seriesId: row.seriesId ?? undefined,
     volumeNumber: row.volumeNumber ?? undefined,
   };
@@ -129,8 +156,8 @@ export async function getBookById(id: string): Promise<Book | null> {
 export async function insertBook(book: Book): Promise<void> {
   const database = getDb();
   await database.runAsync(
-    `INSERT INTO books (id, title, author, bookType, categories, isRead, seriesId, volumeNumber)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO books (id, title, author, bookType, categories, isRead, inWishlist, seriesId, volumeNumber)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       book.id,
       book.title,
@@ -138,6 +165,7 @@ export async function insertBook(book: Book): Promise<void> {
       book.bookType,
       JSON.stringify(book.categories),
       book.isRead ? 1 : 0,
+      book.inWishlist ? 1 : 0,
       book.seriesId ?? null,
       book.volumeNumber ?? null,
     ]
@@ -172,6 +200,10 @@ export async function updateBook(id: string, updates: Partial<Book>): Promise<vo
   if (updates.isRead !== undefined) {
     setClauses.push('isRead = ?');
     values.push(updates.isRead ? 1 : 0);
+  }
+  if (updates.inWishlist !== undefined) {
+    setClauses.push('inWishlist = ?');
+    values.push(updates.inWishlist ? 1 : 0);
   }
   if (updates.seriesId !== undefined) {
     setClauses.push('seriesId = ?');

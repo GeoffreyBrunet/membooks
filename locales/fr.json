@@ -14,6 +14,8 @@
     "title": "Ma Bibliothèque",
     "bookCount_one": "{{count}} livre",
     "bookCount_other": "{{count}} livres",
+    "wishlistCount_one": "{{count}} livre",
+    "wishlistCount_other": "{{count}} livres",
     "series": "Séries",
     "standaloneBooks": "Livres hors série",
     "tabs": {
@@ -21,7 +23,12 @@
       "wishlist": "Wishlist",
       "releases": "Sorties"
     },
-    "comingSoon": "Bientôt disponible"
+    "comingSoon": "Bientôt disponible",
+    "emptyWishlist": "Votre wishlist est vide. Recherchez des livres a ajouter !"
+  },
+  "wishlist": {
+    "moveToOwned": "Je l'ai !",
+    "remove": "Supprimer"
   },
   "detail": {
     "author": "Auteur",
@@ -65,12 +72,30 @@
     "search": "Recherche",
     "proposals": "Suggestions"
   },
+  "search": {
+    "placeholder": "Rechercher par titre ou auteur...",
+    "search": "Rechercher",
+    "searching": "Recherche en cours...",
+    "noResults": "Aucun resultat trouve",
+    "noSuggestions": "Aucune suggestion",
+    "alreadyInLibrary": "Deja dans la bibliotheque",
+    "inLibrary": "Dans la bibliotheque",
+    "addQuestion": "Ou voulez-vous ajouter ce livre ?",
+    "addToLibrary": "Ajouter a ma bibliotheque",
+    "addToWishlist": "Ajouter a la wishlist",
+    "addedToLibrary": "Ajoute a la bibliotheque !",
+    "addedToWishlist": "Ajoute a la wishlist !",
+    "bookAdded": "Livre ajoute !",
+    "otherByAuthor": "Autres livres de {{author}}"
+  },
   "scanner": {
     "scanning": "Scannez un code-barres ISBN",
     "searching": "Recherche en cours...",
+    "bookFound": "Livre trouvé",
+    "addToLibrary": "Ajouter à ma bibliothèque ?",
+    "add": "Ajouter",
     "bookAdded": "Livre ajouté !",
     "bookNotFound": "Livre non trouvé",
-    "alreadyOwned": "Vous possédez déjà ce livre",
-    "scanAnother": "Scanner un autre"
+    "alreadyOwned": "Vous possédez déjà ce livre"
   }
 }

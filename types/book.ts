@@ -28,6 +28,7 @@ export interface Book {
   bookType: BookType;
   categories: BookCategory[];
   isRead: boolean;
+  inWishlist: boolean;
   seriesId?: string;
   volumeNumber?: number;
 }

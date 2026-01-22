@@ -60,6 +60,7 @@ export async function lookupISBN(isbn: string): Promise<Book | null> {
       bookType,
       categories,
       isRead: false,
+      inWishlist: false,
     };
 
     return book;

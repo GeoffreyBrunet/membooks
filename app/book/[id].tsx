@@ -25,7 +25,7 @@ export default function BookDetail() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { books, series: allSeries, getBooksForSeries, getSeriesById, getBookById } = useBooks();
+  const { getBooksForSeries, getSeriesById, getBookById } = useBooks();
 
   // Find if it's a series or a standalone book
   const seriesData = getSeriesById(id ?? '');

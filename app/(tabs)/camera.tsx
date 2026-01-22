@@ -1,19 +1,20 @@
 /**
  * Camera Screen
- * Barcode scanning for ISBN lookup
+ * Barcode scanning for ISBN lookup with confirmation popup
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useBooks } from '@/contexts/books-context';
 import { lookupISBN } from '@/services/isbn-lookup';
-import { spacing, typography, borders, shadows, borderWidths, borderRadius } from '@/constants';
+import { spacing, typography, shadows, borderWidths, borderRadius } from '@/constants';
+import type { Book } from '@/types/book';
 
-type ScanState = 'scanning' | 'searching' | 'success' | 'notFound' | 'alreadyOwned';
+type ScanState = 'scanning' | 'searching' | 'found' | 'notFound' | 'alreadyOwned' | 'added';
 
 export default function CameraScreen() {
   const { t } = useTranslation();
@@ -23,8 +24,8 @@ export default function CameraScreen() {
   const { books, addBook } = useBooks();
 
   const [scanState, setScanState] = useState<ScanState>('scanning');
-  const [lastScannedISBN, setLastScannedISBN] = useState<string | null>(null);
-  const [scannedBookTitle, setScannedBookTitle] = useState<string | null>(null);
+  const [foundBook, setFoundBook] = useState<Book | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (!permission?.granted) {
@@ -39,21 +40,21 @@ export default function CameraScreen() {
         return;
       }
 
-      const isbn = result.data;
-
-      // Prevent multiple scans of the same ISBN
-      if (isbn === lastScannedISBN || scanState !== 'scanning') {
+      // Prevent scanning while modal is open or searching
+      if (showModal || scanState !== 'scanning') {
         return;
       }
 
-      setLastScannedISBN(isbn);
+      const isbn = result.data;
       setScanState('searching');
 
       // Check if book already exists
-      const existingBook = books.find((b) => b.id === `isbn-${isbn.replace(/[-\s]/g, '')}`);
+      const cleanISBN = isbn.replace(/[-\s]/g, '');
+      const existingBook = books.find((b) => b.id === `isbn-${cleanISBN}`);
       if (existingBook) {
-        setScannedBookTitle(existingBook.title);
+        setFoundBook(existingBook);
         setScanState('alreadyOwned');
+        setShowModal(true);
         return;
       }
 
@@ -61,20 +62,34 @@ export default function CameraScreen() {
       const book = await lookupISBN(isbn);
 
       if (book) {
-        addBook(book);
-        setScannedBookTitle(book.title);
-        setScanState('success');
+        setFoundBook(book);
+        setScanState('found');
+        setShowModal(true);
       } else {
         setScanState('notFound');
+        setShowModal(true);
       }
     },
-    [lastScannedISBN, scanState, books, addBook]
+    [showModal, scanState, books]
   );
 
-  const resetScanner = useCallback(() => {
+  const handleAddBook = useCallback(async () => {
+    if (foundBook) {
+      await addBook(foundBook);
+      setScanState('added');
+      // Auto-close after showing success
+      setTimeout(() => {
+        setShowModal(false);
+        setFoundBook(null);
+        setScanState('scanning');
+      }, 1500);
+    }
+  }, [foundBook, addBook]);
+
+  const handleCloseModal = useCallback(() => {
+    setShowModal(false);
+    setFoundBook(null);
     setScanState('scanning');
-    setLastScannedISBN(null);
-    setScannedBookTitle(null);
   }, []);
 
   if (!permission) {
@@ -106,31 +121,10 @@ export default function CameraScreen() {
     );
   }
 
-  const getStatusColor = () => {
-    switch (scanState) {
-      case 'success':
-        return colors.secondary;
-      case 'notFound':
-      case 'alreadyOwned':
-        return colors.accent1;
-      default:
-        return colors.primary;
-    }
-  };
-
-  const getStatusMessage = () => {
-    switch (scanState) {
-      case 'searching':
-        return t('scanner.searching');
-      case 'success':
-        return `${t('scanner.bookAdded')}\n${scannedBookTitle}`;
-      case 'notFound':
-        return t('scanner.bookNotFound');
-      case 'alreadyOwned':
-        return `${t('scanner.alreadyOwned')}\n${scannedBookTitle}`;
-      default:
-        return t('scanner.scanning');
-    }
+  const getFrameColor = () => {
+    if (scanState === 'searching') return colors.accent1;
+    if (showModal) return colors.secondary;
+    return colors.primary;
   };
 
   return (
@@ -141,7 +135,7 @@ export default function CameraScreen() {
         barcodeScannerSettings={{
           barcodeTypes: ['ean13', 'ean8'],
         }}
-        onBarcodeScanned={scanState === 'scanning' ? handleBarCodeScanned : undefined}
+        onBarcodeScanned={!showModal && scanState === 'scanning' ? handleBarCodeScanned : undefined}
       />
 
       {/* Overlay */}
@@ -155,50 +149,148 @@ export default function CameraScreen() {
         ]}
       >
         {/* Scan frame */}
-        <View style={[styles.scanFrame, { borderColor: getStatusColor() }]} />
+        <View style={[styles.scanFrame, { borderColor: getFrameColor() }]} />
 
-        {/* Status card */}
+        {/* Status indicator */}
         <View
           style={[
-            styles.statusCard,
+            styles.statusBadge,
             {
               backgroundColor: colors.backgroundSecondary,
               borderColor: colors.border,
-              shadowColor: colors.shadow,
             },
           ]}
         >
-          <View
-            style={[
-              styles.statusIndicator,
-              { backgroundColor: getStatusColor() },
-            ]}
-          />
           <Text style={[styles.statusText, { color: colors.text }]}>
-            {getStatusMessage()}
+            {scanState === 'searching' ? t('scanner.searching') : t('scanner.scanning')}
           </Text>
-
-          {/* Scan another button */}
-          {(scanState === 'success' || scanState === 'notFound' || scanState === 'alreadyOwned') && (
-            <Pressable
-              onPress={resetScanner}
-              style={({ pressed }) => [
-                styles.scanButton,
-                {
-                  backgroundColor: colors.primary,
-                  borderColor: colors.border,
-                  shadowColor: colors.shadow,
-                },
-                pressed && styles.scanButtonPressed,
-              ]}
-            >
-              <Text style={[styles.scanButtonText, { color: colors.primaryText }]}>
-                {t('scanner.scanAnother')}
-              </Text>
-            </Pressable>
-          )}
         </View>
       </View>
+
+      {/* Confirmation Modal */}
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              {
+                backgroundColor: colors.backgroundSecondary,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            {/* Modal Header */}
+            <View
+              style={[
+                styles.modalHeader,
+                {
+                  backgroundColor:
+                    scanState === 'added'
+                      ? colors.secondary
+                      : scanState === 'notFound' || scanState === 'alreadyOwned'
+                      ? colors.accent1
+                      : colors.primary,
+                  borderBottomColor: colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.modalHeaderText, { color: colors.text }]}>
+                {scanState === 'added'
+                  ? t('scanner.bookAdded')
+                  : scanState === 'notFound'
+                  ? t('scanner.bookNotFound')
+                  : scanState === 'alreadyOwned'
+                  ? t('scanner.alreadyOwned')
+                  : t('scanner.bookFound')}
+              </Text>
+            </View>
+
+            {/* Book Info */}
+            {foundBook && scanState !== 'notFound' && (
+              <View style={styles.bookInfo}>
+                <Text style={[styles.bookTitle, { color: colors.text }]}>
+                  {foundBook.title}
+                </Text>
+                <Text style={[styles.bookAuthor, { color: colors.textSecondary }]}>
+                  {foundBook.author}
+                </Text>
+              </View>
+            )}
+
+            {/* Actions */}
+            <View style={styles.modalActions}>
+              {scanState === 'found' && (
+                <>
+                  <Text style={[styles.confirmText, { color: colors.textSecondary }]}>
+                    {t('scanner.addToLibrary')}
+                  </Text>
+                  <View style={styles.buttonRow}>
+                    <Pressable
+                      onPress={handleCloseModal}
+                      style={({ pressed }) => [
+                        styles.button,
+                        styles.cancelButton,
+                        {
+                          backgroundColor: colors.background,
+                          borderColor: colors.border,
+                        },
+                        pressed && styles.buttonPressed,
+                      ]}
+                    >
+                      <Text style={[styles.buttonText, { color: colors.text }]}>
+                        {t('common.cancel')}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={handleAddBook}
+                      style={({ pressed }) => [
+                        styles.button,
+                        styles.addButton,
+                        {
+                          backgroundColor: colors.primary,
+                          borderColor: colors.border,
+                          shadowColor: colors.shadow,
+                        },
+                        pressed && styles.buttonPressed,
+                      ]}
+                    >
+                      <Text style={[styles.buttonText, { color: colors.primaryText }]}>
+                        {t('scanner.add')}
+                      </Text>
+                    </Pressable>
+                  </View>
+                </>
+              )}
+
+              {(scanState === 'notFound' || scanState === 'alreadyOwned') && (
+                <Pressable
+                  onPress={handleCloseModal}
+                  style={({ pressed }) => [
+                    styles.button,
+                    styles.singleButton,
+                    {
+                      backgroundColor: colors.primary,
+                      borderColor: colors.border,
+                      shadowColor: colors.shadow,
+                    },
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <Text style={[styles.buttonText, { color: colors.primaryText }]}>
+                    {t('common.close')}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -233,36 +325,84 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     marginTop: spacing['3xl'],
   },
-  statusCard: {
-    width: '100%',
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: spacing.md,
-    ...borders.card,
-    ...shadows.md,
-  },
-  statusIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  statusText: {
-    ...typography.body,
-    textAlign: 'center',
-  },
-  scanButton: {
-    marginTop: spacing.sm,
+  statusBadge: {
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.xl,
     borderWidth: borderWidths.medium,
     borderRadius: borderRadius.md,
+  },
+  statusText: {
+    ...typography.label,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 340,
+    borderWidth: borderWidths.medium,
+    borderRadius: borderRadius.lg,
+    overflow: 'hidden',
+    ...shadows.lg,
+  },
+  modalHeader: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderBottomWidth: borderWidths.medium,
+  },
+  modalHeaderText: {
+    ...typography.subtitle,
+    textAlign: 'center',
+  },
+  bookInfo: {
+    padding: spacing.lg,
+    gap: spacing.xs,
+  },
+  bookTitle: {
+    ...typography.title,
+  },
+  bookAuthor: {
+    ...typography.body,
+  },
+  modalActions: {
+    padding: spacing.lg,
+    paddingTop: 0,
+    gap: spacing.md,
+  },
+  confirmText: {
+    ...typography.body,
+    textAlign: 'center',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  button: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderWidth: borderWidths.medium,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    flex: 1,
+  },
+  addButton: {
+    flex: 1,
     ...shadows.sm,
   },
-  scanButtonPressed: {
+  singleButton: {
+    ...shadows.sm,
+  },
+  buttonPressed: {
     transform: [{ scale: 0.96 }, { translateY: 2 }],
     shadowOffset: { width: 0, height: 1 },
   },
-  scanButtonText: {
+  buttonText: {
     ...typography.button,
   },
 });

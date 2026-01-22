@@ -14,6 +14,8 @@
     "title": "My Library",
     "bookCount_one": "{{count}} book",
     "bookCount_other": "{{count}} books",
+    "wishlistCount_one": "{{count}} book",
+    "wishlistCount_other": "{{count}} books",
     "series": "Series",
     "standaloneBooks": "Standalone Books",
     "tabs": {
@@ -21,7 +23,12 @@
       "wishlist": "Wishlist",
       "releases": "Releases"
     },
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "emptyWishlist": "Your wishlist is empty. Search for books to add!"
+  },
+  "wishlist": {
+    "moveToOwned": "I got it!",
+    "remove": "Remove"
   },
   "detail": {
     "author": "Author",
@@ -65,12 +72,30 @@
     "search": "Search",
     "proposals": "Suggestions"
   },
+  "search": {
+    "placeholder": "Search by title or author...",
+    "search": "Search",
+    "searching": "Searching...",
+    "noResults": "No results found",
+    "noSuggestions": "No suggestions",
+    "alreadyInLibrary": "Already in library",
+    "inLibrary": "In library",
+    "addQuestion": "Where do you want to add this book?",
+    "addToLibrary": "Add to my library",
+    "addToWishlist": "Add to wishlist",
+    "addedToLibrary": "Added to library!",
+    "addedToWishlist": "Added to wishlist!",
+    "bookAdded": "Book added!",
+    "otherByAuthor": "Other books by {{author}}"
+  },
   "scanner": {
     "scanning": "Scan an ISBN barcode",
     "searching": "Searching...",
+    "bookFound": "Book found",
+    "addToLibrary": "Add to my library?",
+    "add": "Add",
     "bookAdded": "Book added!",
     "bookNotFound": "Book not found",
-    "alreadyOwned": "You already own this book",
-    "scanAnother": "Scan another"
+    "alreadyOwned": "You already own this book"
   }
 }

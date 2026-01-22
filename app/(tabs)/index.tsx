@@ -12,6 +12,7 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useBooks } from '@/contexts/books-context';
 import { BookCard } from '@/components/book-card';
 import { SeriesCard } from '@/components/series-card';
+import { WishlistCard } from '@/components/wishlist-card';
 import { spacing, typography, borders, shadows } from '@/constants';
 import type { Book, Series } from '@/types/book';
 
@@ -27,7 +28,7 @@ export default function Home() {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const { books, series, isLoading } = useBooks();
+  const { ownedBooks, wishlistBooks, series, isLoading } = useBooks();
   const [activeTab, setActiveTab] = useState<TabKey>('myBooks');
 
   // Build unified library list sorted alphabetically
@@ -36,8 +37,8 @@ export default function Home() {
     const seriesBookCounts = new Map<string, number>();
     const seriesReadCounts = new Map<string, number>();
 
-    // Count books per series and read books per series
-    for (const book of books) {
+    // Count books per series and read books per series (only owned books)
+    for (const book of ownedBooks) {
       if (book.seriesId) {
         const count = seriesBookCounts.get(book.seriesId) ?? 0;
         seriesBookCounts.set(book.seriesId, count + 1);
@@ -57,8 +58,8 @@ export default function Home() {
       }
     }
 
-    // Add standalone books
-    for (const book of books) {
+    // Add standalone books (only owned, not in wishlist)
+    for (const book of ownedBooks) {
       if (!book.seriesId) {
         items.push({ type: 'book', data: book });
       }
@@ -73,9 +74,14 @@ export default function Home() {
 
     return {
       libraryItems: items,
-      totalBookCount: books.length,
+      totalBookCount: ownedBooks.length,
     };
-  }, [books, series]);
+  }, [ownedBooks, series]);
+
+  // Wishlist items sorted alphabetically
+  const sortedWishlist = useMemo(() => {
+    return [...wishlistBooks].sort((a, b) => a.title.localeCompare(b.title));
+  }, [wishlistBooks]);
 
   // Show loading state
   if (isLoading) {
@@ -173,8 +179,53 @@ export default function Home() {
         </>
       )}
 
-      {/* Placeholder for Wishlist and Releases */}
-      {(activeTab === 'wishlist' || activeTab === 'releases') && (
+      {/* Wishlist tab */}
+      {activeTab === 'wishlist' && (
+        <>
+          {/* Wishlist count badge */}
+          <View
+            style={[
+              styles.countBadge,
+              {
+                backgroundColor: colors.accent1,
+                borderColor: colors.border,
+                shadowColor: colors.shadow,
+              },
+            ]}
+          >
+            <Text style={[styles.countText, { color: colors.text }]}>
+              {t('home.wishlistCount', { count: wishlistBooks.length })}
+            </Text>
+          </View>
+
+          {sortedWishlist.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                {t('home.emptyWishlist')}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.list}>
+              {sortedWishlist.map((book, index) => (
+                <View key={book.id}>
+                  <WishlistCard book={book} />
+                  {/* Separator between items */}
+                  {index < sortedWishlist.length - 1 && (
+                    <View style={styles.separatorContainer}>
+                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
+                      <View style={[styles.separatorDiamond, { backgroundColor: colors.accent1, borderColor: colors.border }]} />
+                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        </>
+      )}
+
+      {/* Placeholder for Releases */}
+      {activeTab === 'releases' && (
         <View style={styles.placeholderContainer}>
           <View
             style={[
@@ -279,5 +330,15 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     ...typography.body,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: spacing['2xl'],
+  },
+  emptyText: {
+    ...typography.body,
+    textAlign: 'center',
   },
 });
