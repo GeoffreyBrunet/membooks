@@ -6,14 +6,16 @@
 
 import { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useBooks } from '@/contexts/books-context';
+import { useAuth } from '@/contexts/auth-context';
 import { BookCard } from '@/components/book-card';
 import { SeriesCard } from '@/components/series-card';
 import { WishlistCard } from '@/components/wishlist-card';
-import { spacing, typography, borders, shadows } from '@/constants';
+import { spacing, typography, borders, shadows, borderRadius } from '@/constants';
 import type { Book, Series } from '@/types/book';
 
 type TabKey = 'myBooks' | 'wishlist' | 'releases';
@@ -26,9 +28,11 @@ const TABS: TabKey[] = ['myBooks', 'wishlist', 'releases'];
 
 export default function Home() {
   const { t } = useTranslation();
+  const router = useRouter();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const { ownedBooks, wishlistBooks, series, isLoading } = useBooks();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>('myBooks');
 
   // Build unified library list sorted alphabetically
@@ -106,30 +110,49 @@ export default function Home() {
         },
       ]}
     >
-      {/* Tabs - subtle, above title */}
-      <View style={styles.tabsContainer}>
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab;
-          return (
-            <Pressable
-              key={tab}
-              onPress={() => setActiveTab(tab)}
-              style={styles.tab}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  { color: isActive ? colors.text : colors.textSecondary },
-                ]}
+      {/* Header with tabs and profile button */}
+      <View style={styles.headerRow}>
+        {/* Tabs - subtle, above title */}
+        <View style={styles.tabsContainer}>
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab;
+            return (
+              <Pressable
+                key={tab}
+                onPress={() => setActiveTab(tab)}
+                style={styles.tab}
               >
-                {t(`home.tabs.${tab}`)}
-              </Text>
-              {isActive && (
-                <View style={[styles.tabUnderline, { backgroundColor: colors.primary }]} />
-              )}
-            </Pressable>
-          );
-        })}
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: isActive ? colors.text : colors.textSecondary },
+                  ]}
+                >
+                  {t(`home.tabs.${tab}`)}
+                </Text>
+                {isActive && (
+                  <View style={[styles.tabUnderline, { backgroundColor: colors.primary }]} />
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* Profile button */}
+        <Pressable
+          style={[
+            styles.profileButton,
+            {
+              backgroundColor: colors.primary,
+              borderColor: colors.border,
+            },
+          ]}
+          onPress={() => router.push('/profile')}
+        >
+          <Text style={[styles.profileButtonText, { color: colors.primaryText }]}>
+            {user?.username?.charAt(0).toUpperCase() || '?'}
+          </Text>
+        </Pressable>
       </View>
 
       {/* Header */}
@@ -267,11 +290,26 @@ const styles = StyleSheet.create({
     ...typography.titleLarge,
     marginBottom: spacing.lg,
   },
-  tabsContainer: {
+  headerRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: spacing.md,
-    marginHorizontal: -spacing.screenPadding,
-    paddingHorizontal: spacing.screenPadding,
+  },
+  tabsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileButtonText: {
+    ...typography.button,
+    fontSize: 18,
   },
   tab: {
     flex: 1,

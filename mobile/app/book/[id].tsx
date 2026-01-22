@@ -3,7 +3,8 @@
  * Displays detailed information about a book or series
  */
 
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { useState, useCallback } from 'react';
+import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,7 +26,9 @@ export default function BookDetail() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { getBooksForSeries, getSeriesById, getBookById } = useBooks();
+  const { getBooksForSeries, getSeriesById, getBookById, removeBook } = useBooks();
+
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   // Find if it's a series or a standalone book
   const seriesData = getSeriesById(id ?? '');
@@ -33,6 +36,35 @@ export default function BookDetail() {
 
   // Get books in series if applicable
   const seriesBooks = seriesData ? getBooksForSeries(seriesData.id) : [];
+
+  const handleDeleteBook = useCallback(
+    (bookId: string, bookTitle: string) => {
+      Alert.alert(
+        t('detail.deleteTitle'),
+        t('detail.deleteMessage', { title: bookTitle }),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('common.delete'),
+            style: 'destructive',
+            onPress: async () => {
+              setIsDeleting(bookId);
+              try {
+                await removeBook(bookId);
+                // If it's a standalone book, go back
+                if (!seriesData) {
+                  router.back();
+                }
+              } finally {
+                setIsDeleting(null);
+              }
+            },
+          },
+        ]
+      );
+    },
+    [removeBook, router, seriesData, t]
+  );
 
   if (!seriesData && !book) {
     return (
@@ -125,6 +157,26 @@ export default function BookDetail() {
         ))}
       </View>
 
+      {/* Delete button for standalone book */}
+      {book && !seriesData && (
+        <Pressable
+          onPress={() => handleDeleteBook(book.id, book.title)}
+          disabled={isDeleting === book.id}
+          style={({ pressed }) => [
+            styles.deleteButton,
+            {
+              backgroundColor: colors.error,
+              borderColor: colors.border,
+            },
+            pressed && styles.deleteButtonPressed,
+          ]}
+        >
+          <Text style={[styles.deleteButtonText, { color: '#FFFFFF' }]}>
+            {isDeleting === book.id ? t('common.loading') : t('detail.removeFromLibrary')}
+          </Text>
+        </Pressable>
+      )}
+
       {/* Series progress and books list */}
       {seriesData && (
         <View style={styles.seriesSection}>
@@ -198,22 +250,40 @@ export default function BookDetail() {
                   >
                     {seriesBook.title}
                   </Text>
-                  {seriesBook.isRead && (
-                    <View
-                      style={[
-                        styles.readTag,
-                        {
-                          backgroundColor: colors.secondary,
-                          borderColor: colors.border,
-                        },
-                      ]}
-                    >
-                      <Text style={[styles.readTagText, { color: colors.text }]}>
-                        {t('status.read')}
-                      </Text>
-                    </View>
-                  )}
+                  <View style={styles.bookItemTags}>
+                    {seriesBook.isRead && (
+                      <View
+                        style={[
+                          styles.readTag,
+                          {
+                            backgroundColor: colors.secondary,
+                            borderColor: colors.border,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.readTagText, { color: colors.text }]}>
+                          {t('status.read')}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
+                <Pressable
+                  onPress={() => handleDeleteBook(seriesBook.id, seriesBook.title)}
+                  disabled={isDeleting === seriesBook.id}
+                  style={({ pressed }) => [
+                    styles.deleteIconButton,
+                    {
+                      backgroundColor: colors.error,
+                      borderColor: colors.border,
+                    },
+                    pressed && styles.deleteIconButtonPressed,
+                  ]}
+                >
+                  <Text style={[styles.deleteIcon, { color: '#FFFFFF' }]}>
+                    {isDeleting === seriesBook.id ? '...' : 'X'}
+                  </Text>
+                </Pressable>
               </View>
             ))}
           </View>
@@ -333,6 +403,10 @@ const styles = StyleSheet.create({
   bookTitle: {
     ...typography.body,
   },
+  bookItemTags: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
   readTag: {
     alignSelf: 'flex-start',
     paddingVertical: 2,
@@ -342,6 +416,34 @@ const styles = StyleSheet.create({
   },
   readTagText: {
     ...typography.labelSmall,
+  },
+  deleteButton: {
+    padding: spacing.md,
+    borderWidth: borderWidths.medium,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    marginTop: spacing.md,
+  },
+  deleteButtonPressed: {
+    transform: [{ scale: 0.98 }],
+  },
+  deleteButtonText: {
+    ...typography.button,
+  },
+  deleteIconButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: borderWidths.thin,
+    borderRadius: borderRadius.sm,
+  },
+  deleteIconButtonPressed: {
+    transform: [{ scale: 0.9 }],
+  },
+  deleteIcon: {
+    ...typography.labelSmall,
+    fontWeight: '700',
   },
   errorText: {
     ...typography.body,

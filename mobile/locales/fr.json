@@ -1,4 +1,37 @@
 {
+  "auth": {
+    "email": "Email",
+    "emailPlaceholder": "votre@email.com",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Votre mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
+    "username": "Pseudo",
+    "usernamePlaceholder": "Choisissez un pseudo",
+    "login": {
+      "subtitle": "Content de vous revoir !",
+      "button": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "registerLink": "S'inscrire"
+    },
+    "register": {
+      "subtitle": "Creez votre compte",
+      "button": "S'inscrire",
+      "hasAccount": "Deja un compte ?",
+      "loginLink": "Se connecter"
+    },
+    "errors": {
+      "fillAllFields": "Veuillez remplir tous les champs",
+      "usernameTooShort": "Le pseudo doit contenir au moins 3 caracteres",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caracteres",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "generic": "Une erreur s'est produite, veuillez reessayer",
+      "network_error": "Erreur reseau, verifiez votre connexion",
+      "Invalid credentials": "Email ou mot de passe incorrect",
+      "Email already exists": "Cet email est deja utilise",
+      "Username already exists": "Ce pseudo est deja pris"
+    }
+  },
   "common": {
     "loading": "Chargement...",
     "error": "Une erreur s'est produite",
@@ -35,7 +68,10 @@
     "volume": "Tome {{number}}",
     "ownedVolumes": "Tomes possédés",
     "progress": "{{owned}} sur {{total}}",
-    "readProgress": "{{read}} lu(s)"
+    "readProgress": "{{read}} lu(s)",
+    "removeFromLibrary": "Retirer de la bibliotheque",
+    "deleteTitle": "Supprimer le livre",
+    "deleteMessage": "Voulez-vous vraiment retirer \"{{title}}\" de votre bibliotheque ?"
   },
   "status": {
     "read": "Lu",
@@ -60,11 +96,18 @@
     "mystery": "Mystère",
     "biography": "Biographie"
   },
+  "profile": {
+    "title": "Profil",
+    "personalInfo": "Informations personnelles"
+  },
   "settings": {
-    "title": "Paramètres",
+    "title": "Parametres",
     "language": "Langue",
     "languageEnglish": "Anglais",
-    "languageFrench": "Français"
+    "languageFrench": "Francais",
+    "logout": "Deconnexion",
+    "logoutTitle": "Deconnexion",
+    "logoutMessage": "Etes-vous sur de vouloir vous deconnecter ?"
   },
   "nav": {
     "home": "Accueil",

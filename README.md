@@ -1,50 +1,148 @@
-# Welcome to your Expo app 👋
+# Membooks
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application mobile de gestion de livres avec backend API.
 
-## Get started
+## Structure du projet
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+membooks/
+├── api/                  # Backend Elysia.js + Drizzle ORM
+│   ├── src/
+│   │   ├── db/           # Schéma et connexion PostgreSQL
+│   │   ├── routes/       # Routes API (auth, etc.)
+│   │   └── utils/        # Utilitaires (hash password)
+│   └── drizzle.config.ts
+│
+├── mobile/               # App React Native (Expo)
+│   ├── app/              # Routes (Expo Router)
+│   ├── components/       # Composants réutilisables
+│   ├── services/         # Services API
+│   └── types/            # Types TypeScript
+│
+└── scripts/              # Scripts de développement
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Prérequis
 
-## Learn more
+- [Bun](https://bun.sh) >= 1.0
+- [PostgreSQL](https://www.postgresql.org/) >= 14
+- Xcode (pour iOS) ou Android Studio (pour Android)
 
-To learn more about developing your project with Expo, look at the following resources:
+## Installation
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+# Cloner le repo
+git clone <repo-url>
+cd membooks
 
-## Join the community
+# Installer toutes les dépendances
+bun install:all
 
-Join our community of developers creating universal apps.
+# Créer la base de données PostgreSQL
+createdb membooks
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Configurer les variables d'environnement
+cp api/.env.example api/.env
+# Éditer api/.env avec vos valeurs
+
+# Pousser le schéma vers la base de données
+bun db:push
+```
+
+## Configuration
+
+### API (`api/.env`)
+
+```env
+DATABASE_URL=postgresql://user@localhost:5432/membooks
+JWT_SECRET=votre-secret-jwt-securise
+PORT=3000
+```
+
+### Mobile (`mobile/.env`)
+
+```env
+EXPO_PUBLIC_API_URL=http://localhost:3000
+```
+
+## Développement
+
+```bash
+# Lancer API + Mobile en parallèle
+bun dev
+
+# Ou séparément :
+bun dev:api      # API uniquement (port 3000)
+bun dev:mobile   # Expo uniquement
+```
+
+## Base de données
+
+```bash
+# Pousser les changements de schéma
+bun db:push
+
+# Ouvrir Drizzle Studio (interface graphique)
+bun db:studio
+```
+
+## API Endpoints
+
+### Authentification
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/auth/register` | Inscription | Non |
+| POST | `/auth/login` | Connexion | Non |
+| GET | `/auth/me` | Profil utilisateur | JWT |
+| PUT | `/auth/me` | Modifier profil | JWT |
+
+### Exemples
+
+**Inscription**
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","username":"user","password":"password123"}'
+```
+
+**Connexion**
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}'
+```
+
+**Profil (avec token)**
+```bash
+curl http://localhost:3000/auth/me \
+  -H "Authorization: Bearer <token>"
+```
+
+## Schéma utilisateur
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| id | UUID | Identifiant unique |
+| email | string | Email (unique) |
+| username | string | Pseudo (unique) |
+| password | string | Mot de passe (Argon2id) |
+| language | string | Langue (défaut: "en") |
+| is_premium | boolean | Compte premium |
+| created_at | timestamp | Date de création |
+| updated_at | timestamp | Date de modification |
+
+## Stack technique
+
+**Backend**
+- [Elysia.js](https://elysiajs.com/) - Framework web pour Bun
+- [Drizzle ORM](https://orm.drizzle.team/) - ORM TypeScript
+- [PostgreSQL](https://www.postgresql.org/) - Base de données
+- Argon2id - Hash des mots de passe
+- JWT - Authentification
+
+**Mobile**
+- [Expo](https://expo.dev/) SDK 54
+- [React Native](https://reactnative.dev/) 0.81
+- [Expo Router](https://docs.expo.dev/router/introduction/) 6.0
+- TypeScript
