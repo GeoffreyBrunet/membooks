@@ -1,13 +1,13 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# Personal notes for Claude and me
+# Personal notes
 Notes.md
 Todo.md
 
 # dependencies
 node_modules/
 
-# Expo
+# Expo (mobile)
 .expo/
 dist/
 web-build/
@@ -41,8 +41,12 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Expo example folder
 app-example
 
 # generated native folders
-/ios
-/android
+/mobile/ios
+/mobile/android
+
+# API (Drizzle)
+/api/drizzle/
