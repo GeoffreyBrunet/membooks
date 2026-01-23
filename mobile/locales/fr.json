@@ -8,6 +8,7 @@
     "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
     "username": "Pseudo",
     "usernamePlaceholder": "Choisissez un pseudo",
+    "orContinueWith": "ou continuer avec",
     "login": {
       "subtitle": "Content de vous revoir !",
       "button": "Se connecter",
@@ -27,6 +28,7 @@
       "passwordMismatch": "Les mots de passe ne correspondent pas",
       "generic": "Une erreur s'est produite, veuillez reessayer",
       "network_error": "Erreur reseau, verifiez votre connexion",
+      "googlePlayNotAvailable": "Google Play Services non disponible",
       "Invalid credentials": "Email ou mot de passe incorrect",
       "Email already exists": "Cet email est deja utilise",
       "Username already exists": "Ce pseudo est deja pris",

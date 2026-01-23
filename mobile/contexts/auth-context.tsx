@@ -9,6 +9,7 @@ import {
 import {
   login as apiLogin,
   register as apiRegister,
+  socialLogin as apiSocialLogin,
   logout as apiLogout,
   deleteAccount as apiDeleteAccount,
   getSession,
@@ -18,6 +19,7 @@ import type {
   User,
   LoginData,
   RegisterData,
+  SocialAuthData,
   AuthResponse,
 } from "@/types/user";
 
@@ -27,6 +29,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (data: LoginData) => Promise<AuthResponse>;
   register: (data: RegisterData) => Promise<AuthResponse>;
+  socialLogin: (data: SocialAuthData) => Promise<AuthResponse>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
@@ -86,6 +89,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     []
   );
 
+  const socialLogin = useCallback(
+    async (data: SocialAuthData): Promise<AuthResponse> => {
+      const response = await apiSocialLogin(data);
+      if (response.success && response.user) {
+        setUser(response.user);
+      }
+      return response;
+    },
+    []
+  );
+
   const logout = useCallback(async () => {
     await apiLogout();
     setUser(null);
@@ -114,6 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAuthenticated: user !== null,
         login,
         register,
+        socialLogin,
         logout,
         deleteAccount,
         refreshProfile,

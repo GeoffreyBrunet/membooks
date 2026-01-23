@@ -23,6 +23,14 @@ export interface LoginData {
   password: string;
 }
 
+export interface SocialAuthData {
+  provider: 'apple' | 'google';
+  idToken: string;
+  email?: string;
+  fullName?: string;
+  appleUser?: string; // Apple's user identifier
+}
+
 export interface UpdateProfileData {
   username?: string;
   language?: string;

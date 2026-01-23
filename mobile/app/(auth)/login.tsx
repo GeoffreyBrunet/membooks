@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -14,12 +14,16 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { useTranslation } from "react-i18next";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { useAuth } from "@/contexts/auth-context";
+import { LanguageContext } from "@/contexts/language-context";
+import { SocialAuthButtons } from "@/components/social-auth-buttons";
 import { lightColors, darkColors, spacing, borderRadius } from "@/constants";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { login, socialLogin } = useAuth();
+  const languageContext = useContext(LanguageContext);
   const colorScheme = useColorScheme();
   const colors = colorScheme === "dark" ? darkColors : lightColors;
 
@@ -39,6 +43,57 @@ export default function LoginScreen() {
     setError(null);
 
     const response = await login({ email: email.trim(), password });
+
+    setIsLoading(false);
+
+    if (!response.success) {
+      setError(t(`auth.errors.${response.error}`) || t("auth.errors.generic"));
+    }
+  };
+
+  const handleAppleAuth = async (
+    credential: AppleAuthentication.AppleAuthenticationCredential
+  ) => {
+    if (!credential.identityToken) {
+      setError(t("auth.errors.generic"));
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    const fullName = credential.fullName
+      ? `${credential.fullName.givenName || ""} ${credential.fullName.familyName || ""}`.trim()
+      : undefined;
+
+    const response = await socialLogin({
+      provider: "apple",
+      idToken: credential.identityToken,
+      email: credential.email || undefined,
+      fullName: fullName || undefined,
+      appleUser: credential.user,
+    });
+
+    setIsLoading(false);
+
+    if (!response.success) {
+      setError(t(`auth.errors.${response.error}`) || t("auth.errors.generic"));
+    }
+  };
+
+  const handleGoogleAuth = async (
+    idToken: string,
+    user: { email: string; name: string | null }
+  ) => {
+    setIsLoading(true);
+    setError(null);
+
+    const response = await socialLogin({
+      provider: "google",
+      idToken,
+      email: user.email,
+      fullName: user.name || undefined,
+    });
 
     setIsLoading(false);
 
@@ -122,6 +177,15 @@ export default function LoginScreen() {
               <Text style={styles.buttonText}>{t("auth.login.button")}</Text>
             )}
           </Pressable>
+
+          {/* Social Auth Buttons */}
+          <SocialAuthButtons
+            colors={colors}
+            onAppleAuth={handleAppleAuth}
+            onGoogleAuth={handleGoogleAuth}
+            isLoading={isLoading}
+            setError={setError}
+          />
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>{t("auth.login.noAccount")}</Text>

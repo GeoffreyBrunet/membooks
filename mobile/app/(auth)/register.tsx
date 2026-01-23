@@ -274,6 +274,23 @@ function createStyles(colors: typeof lightColors) {
       fontSize: 16,
       color: colors.text,
     },
+    passwordContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.background,
+      borderWidth: 2,
+      borderColor: colors.border,
+      borderRadius: borderRadius.md,
+    },
+    passwordInput: {
+      flex: 1,
+      padding: spacing.md,
+      fontSize: 16,
+      color: colors.text,
+    },
+    eyeButton: {
+      padding: spacing.md,
+    },
     button: {
       backgroundColor: colors.primary,
       borderWidth: 2,

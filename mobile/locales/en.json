@@ -8,6 +8,7 @@
     "confirmPasswordPlaceholder": "Confirm your password",
     "username": "Username",
     "usernamePlaceholder": "Choose a username",
+    "orContinueWith": "or continue with",
     "login": {
       "subtitle": "Welcome back!",
       "button": "Login",
@@ -27,6 +28,7 @@
       "passwordMismatch": "Passwords do not match",
       "generic": "An error occurred, please try again",
       "network_error": "Network error, check your connection",
+      "googlePlayNotAvailable": "Google Play Services not available",
       "Invalid credentials": "Invalid email or password",
       "Email already exists": "This email is already registered",
       "Username already exists": "This username is already taken",

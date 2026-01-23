@@ -8,6 +8,7 @@ import type {
   User,
   RegisterData,
   LoginData,
+  SocialAuthData,
   UpdateProfileData,
   ChangePasswordData,
   AuthResponse,
@@ -89,6 +90,40 @@ export async function login(data: LoginData): Promise<AuthResponse> {
     };
   } catch (error) {
     console.error("Login error:", error);
+    return { success: false, error: "network_error" };
+  }
+}
+
+/**
+ * Social login (Apple/Google)
+ */
+export async function socialLogin(data: SocialAuthData): Promise<AuthResponse> {
+  try {
+    const response = await fetch(`${API_URL}/auth/social`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      const errorResponse = result as ApiErrorResponse;
+      return { success: false, error: errorResponse.error };
+    }
+
+    const authResponse = result as ApiAuthResponse;
+    await saveSession(authResponse.token, authResponse.user);
+
+    return {
+      success: true,
+      user: authResponse.user,
+      token: authResponse.token,
+    };
+  } catch (error) {
+    console.error("Social login error:", error);
     return { success: false, error: "network_error" };
   }
 }

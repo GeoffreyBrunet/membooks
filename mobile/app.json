@@ -9,7 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.membooks.app",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -34,6 +36,7 @@
           "recordAudioAndroid": true
         }
       ],
+      "expo-apple-authentication",
       "expo-router",
       [
         "expo-splash-screen",
