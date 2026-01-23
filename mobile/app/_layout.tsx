@@ -47,6 +47,7 @@ function RootLayoutNav() {
         }}
       />
       <Stack.Screen name="statistics" />
+      <Stack.Screen name="subscription" />
     </Stack>
   );
 }

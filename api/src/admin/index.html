@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Membooks Admin</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #334155;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #475569;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Login Screen */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-box h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .login-box p {
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      display: none;
+    }
+
+    .navbar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 {
+      font-size: 20px;
+    }
+
+    .navbar-user {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .navbar-user span {
+      color: var(--text-secondary);
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-logout:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .content {
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .stat-card h3 {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .stat-card .subtext {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px 8px 0 0;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+      background: var(--bg-card);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      background: var(--bg-card);
+    }
+
+    /* Table */
+    .table-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--bg-card);
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-premium {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .badge-free {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .badge-active {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .badge-canceled {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .badge-expired {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: var(--bg-card);
+    }
+
+    .pagination-info {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .pagination-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pagination-btn {
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal h2 {
+      margin-bottom: 16px;
+    }
+
+    .modal-info {
+      margin-bottom: 16px;
+    }
+
+    .modal-info p {
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .modal-info strong {
+      color: var(--text);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .content {
+        padding: 16px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 12px 8px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <h1>Membooks Admin</h1>
+      <p>Sign in with your admin account</p>
+      <div id="loginError" class="error-msg" style="display: none;"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="Your password">
+        </div>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard">
+    <nav class="navbar">
+      <h1>Membooks Admin</h1>
+      <div class="navbar-user">
+        <span id="adminEmail"></span>
+        <button class="btn btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </nav>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Users</h3>
+          <div id="statTotalUsers" class="value">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Premium Users</h3>
+          <div id="statPremiumUsers" class="value">-</div>
+          <div id="statConversionRate" class="subtext"></div>
+        </div>
+        <div class="stat-card">
+          <h3>Active Subscriptions</h3>
+          <div id="statActiveSubscriptions" class="value">-</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="users">Users</button>
+        <button class="tab" data-tab="subscriptions">Subscriptions</button>
+      </div>
+
+      <!-- Users Tab -->
+      <div id="usersTab" class="tab-content">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Language</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr>
+                <td colspan="6" class="loading">
+                  <div class="spinner"></div>
+                  Loading users...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <div class="pagination-info" id="usersPaginationInfo">-</div>
+            <div class="pagination-buttons">
+              <button class="pagination-btn" id="usersPrevBtn" onclick="loadUsers(currentUsersPage - 1)">Previous</button>
+              <button class="pagination-btn" id="usersNextBtn" onclick="loadUsers(currentUsersPage + 1)">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscriptions Tab -->
+      <div id="subscriptionsTab" class="tab-content" style="display: none;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Period End</th>
+                <th>Cancel at End</th>
+              </tr>
+            </thead>
+            <tbody id="subscriptionsTableBody">
+              <tr>
+                <td colspan="5" class="loading">
+                  <div class="spinner"></div>
+                  Loading subscriptions...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <div class="pagination-info" id="subsPaginationInfo">-</div>
+            <div class="pagination-buttons">
+              <button class="pagination-btn" id="subsPrevBtn" onclick="loadSubscriptions(currentSubsPage - 1)">Previous</button>
+              <button class="pagination-btn" id="subsNextBtn" onclick="loadSubscriptions(currentSubsPage + 1)">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Modal -->
+  <div id="userModal" class="modal-overlay">
+    <div class="modal">
+      <h2>User Details</h2>
+      <div id="userModalContent" class="modal-info">
+        <p>Loading...</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" onclick="closeUserModal()">Close</button>
+        <button id="togglePremiumBtn" class="btn btn-success">Toggle Premium</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+    let token = localStorage.getItem('adminToken');
+    let currentUsersPage = 1;
+    let currentSubsPage = 1;
+    let selectedUserId = null;
+    let selectedUserIsPremium = false;
+
+    // Check auth on load
+    if (token) {
+      showDashboard();
+    }
+
+    // Login form
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('loginError');
+
+      try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Login failed');
+        }
+
+        token = data.token;
+        localStorage.setItem('adminToken', token);
+        localStorage.setItem('adminEmail', email);
+        showDashboard();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      }
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabName = tab.dataset.tab;
+        document.getElementById('usersTab').style.display = tabName === 'users' ? 'block' : 'none';
+        document.getElementById('subscriptionsTab').style.display = tabName === 'subscriptions' ? 'block' : 'none';
+
+        if (tabName === 'subscriptions') {
+          loadSubscriptions(1);
+        }
+      });
+    });
+
+    function showDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('adminEmail').textContent = localStorage.getItem('adminEmail') || 'Admin';
+      loadStats();
+      loadUsers(1);
+    }
+
+    function logout() {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminEmail');
+      token = null;
+      window.location.reload();
+    }
+
+    async function apiCall(endpoint, options = {}) {
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          ...options.headers
+        }
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        throw new Error('Unauthorized');
+      }
+
+      return res.json();
+    }
+
+    async function loadStats() {
+      try {
+        const data = await apiCall('/admin/stats');
+        document.getElementById('statTotalUsers').textContent = data.totalUsers;
+        document.getElementById('statPremiumUsers').textContent = data.premiumUsers;
+        document.getElementById('statActiveSubscriptions').textContent = data.activeSubscriptions;
+        document.getElementById('statConversionRate').textContent = `${data.conversionRate}% conversion`;
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      }
+    }
+
+    async function loadUsers(page) {
+      currentUsersPage = page;
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="loading"><div class="spinner"></div>Loading users...</td></tr>`;
+
+      try {
+        const data = await apiCall(`/admin/users?page=${page}&limit=10`);
+
+        if (data.users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="loading">No users found</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.users.map(user => `
+          <tr>
+            <td>${escapeHtml(user.username)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>
+              <span class="badge ${user.isPremium ? 'badge-premium' : 'badge-free'}">
+                ${user.isPremium ? 'Premium' : 'Free'}
+              </span>
+            </td>
+            <td>${user.language?.toUpperCase() || '-'}</td>
+            <td>${formatDate(user.createdAt)}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="viewUser('${user.id}')">View</button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Pagination
+        const { pagination } = data;
+        document.getElementById('usersPaginationInfo').textContent =
+          `Page ${pagination.page} of ${pagination.totalPages} (${pagination.total} users)`;
+        document.getElementById('usersPrevBtn').disabled = pagination.page <= 1;
+        document.getElementById('usersNextBtn').disabled = pagination.page >= pagination.totalPages;
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="loading">Error loading users</td></tr>`;
+      }
+    }
+
+    async function loadSubscriptions(page) {
+      currentSubsPage = page;
+      const tbody = document.getElementById('subscriptionsTableBody');
+      tbody.innerHTML = `<tr><td colspan="5" class="loading"><div class="spinner"></div>Loading subscriptions...</td></tr>`;
+
+      try {
+        const data = await apiCall(`/admin/subscriptions?page=${page}&limit=10`);
+
+        if (data.subscriptions.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="loading">No subscriptions found</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.subscriptions.map(sub => `
+          <tr>
+            <td>${escapeHtml(sub.username || '-')}</td>
+            <td>${escapeHtml(sub.userEmail || '-')}</td>
+            <td>
+              <span class="badge badge-${getStatusBadgeClass(sub.status)}">
+                ${sub.status}
+              </span>
+            </td>
+            <td>${formatDate(sub.currentPeriodEnd)}</td>
+            <td>${sub.cancelAtPeriodEnd ? 'Yes' : 'No'}</td>
+          </tr>
+        `).join('');
+
+        // Pagination
+        const { pagination } = data;
+        document.getElementById('subsPaginationInfo').textContent =
+          `Page ${pagination.page} of ${pagination.totalPages} (${pagination.total} subscriptions)`;
+        document.getElementById('subsPrevBtn').disabled = pagination.page <= 1;
+        document.getElementById('subsNextBtn').disabled = pagination.page >= pagination.totalPages;
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="loading">Error loading subscriptions</td></tr>`;
+      }
+    }
+
+    async function viewUser(userId) {
+      selectedUserId = userId;
+      document.getElementById('userModal').classList.add('show');
+      document.getElementById('userModalContent').innerHTML = '<p>Loading...</p>';
+
+      try {
+        const data = await apiCall(`/admin/users/${userId}`);
+        selectedUserIsPremium = data.user.isPremium;
+
+        document.getElementById('userModalContent').innerHTML = `
+          <p><strong>Username:</strong> ${escapeHtml(data.user.username)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(data.user.email)}</p>
+          <p><strong>Status:</strong> <span class="badge ${data.user.isPremium ? 'badge-premium' : 'badge-free'}">${data.user.isPremium ? 'Premium' : 'Free'}</span></p>
+          <p><strong>Language:</strong> ${data.user.language?.toUpperCase() || '-'}</p>
+          <p><strong>Stripe Customer:</strong> ${data.user.stripeCustomerId || 'None'}</p>
+          <p><strong>Joined:</strong> ${formatDate(data.user.createdAt)}</p>
+          ${data.subscription ? `
+            <hr style="margin: 16px 0; border-color: var(--border);">
+            <p><strong>Subscription Status:</strong> ${data.subscription.status}</p>
+            <p><strong>Period End:</strong> ${formatDate(data.subscription.currentPeriodEnd)}</p>
+            <p><strong>Cancel at End:</strong> ${data.subscription.cancelAtPeriodEnd ? 'Yes' : 'No'}</p>
+          ` : ''}
+        `;
+
+        const toggleBtn = document.getElementById('togglePremiumBtn');
+        toggleBtn.textContent = data.user.isPremium ? 'Remove Premium' : 'Grant Premium';
+        toggleBtn.className = `btn ${data.user.isPremium ? 'btn-danger' : 'btn-success'}`;
+      } catch (err) {
+        document.getElementById('userModalContent').innerHTML = '<p>Error loading user details</p>';
+      }
+    }
+
+    function closeUserModal() {
+      document.getElementById('userModal').classList.remove('show');
+      selectedUserId = null;
+    }
+
+    async function togglePremium() {
+      if (!selectedUserId) return;
+
+      const newStatus = !selectedUserIsPremium;
+
+      try {
+        await apiCall(`/admin/users/${selectedUserId}/premium`, {
+          method: 'POST',
+          body: JSON.stringify({ isPremium: newStatus })
+        });
+
+        closeUserModal();
+        loadUsers(currentUsersPage);
+        loadStats();
+      } catch (err) {
+        alert('Failed to update user status');
+      }
+    }
+
+    document.getElementById('togglePremiumBtn').addEventListener('click', togglePremium);
+
+    // Close modal on outside click
+    document.getElementById('userModal').addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        closeUserModal();
+      }
+    });
+
+    // Helpers
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'active': return 'active';
+        case 'canceled': return 'canceled';
+        case 'past_due':
+        case 'unpaid':
+        case 'incomplete':
+          return 'expired';
+        default: return 'free';
+      }
+    }
+  </script>
+</body>
+</html>

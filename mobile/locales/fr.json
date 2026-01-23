@@ -113,6 +113,32 @@
     "byGenre": "Par Genre",
     "noBooks": "Ajoutez des livres pour voir vos statistiques !"
   },
+  "subscription": {
+    "title": "Premium",
+    "premiumActive": "Vous êtes Premium !",
+    "premiumInactive": "Devenir Premium",
+    "perMonth": "par mois",
+    "features": "Avantages Premium",
+    "feature1": "Collection de livres illimitée",
+    "feature2": "Statistiques et analyses avancées",
+    "feature3": "Synchronisation cloud multi-appareils",
+    "feature4": "Support prioritaire",
+    "subscribe": "S'abonner",
+    "cancel": "Annuler l'abonnement",
+    "reactivate": "Réactiver l'abonnement",
+    "cancelTitle": "Annuler l'abonnement",
+    "cancelMessage": "Êtes-vous sûr ? Vous garderez l'accès jusqu'à la fin de votre période de facturation.",
+    "confirmCancel": "Oui, annuler",
+    "renewsOn": "Renouvellement le {{date}}",
+    "expiresOn": "Expire le {{date}}",
+    "termsInfo": "Annulez quand vous voulez. Aucun frais après annulation.",
+    "manageSubscription": "Gérer l'abonnement",
+    "errors": {
+      "not_authenticated": "Veuillez vous connecter",
+      "network_error": "Erreur réseau, réessayez",
+      "Already premium": "Vous êtes déjà premium !"
+    }
+  },
   "settings": {
     "title": "Parametres",
     "language": "Langue",

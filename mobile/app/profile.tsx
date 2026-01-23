@@ -183,6 +183,25 @@ export default function ProfileScreen() {
               <Text style={styles.premiumText}>Premium</Text>
             </View>
           )}
+          {/* Subscription button */}
+          <Pressable
+            style={[
+              styles.subscriptionButton,
+              user?.isPremium ? styles.subscriptionButtonPremium : styles.subscriptionButtonFree,
+            ]}
+            onPress={() => router.push("/subscription")}
+          >
+            <Text
+              style={[
+                styles.subscriptionButtonText,
+                user?.isPremium ? styles.subscriptionButtonTextPremium : styles.subscriptionButtonTextFree,
+              ]}
+            >
+              {user?.isPremium
+                ? t("subscription.manageSubscription")
+                : t("subscription.premiumInactive")}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Error message */}
@@ -422,6 +441,29 @@ function createStyles(colors: Colors) {
     premiumText: {
       ...typography.labelSmall,
       fontWeight: "bold",
+      color: colors.text,
+    },
+    subscriptionButton: {
+      marginTop: spacing.md,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      borderRadius: borderRadius.md,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    subscriptionButtonFree: {
+      backgroundColor: colors.primary,
+    },
+    subscriptionButtonPremium: {
+      backgroundColor: colors.backgroundSecondary,
+    },
+    subscriptionButtonText: {
+      ...typography.button,
+    },
+    subscriptionButtonTextFree: {
+      color: colors.primaryText,
+    },
+    subscriptionButtonTextPremium: {
       color: colors.text,
     },
     errorContainer: {
