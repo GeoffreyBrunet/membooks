@@ -20,6 +20,7 @@ interface BooksContextValue {
   series: Series[];
   ownedBooks: Book[];
   wishlistBooks: Book[];
+  upcomingBooks: Book[];
   isLoading: boolean;
   addBook: (book: Book) => Promise<void>;
   addSeries: (series: Series) => Promise<void>;
@@ -147,16 +148,45 @@ export function BooksProvider({ children }: BooksProviderProps) {
     }
   }, []);
 
+  // Helper to get today's date in YYYY-MM-DD format
+  const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   // Filtered lists
   const ownedBooks = useMemo(
     () => books.filter((book) => !book.inWishlist),
     [books]
   );
 
-  const wishlistBooks = useMemo(
-    () => books.filter((book) => book.inWishlist),
-    [books]
-  );
+  // Wishlist books: in wishlist AND (no release date OR release date <= today)
+  const wishlistBooks = useMemo(() => {
+    const today = getTodayDateString();
+    return books.filter((book) => {
+      if (!book.inWishlist) return false;
+      // No release date means already available
+      if (!book.releaseDate) return true;
+      // Release date is today or in the past
+      return book.releaseDate <= today;
+    });
+  }, [books]);
+
+  // Upcoming books: in wishlist AND release date > today
+  const upcomingBooks = useMemo(() => {
+    const today = getTodayDateString();
+    return books
+      .filter((book) => {
+        if (!book.inWishlist) return false;
+        // Must have a future release date
+        return book.releaseDate && book.releaseDate > today;
+      })
+      .sort((a, b) => {
+        // Sort by release date ascending (soonest first)
+        if (!a.releaseDate || !b.releaseDate) return 0;
+        return a.releaseDate.localeCompare(b.releaseDate);
+      });
+  }, [books]);
 
   const getBookById = useCallback(
     (id: string) => books.find((book) => book.id === id),
@@ -182,6 +212,7 @@ export function BooksProvider({ children }: BooksProviderProps) {
       series,
       ownedBooks,
       wishlistBooks,
+      upcomingBooks,
       isLoading,
       addBook,
       addSeries,
@@ -197,6 +228,7 @@ export function BooksProvider({ children }: BooksProviderProps) {
       series,
       ownedBooks,
       wishlistBooks,
+      upcomingBooks,
       isLoading,
       addBook,
       addSeries,

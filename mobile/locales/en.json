@@ -50,15 +50,17 @@
     "bookCount_other": "{{count}} books",
     "wishlistCount_one": "{{count}} book",
     "wishlistCount_other": "{{count}} books",
+    "upcomingCount_one": "{{count}} book",
+    "upcomingCount_other": "{{count}} books",
     "series": "Series",
     "standaloneBooks": "Standalone Books",
     "tabs": {
       "myBooks": "My Books",
       "wishlist": "Wishlist",
-      "releases": "Releases"
+      "releases": "Coming"
     },
-    "comingSoon": "Coming soon",
-    "emptyWishlist": "Your wishlist is empty. Search for books to add!"
+    "emptyWishlist": "Your wishlist is empty. Search for books to add!",
+    "emptyUpcoming": "No upcoming releases. Add books with future release dates to your wishlist!"
   },
   "wishlist": {
     "moveToOwned": "I got it!",

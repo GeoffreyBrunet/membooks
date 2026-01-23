@@ -31,6 +31,7 @@ export interface Book {
   inWishlist: boolean;
   seriesId?: string;
   volumeNumber?: number;
+  releaseDate?: string; // ISO date string (YYYY-MM-DD), null = already released
 }
 
 export interface Series {

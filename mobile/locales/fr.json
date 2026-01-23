@@ -50,15 +50,17 @@
     "bookCount_other": "{{count}} livres",
     "wishlistCount_one": "{{count}} livre",
     "wishlistCount_other": "{{count}} livres",
+    "upcomingCount_one": "{{count}} livre",
+    "upcomingCount_other": "{{count}} livres",
     "series": "Séries",
     "standaloneBooks": "Livres hors série",
     "tabs": {
       "myBooks": "Mes Livres",
       "wishlist": "Wishlist",
-      "releases": "Sorties"
+      "releases": "À venir"
     },
-    "comingSoon": "Bientôt disponible",
-    "emptyWishlist": "Votre wishlist est vide. Recherchez des livres a ajouter !"
+    "emptyWishlist": "Votre wishlist est vide. Recherchez des livres a ajouter !",
+    "emptyUpcoming": "Aucune sortie a venir. Ajoutez des livres avec une date de sortie future a votre wishlist !"
   },
   "wishlist": {
     "moveToOwned": "Je l'ai !",

@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { BookCard } from '@/components/book-card';
 import { SeriesCard } from '@/components/series-card';
 import { WishlistCard } from '@/components/wishlist-card';
-import { spacing, typography, borders, shadows, borderRadius } from '@/constants';
+import { spacing, typography, borders, shadows } from '@/constants';
 import type { Book, Series } from '@/types/book';
 
 type TabKey = 'myBooks' | 'wishlist' | 'releases';
@@ -31,7 +31,7 @@ export default function Home() {
   const router = useRouter();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const { ownedBooks, wishlistBooks, series, isLoading } = useBooks();
+  const { ownedBooks, wishlistBooks, upcomingBooks, series, isLoading } = useBooks();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>('myBooks');
 
@@ -247,24 +247,88 @@ export default function Home() {
         </>
       )}
 
-      {/* Placeholder for Releases */}
+      {/* Upcoming releases tab */}
       {activeTab === 'releases' && (
-        <View style={styles.placeholderContainer}>
+        <>
+          {/* Upcoming count badge */}
           <View
             style={[
-              styles.placeholderCard,
+              styles.countBadge,
               {
-                backgroundColor: colors.backgroundSecondary,
+                backgroundColor: colors.secondary,
                 borderColor: colors.border,
                 shadowColor: colors.shadow,
               },
             ]}
           >
-            <Text style={[styles.placeholderText, { color: colors.textSecondary }]}>
-              {t('home.comingSoon')}
+            <Text style={[styles.countText, { color: colors.secondaryText }]}>
+              {t('home.upcomingCount', { count: upcomingBooks.length })}
             </Text>
           </View>
-        </View>
+
+          {upcomingBooks.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                {t('home.emptyUpcoming')}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.list}>
+              {upcomingBooks.map((book, index) => (
+                <View key={book.id}>
+                  <View
+                    style={[
+                      styles.upcomingCard,
+                      {
+                        backgroundColor: colors.backgroundSecondary,
+                        borderColor: colors.border,
+                        shadowColor: colors.shadow,
+                      },
+                    ]}
+                  >
+                    <View style={styles.upcomingHeader}>
+                      <Text
+                        style={[styles.upcomingTitle, { color: colors.text }]}
+                        numberOfLines={2}
+                      >
+                        {book.title}
+                      </Text>
+                      {book.releaseDate && (
+                        <View
+                          style={[
+                            styles.releaseDateBadge,
+                            {
+                              backgroundColor: colors.secondary,
+                              borderColor: colors.border,
+                            },
+                          ]}
+                        >
+                          <Text style={[styles.releaseDateText, { color: colors.secondaryText }]}>
+                            {new Date(book.releaseDate).toLocaleDateString()}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text
+                      style={[styles.upcomingAuthor, { color: colors.textSecondary }]}
+                      numberOfLines={1}
+                    >
+                      {book.author}
+                    </Text>
+                  </View>
+                  {/* Separator between items */}
+                  {index < upcomingBooks.length - 1 && (
+                    <View style={styles.separatorContainer}>
+                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
+                      <View style={[styles.separatorDiamond, { backgroundColor: colors.secondary, borderColor: colors.border }]} />
+                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -378,5 +442,33 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     textAlign: 'center',
+  },
+  upcomingCard: {
+    padding: spacing.cardPadding,
+    ...borders.card,
+    ...shadows.md,
+  },
+  upcomingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  upcomingTitle: {
+    ...typography.title,
+    flex: 1,
+  },
+  upcomingAuthor: {
+    ...typography.body,
+  },
+  releaseDateBadge: {
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+    borderWidth: 2,
+    borderRadius: 4,
+  },
+  releaseDateText: {
+    ...typography.labelSmall,
   },
 });
