@@ -28,6 +28,11 @@ export interface UpdateProfileData {
   language?: string;
 }
 
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface AuthResponse {
   success: boolean;
   user?: User;

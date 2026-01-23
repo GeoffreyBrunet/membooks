@@ -29,7 +29,8 @@
       "network_error": "Network error, check your connection",
       "Invalid credentials": "Invalid email or password",
       "Email already exists": "This email is already registered",
-      "Username already exists": "This username is already taken"
+      "Username already exists": "This username is already taken",
+      "Invalid current password": "Current password is incorrect"
     }
   },
   "common": {
@@ -105,6 +106,21 @@
     "language": "Language",
     "languageEnglish": "English",
     "languageFrench": "French",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "security": "Security",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "passwordChangedTitle": "Password changed",
+    "passwordChangedMessage": "Your password has been updated successfully.",
+    "deleteAccount": "Delete account",
+    "deleteAccountTitle": "Delete account",
+    "deleteAccountMessage": "Are you sure you want to delete your account? This action cannot be undone.",
+    "dangerZone": "Danger zone",
     "logout": "Logout",
     "logoutTitle": "Logout",
     "logoutMessage": "Are you sure you want to logout?"

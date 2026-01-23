@@ -1,23 +1,18 @@
 import { useEffect } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
-import {
-  View,
-  ActivityIndicator,
-  StyleSheet,
-  useColorScheme,
-} from "react-native";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { LanguageProvider } from "@/contexts/language-context";
 import { BooksProvider } from "@/contexts/books-context";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
-import { lightColors, darkColors } from "@/constants";
+import { ThemeProvider } from "@/contexts/theme-context";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import "@/lib/i18n";
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = colorScheme === "dark" ? darkColors : lightColors;
+  const colors = useThemeColors();
 
   useEffect(() => {
     if (isLoading) return;
@@ -57,13 +52,15 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <BooksProvider>
-          <RootLayoutNav />
-        </BooksProvider>
-      </LanguageProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <BooksProvider>
+            <RootLayoutNav />
+          </BooksProvider>
+        </LanguageProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

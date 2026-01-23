@@ -9,6 +9,7 @@ import type {
   RegisterData,
   LoginData,
   UpdateProfileData,
+  ChangePasswordData,
   AuthResponse,
 } from "@/types/user";
 
@@ -174,6 +175,78 @@ export async function updateProfile(
     return { success: true, user: profileResponse.user };
   } catch (error) {
     console.error("Update profile error:", error);
+    return { success: false, error: "network_error" };
+  }
+}
+
+/**
+ * Change user password
+ */
+export async function changePassword(
+  data: ChangePasswordData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return { success: false, error: "not_authenticated" };
+    }
+
+    const response = await fetch(`${API_URL}/auth/password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      const errorResponse = result as ApiErrorResponse;
+      return { success: false, error: errorResponse.error };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Change password error:", error);
+    return { success: false, error: "network_error" };
+  }
+}
+
+/**
+ * Delete user account
+ */
+export async function deleteAccount(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return { success: false, error: "not_authenticated" };
+    }
+
+    const response = await fetch(`${API_URL}/auth/me`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.token}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      const errorResponse = result as ApiErrorResponse;
+      return { success: false, error: errorResponse.error };
+    }
+
+    // Clear session after successful deletion
+    await logout();
+
+    return { success: true };
+  } catch (error) {
+    console.error("Delete account error:", error);
     return { success: false, error: "network_error" };
   }
 }

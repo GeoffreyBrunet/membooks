@@ -29,7 +29,8 @@
       "network_error": "Erreur reseau, verifiez votre connexion",
       "Invalid credentials": "Email ou mot de passe incorrect",
       "Email already exists": "Cet email est deja utilise",
-      "Username already exists": "Ce pseudo est deja pris"
+      "Username already exists": "Ce pseudo est deja pris",
+      "Invalid current password": "Le mot de passe actuel est incorrect"
     }
   },
   "common": {
@@ -105,6 +106,21 @@
     "language": "Langue",
     "languageEnglish": "Anglais",
     "languageFrench": "Francais",
+    "theme": "Theme",
+    "themeSystem": "Systeme",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "security": "Securite",
+    "changePassword": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "passwordChangedTitle": "Mot de passe modifie",
+    "passwordChangedMessage": "Votre mot de passe a ete mis a jour avec succes.",
+    "deleteAccount": "Supprimer le compte",
+    "deleteAccountTitle": "Supprimer le compte",
+    "deleteAccountMessage": "Etes-vous sur de vouloir supprimer votre compte ? Cette action est irreversible.",
+    "dangerZone": "Zone de danger",
     "logout": "Deconnexion",
     "logoutTitle": "Deconnexion",
     "logoutMessage": "Etes-vous sur de vouloir vous deconnecter ?"

@@ -1,9 +1,9 @@
 /**
  * Profile Screen
- * View and edit user profile, change language, logout
+ * View and edit user profile, change language, theme, password, delete account
  */
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -13,44 +13,54 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/auth-context";
 import { LanguageContext } from "@/contexts/language-context";
-import { useContext } from "react";
+import { useTheme } from "@/hooks/use-theme";
+import { useThemeColors } from "@/hooks/use-theme-colors";
 import { updateProfile } from "@/services/auth";
+import { ChangePasswordForm } from "@/components/change-password-form";
 import {
-  lightColors,
-  darkColors,
   spacing,
   typography,
   borderRadius,
-  borders,
   shadows,
+  type Colors,
 } from "@/constants";
 import type { Language } from "@/locales";
+import type { ThemeMode } from "@/contexts/theme-context";
 
 const LANGUAGES: { code: Language; label: string }[] = [
   { code: "en", label: "English" },
   { code: "fr", label: "Français" },
 ];
 
+const THEMES: {
+  mode: ThemeMode;
+  labelKey: "settings.themeSystem" | "settings.themeLight" | "settings.themeDark";
+}[] = [
+  { mode: "system", labelKey: "settings.themeSystem" },
+  { mode: "light", labelKey: "settings.themeLight" },
+  { mode: "dark", labelKey: "settings.themeDark" },
+];
+
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const colorScheme = useColorScheme();
-  const colors = colorScheme === "dark" ? darkColors : lightColors;
-  const { user, logout, refreshProfile } = useAuth();
+  const colors = useThemeColors();
+  const { user, logout, deleteAccount, refreshProfile } = useAuth();
   const languageContext = useContext(LanguageContext);
+  const { themeMode, setThemeMode } = useTheme();
 
   const [isEditing, setIsEditing] = useState(false);
   const [username, setUsername] = useState(user?.username || "");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   const handleSave = async () => {
     if (!username.trim() || username.trim().length < 3) {
@@ -105,6 +115,35 @@ export default function ProfileScreen() {
         },
       },
     ]);
+  };
+
+  const handleThemeChange = async (mode: ThemeMode) => {
+    await setThemeMode(mode);
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t("settings.deleteAccountTitle"),
+      t("settings.deleteAccountMessage"),
+      [
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("common.delete"),
+          style: "destructive",
+          onPress: async () => {
+            const result = await deleteAccount();
+            if (result.success) {
+              router.replace("/(auth)/login");
+            } else {
+              Alert.alert(t("common.error"), t("auth.errors.generic"));
+            }
+          },
+        },
+      ]
+    );
   };
 
   const styles = createStyles(colors);
@@ -216,22 +255,22 @@ export default function ProfileScreen() {
         {/* Language settings */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>{t("settings.language")}</Text>
-          <View style={styles.languageOptions}>
+          <View style={styles.optionRow}>
             {LANGUAGES.map((lang) => {
               const isActive = languageContext?.language === lang.code;
               return (
                 <Pressable
                   key={lang.code}
                   style={[
-                    styles.languageOption,
-                    isActive && styles.languageOptionActive,
+                    styles.option,
+                    isActive && styles.optionActive,
                   ]}
                   onPress={() => handleLanguageChange(lang.code)}
                 >
                   <Text
                     style={[
-                      styles.languageText,
-                      isActive && styles.languageTextActive,
+                      styles.optionText,
+                      isActive && styles.optionTextActive,
                     ]}
                   >
                     {lang.label}
@@ -240,6 +279,70 @@ export default function ProfileScreen() {
               );
             })}
           </View>
+        </View>
+
+        {/* Theme settings */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>{t("settings.theme")}</Text>
+          <View style={styles.optionRow}>
+            {THEMES.map((theme) => {
+              const isActive = themeMode === theme.mode;
+              return (
+                <Pressable
+                  key={theme.mode}
+                  style={[
+                    styles.option,
+                    isActive && styles.optionActive,
+                  ]}
+                  onPress={() => handleThemeChange(theme.mode)}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      isActive && styles.optionTextActive,
+                    ]}
+                  >
+                    {t(theme.labelKey)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* Security settings */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>{t("settings.security")}</Text>
+          {showPasswordForm ? (
+            <ChangePasswordForm
+              onSuccess={() => setShowPasswordForm(false)}
+              onCancel={() => setShowPasswordForm(false)}
+            />
+          ) : (
+            <Pressable
+              style={[styles.button, styles.editButton]}
+              onPress={() => setShowPasswordForm(true)}
+            >
+              <Text style={styles.editButtonText}>
+                {t("settings.changePassword")}
+              </Text>
+            </Pressable>
+          )}
+        </View>
+
+        {/* Danger zone */}
+        <View style={styles.dangerCard}>
+          <Text style={styles.dangerSectionTitle}>
+            {t("settings.dangerZone")}
+          </Text>
+          <Pressable
+            style={styles.deleteAccountButton}
+            onPress={handleDeleteAccount}
+          >
+            <Text style={styles.deleteAccountText}>
+              {t("settings.deleteAccount")}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Logout */}
@@ -251,7 +354,7 @@ export default function ProfileScreen() {
   );
 }
 
-function createStyles(colors: typeof lightColors) {
+function createStyles(colors: Colors) {
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -341,9 +444,22 @@ function createStyles(colors: typeof lightColors) {
       padding: spacing.lg,
       ...shadows.sm,
     },
+    dangerCard: {
+      backgroundColor: colors.error + "10",
+      borderRadius: borderRadius.lg,
+      borderWidth: 2,
+      borderColor: colors.error,
+      padding: spacing.lg,
+      ...shadows.sm,
+    },
     sectionTitle: {
       ...typography.titleSmall,
       color: colors.text,
+      marginBottom: spacing.lg,
+    },
+    dangerSectionTitle: {
+      ...typography.titleSmall,
+      color: colors.error,
       marginBottom: spacing.lg,
     },
     field: {
@@ -402,11 +518,11 @@ function createStyles(colors: typeof lightColors) {
       ...typography.button,
       color: colors.text,
     },
-    languageOptions: {
+    optionRow: {
       flexDirection: "row",
-      gap: spacing.md,
+      gap: spacing.sm,
     },
-    languageOption: {
+    option: {
       flex: 1,
       padding: spacing.md,
       borderRadius: borderRadius.md,
@@ -415,17 +531,29 @@ function createStyles(colors: typeof lightColors) {
       alignItems: "center",
       backgroundColor: colors.background,
     },
-    languageOptionActive: {
+    optionActive: {
       backgroundColor: colors.accent1,
       borderColor: colors.border,
     },
-    languageText: {
+    optionText: {
       ...typography.button,
       color: colors.textSecondary,
     },
-    languageTextActive: {
+    optionTextActive: {
       color: colors.text,
       fontWeight: "bold",
+    },
+    deleteAccountButton: {
+      padding: spacing.md,
+      borderRadius: borderRadius.md,
+      borderWidth: 2,
+      borderColor: colors.error,
+      backgroundColor: colors.background,
+      alignItems: "center",
+    },
+    deleteAccountText: {
+      ...typography.button,
+      color: colors.error,
     },
     logoutButton: {
       padding: spacing.md,

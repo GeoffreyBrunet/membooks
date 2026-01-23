@@ -10,6 +10,7 @@ import {
   login as apiLogin,
   register as apiRegister,
   logout as apiLogout,
+  deleteAccount as apiDeleteAccount,
   getSession,
   getProfile,
 } from "@/services/auth";
@@ -27,6 +28,7 @@ interface AuthContextType {
   login: (data: LoginData) => Promise<AuthResponse>;
   register: (data: RegisterData) => Promise<AuthResponse>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -89,6 +91,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    const response = await apiDeleteAccount();
+    if (response.success) {
+      setUser(null);
+    }
+    return response;
+  }, []);
+
   const refreshProfile = useCallback(async () => {
     const response = await getProfile();
     if (response.success && response.user) {
@@ -105,6 +115,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         register,
         logout,
+        deleteAccount,
         refreshProfile,
       }}
     >

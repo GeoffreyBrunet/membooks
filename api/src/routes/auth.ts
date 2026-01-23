@@ -213,4 +213,91 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         language: t.Optional(t.String()),
       }),
     }
+  )
+  .delete(
+    "/me",
+    async ({ headers, jwt, set }) => {
+      const authHeader = headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        set.status = 401;
+        return { error: "Unauthorized" };
+      }
+
+      const token = authHeader.slice(7);
+      const payload = await jwt.verify(token);
+
+      if (!payload) {
+        set.status = 401;
+        return { error: "Invalid token" };
+      }
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, payload.sub as string),
+      });
+
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      await db.delete(users).where(eq(users.id, payload.sub as string));
+
+      return { success: true };
+    }
+  )
+  .put(
+    "/password",
+    async ({ headers, body, jwt, set }) => {
+      const authHeader = headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        set.status = 401;
+        return { error: "Unauthorized" };
+      }
+
+      const token = authHeader.slice(7);
+      const payload = await jwt.verify(token);
+
+      if (!payload) {
+        set.status = 401;
+        return { error: "Invalid token" };
+      }
+
+      const { currentPassword, newPassword } = body;
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, payload.sub as string),
+      });
+
+      if (!user) {
+        set.status = 404;
+        return { error: "User not found" };
+      }
+
+      const isValidPassword = await verifyPassword(currentPassword, user.password);
+
+      if (!isValidPassword) {
+        set.status = 400;
+        return { error: "Invalid current password" };
+      }
+
+      const hashedPassword = await hashPassword(newPassword);
+
+      await db
+        .update(users)
+        .set({
+          password: hashedPassword,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, payload.sub as string));
+
+      return { success: true };
+    },
+    {
+      body: t.Object({
+        currentPassword: t.String(),
+        newPassword: t.String({ minLength: 8 }),
+      }),
+    }
   );
