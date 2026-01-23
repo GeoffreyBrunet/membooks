@@ -9,6 +9,7 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator, StyleSheet } from
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useBooks } from '@/contexts/books-context';
 import { useAuth } from '@/contexts/auth-context';
@@ -138,21 +139,38 @@ export default function Home() {
           })}
         </View>
 
-        {/* Profile button */}
-        <Pressable
-          style={[
-            styles.profileButton,
-            {
-              backgroundColor: colors.primary,
-              borderColor: colors.border,
-            },
-          ]}
-          onPress={() => router.push('/profile')}
-        >
-          <Text style={[styles.profileButtonText, { color: colors.primaryText }]}>
-            {user?.username?.charAt(0).toUpperCase() || '?'}
-          </Text>
-        </Pressable>
+        {/* Header buttons */}
+        <View style={styles.headerButtons}>
+          {/* Statistics button */}
+          <Pressable
+            style={[
+              styles.headerButton,
+              {
+                backgroundColor: colors.accent1,
+                borderColor: colors.border,
+              },
+            ]}
+            onPress={() => router.push('/statistics')}
+          >
+            <Ionicons name="stats-chart" size={20} color={colors.text} />
+          </Pressable>
+
+          {/* Profile button */}
+          <Pressable
+            style={[
+              styles.profileButton,
+              {
+                backgroundColor: colors.primary,
+                borderColor: colors.border,
+              },
+            ]}
+            onPress={() => router.push('/profile')}
+          >
+            <Text style={[styles.profileButtonText, { color: colors.primaryText }]}>
+              {user?.username?.charAt(0).toUpperCase() || '?'}
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Header */}
@@ -362,6 +380,19 @@ const styles = StyleSheet.create({
   tabsContainer: {
     flex: 1,
     flexDirection: 'row',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  headerButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   profileButton: {
     width: 40,

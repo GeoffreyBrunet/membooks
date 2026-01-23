@@ -103,6 +103,14 @@
     "title": "Profile",
     "personalInfo": "Personal Information"
   },
+  "statistics": {
+    "title": "Statistics",
+    "totalBooks": "books owned",
+    "readingProgress": "Reading Progress",
+    "byType": "By Format",
+    "byGenre": "By Genre",
+    "noBooks": "Add some books to see your statistics!"
+  },
   "settings": {
     "title": "Settings",
     "language": "Language",

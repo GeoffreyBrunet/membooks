@@ -46,6 +46,7 @@ function RootLayoutNav() {
           presentation: "modal",
         }}
       />
+      <Stack.Screen name="statistics" />
     </Stack>
   );
 }
