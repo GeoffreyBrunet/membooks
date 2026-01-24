@@ -26,10 +26,22 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET!,
+      secret: process.env.JWT_SECRET || "fallback-secret-for-development",
       exp: "7d",
     })
   )
+  // Ensure all responses are JSON
+  .onBeforeHandle(({ set }) => {
+    set.headers["content-type"] = "application/json";
+  })
+  // Handle errors in subscription routes
+  .onError(({ error, set }) => {
+    set.headers["content-type"] = "application/json";
+    console.error("Subscription route error:", error);
+    set.status = 500;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { error: "Internal Server Error", message: errorMessage };
+  })
   // Create checkout session for subscription
   .post(
     "/checkout",

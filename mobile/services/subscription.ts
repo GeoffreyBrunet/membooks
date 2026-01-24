@@ -78,7 +78,25 @@ export async function getSubscriptionStatus(): Promise<{
       },
     });
 
-    const result = await response.json();
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("Invalid response content-type:", contentType);
+      return { success: false, error: "invalid_response" };
+    }
+
+    const text = await response.text();
+    if (!text) {
+      return { success: false, error: "empty_response" };
+    }
+
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch {
+      console.error("Failed to parse response:", text);
+      return { success: false, error: "invalid_json" };
+    }
 
     if (!response.ok) {
       return { success: false, error: result.error };

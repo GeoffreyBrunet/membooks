@@ -12,6 +12,26 @@ const app = new Elysia()
       credentials: true,
     })
   )
+  // Global error handler to ensure JSON responses
+  .onError(({ code, error, set }) => {
+    set.headers["content-type"] = "application/json";
+
+    if (code === "NOT_FOUND") {
+      set.status = 404;
+      return { error: "Not Found", message: "The requested endpoint does not exist" };
+    }
+
+    if (code === "VALIDATION") {
+      set.status = 400;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return { error: "Validation Error", message: errorMessage };
+    }
+
+    console.error("Server error:", error);
+    set.status = 500;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { error: "Internal Server Error", message: errorMessage };
+  })
   .use(staticPlugin({
     assets: "src/admin",
     prefix: "/admin-ui",
