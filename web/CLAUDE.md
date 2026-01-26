@@ -9,7 +9,8 @@ Web application for Membooks built with React, TanStack Router, and TanStack Que
 - **UI**: React 19
 - **Routing**: TanStack Router
 - **Data Fetching**: TanStack Query
-- **Styling**: Plain CSS
+- **Styling**: Tailwind CSS v4
+- **Build**: Vite
 
 ## Development
 
@@ -19,6 +20,12 @@ bun install
 
 # Start development server (port 3001)
 bun run dev
+
+# Build for production
+bun run build
+
+# Preview production build
+bun run preview
 
 # Make sure the API is running on port 3000
 cd ../api && bun run dev

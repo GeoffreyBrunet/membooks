@@ -44,98 +44,106 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <h1 className="title">Create Account</h1>
-        <p className="subtitle" style={{ fontFamily: "var(--font-body)", fontSize: "16px" }}>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-100">
+      <div className="w-full max-w-md bg-white border-2 border-gray-900 rounded-2xl p-8 neo-shadow-lg">
+        <h1 className="font-title text-4xl text-center mb-2">Create Account</h1>
+        <p className="text-center text-gray-600 mb-8">
           Join Membooks to track your reading
         </p>
 
-        {error && <div className="alert alert-error">{error}</div>}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border-2 border-red-500 rounded-lg text-red-600">
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium mb-2">
+              Email
+            </label>
             <input
               type="email"
               id="email"
-              className="input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
+              className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral transition-colors"
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium mb-2">
+              Username
+            </label>
             <input
               type="text"
               id="username"
-              className="input"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Your username (min 3 chars)"
               minLength={3}
               required
+              className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral transition-colors"
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div style={{ position: "relative" }}>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium mb-2">
+              Password
+            </label>
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                className="input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 8 characters"
                 minLength={8}
                 required
-                style={{ paddingRight: "50px" }}
+                className="w-full px-4 py-3 pr-16 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  right: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "var(--text-secondary)",
-                  fontSize: "14px",
-                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+              Confirm Password
+            </label>
             <input
               type="password"
               id="confirmPassword"
-              className="input"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
               required
+              className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral transition-colors"
             />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-coral text-gray-900 font-title text-lg border-2 border-gray-900 rounded-lg neo-shadow-md hover:translate-y-0.5 hover:shadow-none active:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 
-        <div className="auth-footer">
-          Already have an account? <Link to="/login">Sign In</Link>
-        </div>
+        <p className="mt-8 text-center text-gray-600">
+          Already have an account?{" "}
+          <Link to="/login" className="text-coral font-semibold hover:underline">
+            Sign In
+          </Link>
+        </p>
       </div>
     </div>
   );

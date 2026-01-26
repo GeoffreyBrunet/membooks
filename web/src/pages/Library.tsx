@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   getOwnedBooks,
@@ -46,12 +46,10 @@ export function LibraryPage() {
     refreshData();
   }, []);
 
-  // Combine books and series for unified list
   const libraryItems = useMemo<LibraryItem[]>(() => {
     const items: LibraryItem[] = [];
     const seriesIds = new Set<string>();
 
-    // Group books by series
     for (const book of books) {
       if (book.seriesId) {
         seriesIds.add(book.seriesId);
@@ -67,7 +65,6 @@ export function LibraryPage() {
       }
     }
 
-    // Add series
     for (const s of series) {
       if (seriesIds.has(s.id)) {
         const seriesBooks = getBooksForSeries(s.id);
@@ -89,7 +86,7 @@ export function LibraryPage() {
 
   const handleMoveToOwned = async (id: string) => {
     setMovingId(id);
-    await new Promise((r) => setTimeout(r, 300)); // Simulate delay
+    await new Promise((r) => setTimeout(r, 300));
     moveToOwned(id);
     refreshData();
     setMovingId(null);
@@ -101,46 +98,64 @@ export function LibraryPage() {
   };
 
   return (
-    <div className="screen">
+    <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
-      <div className="screen-header">
-        <h1 className="title">My Library</h1>
-        <div style={{ display: "flex", gap: "var(--space-md)" }}>
-          <Link to="/statistics" className="btn btn-accent btn-sm">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="font-title text-3xl">My Library</h1>
+        <div className="flex gap-3">
+          <Link
+            to="/statistics"
+            className="px-4 py-2 bg-purple text-white font-title text-sm border-2 border-gray-900 rounded-lg neo-shadow-sm hover:translate-y-0.5 hover:shadow-none transition-all"
+          >
             Statistics
           </Link>
-          <Link to="/profile" className="btn btn-primary btn-sm">
+          <Link
+            to="/profile"
+            className="px-4 py-2 bg-coral text-gray-900 font-title text-sm border-2 border-gray-900 rounded-lg neo-shadow-sm hover:translate-y-0.5 hover:shadow-none transition-all"
+          >
             Profile
           </Link>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="tabs">
+      <div className="flex gap-2 mb-8 border-b-2 border-gray-200">
         <button
-          className={`tab ${activeTab === "books" ? "active" : ""}`}
           onClick={() => setActiveTab("books")}
+          className={`px-6 py-3 font-title text-sm border-b-2 -mb-0.5 transition-colors ${
+            activeTab === "books"
+              ? "border-coral text-coral"
+              : "border-transparent text-gray-600 hover:text-gray-900"
+          }`}
         >
           My Books
-          <span className="badge badge-coral" style={{ marginLeft: "8px" }}>
+          <span className="ml-2 px-2 py-0.5 text-xs bg-coral text-gray-900 rounded-full">
             {books.length}
           </span>
         </button>
         <button
-          className={`tab ${activeTab === "wishlist" ? "active" : ""}`}
           onClick={() => setActiveTab("wishlist")}
+          className={`px-6 py-3 font-title text-sm border-b-2 -mb-0.5 transition-colors ${
+            activeTab === "wishlist"
+              ? "border-coral text-coral"
+              : "border-transparent text-gray-600 hover:text-gray-900"
+          }`}
         >
           Wishlist
-          <span className="badge badge-outline" style={{ marginLeft: "8px" }}>
+          <span className="ml-2 px-2 py-0.5 text-xs border border-gray-300 rounded-full">
             {wishlist.length}
           </span>
         </button>
         <button
-          className={`tab ${activeTab === "releases" ? "active" : ""}`}
           onClick={() => setActiveTab("releases")}
+          className={`px-6 py-3 font-title text-sm border-b-2 -mb-0.5 transition-colors ${
+            activeTab === "releases"
+              ? "border-coral text-coral"
+              : "border-transparent text-gray-600 hover:text-gray-900"
+          }`}
         >
           Releases
-          <span className="badge badge-outline" style={{ marginLeft: "8px" }}>
+          <span className="ml-2 px-2 py-0.5 text-xs border border-gray-300 rounded-full">
             {upcoming.length}
           </span>
         </button>
@@ -150,64 +165,76 @@ export function LibraryPage() {
       {activeTab === "books" && (
         <>
           {libraryItems.length === 0 ? (
-            <div className="empty-state">
-              <h3>No books yet</h3>
-              <p>Start building your library by searching for books</p>
-              <Link to="/search" className="btn btn-primary" style={{ marginTop: "16px" }}>
+            <div className="text-center py-16">
+              <h3 className="font-title text-xl mb-2">No books yet</h3>
+              <p className="text-gray-600 mb-6">Start building your library by searching for books</p>
+              <Link
+                to="/search"
+                className="inline-block px-6 py-3 bg-coral text-gray-900 font-title border-2 border-gray-900 rounded-lg neo-shadow-md hover:translate-y-0.5 hover:shadow-none transition-all"
+              >
                 Search Books
               </Link>
             </div>
           ) : (
-            <div className="grid grid-auto">
-              {libraryItems.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  {item.type === "series" ? (
-                    <Link to={`/series/${item.id}`} style={{ textDecoration: "none" }}>
-                      <div className="series-card">
-                        <div className="series-card-header">
-                          <span className="series-card-title">{item.title}</span>
-                          <span className={`badge ${item.readCount && item.progress && item.readCount >= item.progress.owned ? "badge-cyan" : "badge-yellow"}`}>
-                            {item.readCount && item.progress && item.readCount >= item.progress.owned ? "Read" : "Reading"}
-                          </span>
-                        </div>
-                        <div className="series-card-author">{item.author}</div>
-                        <span className="badge badge-outline">{BOOK_TYPE_LABELS[item.bookType as keyof typeof BOOK_TYPE_LABELS]}</span>
-                        {item.progress && (
-                          <div className="series-progress">
-                            <div className="progress-bar">
-                              <div
-                                className="progress-fill"
-                                style={{ width: `${(item.progress.owned / item.progress.total) * 100}%` }}
-                              />
-                            </div>
-                            <div className="progress-text">
-                              {item.progress.owned} of {item.progress.total} volumes owned
-                            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {libraryItems.map((item) =>
+                item.type === "series" ? (
+                  <Link key={item.id} to={`/series/${item.id}`} className="block">
+                    <div className="bg-white border-2 border-gray-900 rounded-xl p-5 neo-shadow-md hover:translate-y-[-2px] hover:shadow-lg transition-all cursor-pointer">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-title text-lg">{item.title}</h3>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            item.readCount && item.progress && item.readCount >= item.progress.owned
+                              ? "bg-cyan text-gray-900"
+                              : "bg-yellow text-gray-900"
+                          }`}
+                        >
+                          {item.readCount && item.progress && item.readCount >= item.progress.owned
+                            ? "Read"
+                            : "Reading"}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-3">{item.author}</p>
+                      <span className="inline-block px-2 py-1 text-xs border border-gray-300 rounded-full mb-3">
+                        {BOOK_TYPE_LABELS[item.bookType as keyof typeof BOOK_TYPE_LABELS]}
+                      </span>
+                      {item.progress && (
+                        <div className="mt-3">
+                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
+                            <div
+                              className="h-full bg-purple transition-all"
+                              style={{ width: `${(item.progress.owned / item.progress.total) * 100}%` }}
+                            />
                           </div>
-                        )}
-                      </div>
-                    </Link>
-                  ) : (
-                    <Link to={`/book/${item.id}`} style={{ textDecoration: "none" }}>
-                      <div className="card card-pressable">
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                          <span className="subtitle" style={{ flex: 1 }}>{item.title}</span>
-                          <span className={`badge ${item.isRead ? "badge-cyan" : "badge-yellow"}`}>
-                            {item.isRead ? "Read" : "Unread"}
-                          </span>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {item.progress.owned} of {item.progress.total} volumes owned
+                          </p>
                         </div>
-                        <div style={{ color: "var(--text-secondary)", marginBottom: "12px" }}>{item.author}</div>
-                        <span className="badge badge-outline">{BOOK_TYPE_LABELS[item.bookType as keyof typeof BOOK_TYPE_LABELS]}</span>
-                      </div>
-                    </Link>
-                  )}
-                  {index < libraryItems.length - 1 && (
-                    <div className="separator" style={{ gridColumn: "1 / -1" }}>
-                      <div className="separator-diamond" />
+                      )}
                     </div>
-                  )}
-                </React.Fragment>
-              ))}
+                  </Link>
+                ) : (
+                  <Link key={item.id} to={`/book/${item.id}`} className="block">
+                    <div className="bg-white border-2 border-gray-900 rounded-xl p-5 neo-shadow-md hover:translate-y-[-2px] hover:shadow-lg transition-all cursor-pointer">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-title text-lg">{item.title}</h3>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            item.isRead ? "bg-cyan text-gray-900" : "bg-yellow text-gray-900"
+                          }`}
+                        >
+                          {item.isRead ? "Read" : "Unread"}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-3">{item.author}</p>
+                      <span className="inline-block px-2 py-1 text-xs border border-gray-300 rounded-full">
+                        {BOOK_TYPE_LABELS[item.bookType as keyof typeof BOOK_TYPE_LABELS]}
+                      </span>
+                    </div>
+                  </Link>
+                )
+              )}
             </div>
           )}
         </>
@@ -217,32 +244,33 @@ export function LibraryPage() {
       {activeTab === "wishlist" && (
         <>
           {wishlist.length === 0 ? (
-            <div className="empty-state">
-              <h3>Wishlist is empty</h3>
-              <p>Add books you want to read later</p>
-              <Link to="/search" className="btn btn-primary" style={{ marginTop: "16px" }}>
+            <div className="text-center py-16">
+              <h3 className="font-title text-xl mb-2">Wishlist is empty</h3>
+              <p className="text-gray-600 mb-6">Add books you want to read later</p>
+              <Link
+                to="/search"
+                className="inline-block px-6 py-3 bg-coral text-gray-900 font-title border-2 border-gray-900 rounded-lg neo-shadow-md hover:translate-y-0.5 hover:shadow-none transition-all"
+              >
                 Search Books
               </Link>
             </div>
           ) : (
-            <div className="grid grid-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {wishlist.map((book) => (
-                <div key={book.id} className="card">
-                  <div style={{ marginBottom: "12px" }}>
-                    <div className="subtitle">{book.title}</div>
-                    <div style={{ color: "var(--text-secondary)" }}>{book.author}</div>
-                  </div>
-                  <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
+                <div key={book.id} className="bg-white border-2 border-gray-900 rounded-xl p-5 neo-shadow-md">
+                  <h3 className="font-title text-lg mb-1">{book.title}</h3>
+                  <p className="text-gray-600 text-sm mb-4">{book.author}</p>
+                  <div className="flex gap-2">
                     <button
-                      className="btn btn-secondary btn-sm"
                       onClick={() => handleMoveToOwned(book.id)}
                       disabled={movingId === book.id}
+                      className="flex-1 px-3 py-2 bg-cyan text-gray-900 font-title text-sm border-2 border-gray-900 rounded-lg hover:translate-y-0.5 hover:shadow-none transition-all disabled:opacity-50"
                     >
                       {movingId === book.id ? "Moving..." : "Move to Owned"}
                     </button>
                     <button
-                      className="btn btn-outline btn-sm"
                       onClick={() => handleRemoveFromWishlist(book.id)}
+                      className="px-3 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors"
                     >
                       Remove
                     </button>
@@ -258,21 +286,21 @@ export function LibraryPage() {
       {activeTab === "releases" && (
         <>
           {upcoming.length === 0 ? (
-            <div className="empty-state">
-              <h3>No upcoming releases</h3>
-              <p>Books with future release dates will appear here</p>
+            <div className="text-center py-16">
+              <h3 className="font-title text-xl mb-2">No upcoming releases</h3>
+              <p className="text-gray-600">Books with future release dates will appear here</p>
             </div>
           ) : (
-            <div className="grid grid-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcoming.map((book) => (
-                <div key={book.id} className="card">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                    <span className="subtitle">{book.title}</span>
-                    <span className="badge badge-purple">
+                <div key={book.id} className="bg-white border-2 border-gray-900 rounded-xl p-5 neo-shadow-md">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-title text-lg">{book.title}</h3>
+                    <span className="px-2 py-1 text-xs bg-purple text-white rounded-full">
                       {new Date(book.releaseDate!).toLocaleDateString()}
                     </span>
                   </div>
-                  <div style={{ color: "var(--text-secondary)" }}>{book.author}</div>
+                  <p className="text-gray-600 text-sm">{book.author}</p>
                 </div>
               ))}
             </div>
@@ -283,17 +311,7 @@ export function LibraryPage() {
       {/* Floating Add Button */}
       <Link
         to="/search"
-        className="btn btn-primary"
-        style={{
-          position: "fixed",
-          bottom: "24px",
-          right: "24px",
-          width: "56px",
-          height: "56px",
-          borderRadius: "50%",
-          fontSize: "24px",
-          padding: 0,
-        }}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-coral text-gray-900 font-title text-2xl border-2 border-gray-900 rounded-full flex items-center justify-center neo-shadow-md hover:translate-y-0.5 hover:shadow-none transition-all"
       >
         +
       </Link>

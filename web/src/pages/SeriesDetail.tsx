@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
   getSeries,
@@ -67,10 +67,13 @@ export function SeriesDetailPage() {
 
   if (!series) {
     return (
-      <div className="screen">
-        <div className="empty-state">
-          <h3>Series not found</h3>
-          <Link to="/library" className="btn btn-primary" style={{ marginTop: "16px" }}>
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="text-center py-16">
+          <h3 className="font-title text-xl mb-4">Series not found</h3>
+          <Link
+            to="/library"
+            className="inline-block px-6 py-3 bg-coral text-gray-900 font-title border-2 border-gray-900 rounded-lg neo-shadow-md"
+          >
             Back to Library
           </Link>
         </div>
@@ -83,157 +86,125 @@ export function SeriesDetailPage() {
   const collectionPercentage = progress.total > 0 ? Math.round((progress.owned / progress.total) * 100) : 0;
 
   return (
-    <div className="screen">
+    <div className="max-w-3xl mx-auto p-6">
       {/* Header */}
-      <div className="screen-header">
-        <Link to="/library" className="btn btn-outline btn-sm">
+      <div className="flex justify-between items-center mb-8">
+        <Link to="/library" className="px-4 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors">
           ← Back
         </Link>
-        <h1 className="title">Series Details</h1>
-        <div style={{ width: "80px" }} />
+        <h1 className="font-title text-3xl">Series Details</h1>
+        <div className="w-20" />
       </div>
 
-      {/* Series Info Card */}
-      <div className="card" style={{ marginBottom: "var(--space-xl)" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "var(--space-md)" }}>
+      {/* Series Info */}
+      <div className="bg-white border-2 border-gray-900 rounded-xl p-6 neo-shadow-md mb-6">
+        <div className="flex justify-between items-start mb-4">
           <div>
-            <h2 className="subtitle">{series.name}</h2>
-            <p style={{ color: "var(--text-secondary)", marginTop: "var(--space-xs)" }}>{series.author}</p>
+            <h2 className="font-title text-2xl">{series.name}</h2>
+            <p className="text-gray-600 mt-1">{series.author}</p>
           </div>
-          <span className="badge badge-outline">{BOOK_TYPE_LABELS[series.bookType]}</span>
+          <span className="px-3 py-1 text-sm border-2 border-gray-300 rounded-full">
+            {BOOK_TYPE_LABELS[series.bookType]}
+          </span>
         </div>
 
         {/* Progress Bars */}
-        <div style={{ marginTop: "var(--space-lg)" }}>
-          {/* Collection Progress */}
-          <div style={{ marginBottom: "var(--space-md)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "var(--space-xs)" }}>
+        <div className="space-y-4 mt-6">
+          <div>
+            <div className="flex justify-between text-sm mb-1">
               <span>Collection</span>
               <span>{progress.owned} / {progress.total} volumes ({collectionPercentage}%)</span>
             </div>
-            <div className="progress-bar" style={{ height: "12px" }}>
-              <div
-                className="progress-fill"
-                style={{ width: `${collectionPercentage}%`, background: "var(--purple)" }}
-              />
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
+              <div className="h-full bg-purple transition-all" style={{ width: `${collectionPercentage}%` }} />
             </div>
           </div>
 
-          {/* Reading Progress */}
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "var(--space-xs)" }}>
+            <div className="flex justify-between text-sm mb-1">
               <span>Read</span>
               <span>{readCount} / {books.length} volumes ({readPercentage}%)</span>
             </div>
-            <div className="progress-bar" style={{ height: "12px" }}>
-              <div
-                className="progress-fill"
-                style={{ width: `${readPercentage}%`, background: "var(--cyan)" }}
-              />
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
+              <div className="h-full bg-cyan transition-all" style={{ width: `${readPercentage}%` }} />
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div style={{ display: "flex", gap: "var(--space-md)", marginTop: "var(--space-lg)", flexWrap: "wrap" }}>
+        <div className="flex flex-wrap gap-3 mt-6">
           {readCount < books.length && (
-            <button className="btn btn-secondary btn-sm" onClick={handleMarkAllRead}>
+            <button
+              onClick={handleMarkAllRead}
+              className="px-4 py-2 bg-cyan text-gray-900 font-title text-sm border-2 border-gray-900 rounded-lg hover:translate-y-0.5 transition-all"
+            >
               Mark All as Read
             </button>
           )}
           {readCount > 0 && (
-            <button className="btn btn-outline btn-sm" onClick={handleMarkAllUnread}>
+            <button
+              onClick={handleMarkAllUnread}
+              className="px-4 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors"
+            >
               Mark All as Unread
             </button>
           )}
-          <button className="btn btn-danger btn-sm" onClick={handleDeleteSeries}>
+          <button
+            onClick={handleDeleteSeries}
+            className="px-4 py-2 bg-red-500 text-white font-title text-sm border-2 border-gray-900 rounded-lg hover:bg-red-600 transition-colors"
+          >
             Delete Series
           </button>
         </div>
       </div>
 
       {/* Volumes List */}
-      <h3 className="subtitle" style={{ marginBottom: "var(--space-md)" }}>
-        Volumes ({books.length})
-      </h3>
+      <h3 className="font-title text-xl mb-4">Volumes ({books.length})</h3>
 
       {books.length === 0 ? (
-        <div className="empty-state">
-          <p>No volumes in this series yet</p>
+        <div className="text-center py-8 text-gray-500">
+          No volumes in this series yet
         </div>
       ) : (
-        <div className="grid grid-auto">
+        <div className="space-y-3">
           {books
             .sort((a, b) => (a.volumeNumber || 0) - (b.volumeNumber || 0))
-            .map((book, index) => (
-              <React.Fragment key={book.id}>
-                <div
-                  className="card card-pressable"
-                  onClick={() => handleToggleRead(book.id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-md)" }}>
-                    {/* Volume Number */}
-                    <div
-                      style={{
-                        width: "48px",
-                        height: "48px",
-                        borderRadius: "8px",
-                        background: book.isRead ? "var(--cyan)" : "var(--yellow)",
-                        border: "2px solid var(--border-color)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontFamily: "var(--font-title)",
-                        fontSize: "20px",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {book.volumeNumber || "?"}
-                    </div>
-
-                    {/* Title */}
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600 }}>{book.title}</div>
-                      <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                        {book.isRead ? "Read" : "Unread"}
-                      </div>
-                    </div>
-
-                    {/* Status indicator */}
-                    <div
-                      style={{
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "50%",
-                        border: "2px solid var(--border-color)",
-                        background: book.isRead ? "var(--cyan)" : "transparent",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {book.isRead && (
-                        <span style={{ color: "var(--text-primary)", fontSize: "14px" }}>✓</span>
-                      )}
-                    </div>
+            .map((book) => (
+              <div
+                key={book.id}
+                onClick={() => handleToggleRead(book.id)}
+                className="bg-white border-2 border-gray-900 rounded-xl p-4 neo-shadow-sm cursor-pointer hover:translate-y-[-1px] hover:shadow-md transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-12 h-12 rounded-lg border-2 border-gray-900 flex items-center justify-center font-title text-xl flex-shrink-0 ${
+                      book.isRead ? "bg-cyan" : "bg-yellow"
+                    }`}
+                  >
+                    {book.volumeNumber || "?"}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold">{book.title}</div>
+                    <div className="text-xs text-gray-500">{book.isRead ? "Read" : "Unread"}</div>
+                  </div>
+                  <div
+                    className={`w-6 h-6 rounded-full border-2 border-gray-900 flex items-center justify-center ${
+                      book.isRead ? "bg-cyan" : "bg-transparent"
+                    }`}
+                  >
+                    {book.isRead && <span className="text-sm">✓</span>}
                   </div>
                 </div>
-                {index < books.length - 1 && (
-                  <div className="separator" style={{ gridColumn: "1 / -1" }}>
-                    <div className="separator-diamond" />
-                  </div>
-                )}
-              </React.Fragment>
+              </div>
             ))}
         </div>
       )}
 
       {/* Missing Volumes */}
       {progress.total > progress.owned && (
-        <div className="card" style={{ marginTop: "var(--space-xl)", background: "var(--bg-secondary)" }}>
-          <h4 style={{ marginBottom: "var(--space-sm)" }}>Missing Volumes</h4>
-          <p style={{ color: "var(--text-secondary)" }}>
+        <div className="bg-gray-100 border-2 border-gray-300 rounded-xl p-4 mt-6">
+          <h4 className="font-semibold mb-1">Missing Volumes</h4>
+          <p className="text-gray-600 text-sm">
             You have {progress.owned} of {progress.total} volumes.
             {progress.total - progress.owned} volume{progress.total - progress.owned > 1 ? "s" : ""} left to collect.
           </p>

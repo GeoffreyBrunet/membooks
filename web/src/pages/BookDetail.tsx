@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
   getBook,
@@ -64,10 +64,13 @@ export function BookDetailPage() {
 
   if (!book) {
     return (
-      <div className="screen">
-        <div className="empty-state">
-          <h3>Book not found</h3>
-          <Link to="/library" className="btn btn-primary" style={{ marginTop: "16px" }}>
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="text-center py-16">
+          <h3 className="font-title text-xl mb-4">Book not found</h3>
+          <Link
+            to="/library"
+            className="inline-block px-6 py-3 bg-coral text-gray-900 font-title border-2 border-gray-900 rounded-lg neo-shadow-md"
+          >
             Back to Library
           </Link>
         </div>
@@ -76,52 +79,51 @@ export function BookDetailPage() {
   }
 
   return (
-    <div className="screen">
+    <div className="max-w-2xl mx-auto p-6">
       {/* Header */}
-      <div className="screen-header">
-        <Link to="/library" className="btn btn-outline btn-sm">
+      <div className="flex justify-between items-center mb-8">
+        <Link to="/library" className="px-4 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors">
           ← Back
         </Link>
-        <h1 className="title">Book Details</h1>
-        <div style={{ width: "80px" }} />
+        <h1 className="font-title text-3xl">Book Details</h1>
+        <div className="w-20" />
       </div>
 
       {editing ? (
-        /* Edit Form */
-        <div className="card" style={{ maxWidth: "600px" }}>
-          <h2 className="subtitle" style={{ marginBottom: "var(--space-lg)" }}>Edit Book</h2>
-          <form onSubmit={handleSaveEdit}>
-            <div className="form-group">
-              <label htmlFor="title">Title</label>
+        <div className="bg-white border-2 border-gray-900 rounded-xl p-6 neo-shadow-md">
+          <h2 className="font-title text-xl mb-6">Edit Book</h2>
+          <form onSubmit={handleSaveEdit} className="space-y-5">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium mb-2">Title</label>
               <input
                 type="text"
                 id="title"
-                className="input"
                 value={editForm.title}
                 onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                 required
+                className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral"
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="author">Author</label>
+            <div>
+              <label htmlFor="author" className="block text-sm font-medium mb-2">Author</label>
               <input
                 type="text"
                 id="author"
-                className="input"
                 value={editForm.author}
                 onChange={(e) => setEditForm({ ...editForm, author: e.target.value })}
                 required
+                className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral"
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="bookType">Type</label>
+            <div>
+              <label htmlFor="bookType" className="block text-sm font-medium mb-2">Type</label>
               <select
                 id="bookType"
-                className="input"
                 value={editForm.bookType}
                 onChange={(e) => setEditForm({ ...editForm, bookType: e.target.value as BookType })}
+                className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral"
               >
                 {Object.entries(BOOK_TYPE_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
@@ -129,22 +131,17 @@ export function BookDetailPage() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Genre(s)</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-sm)" }}>
+            <div>
+              <label className="block text-sm font-medium mb-2">Genre(s)</label>
+              <div className="flex flex-wrap gap-2">
                 {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
                   <label
                     key={value}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--space-xs)",
-                      padding: "var(--space-xs) var(--space-sm)",
-                      borderRadius: "4px",
-                      border: "2px solid var(--border-color)",
-                      background: editForm.categories.includes(value as BookCategory) ? "var(--purple)" : "transparent",
-                      cursor: "pointer",
-                    }}
+                    className={`px-3 py-1.5 rounded-lg border-2 cursor-pointer transition-colors ${
+                      editForm.categories.includes(value as BookCategory)
+                        ? "bg-purple text-white border-gray-900"
+                        : "bg-white border-gray-300 hover:border-gray-900"
+                    }`}
                   >
                     <input
                       type="checkbox"
@@ -156,124 +153,123 @@ export function BookDetailPage() {
                           setEditForm({ ...editForm, categories: editForm.categories.filter((c) => c !== value) });
                         }
                       }}
-                      style={{ display: "none" }}
+                      className="hidden"
                     />
-                    <span>{label}</span>
+                    <span className="text-sm">{label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="notes">Notes</label>
+            <div>
+              <label htmlFor="notes" className="block text-sm font-medium mb-2">Notes</label>
               <textarea
                 id="notes"
-                className="input"
                 rows={4}
                 value={editForm.notes}
                 onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
                 placeholder="Your personal notes about this book..."
+                className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral resize-none"
               />
             </div>
 
-            <div className="form-group">
-              <label style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)", cursor: "pointer" }}>
-                <input
-                  type="checkbox"
-                  checked={editForm.isRead}
-                  onChange={(e) => setEditForm({ ...editForm, isRead: e.target.checked })}
-                  style={{ width: "20px", height: "20px" }}
-                />
-                <span>Marked as read</span>
-              </label>
-            </div>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editForm.isRead}
+                onChange={(e) => setEditForm({ ...editForm, isRead: e.target.checked })}
+                className="w-5 h-5 rounded border-2 border-gray-900"
+              />
+              <span>Marked as read</span>
+            </label>
 
-            <div style={{ display: "flex", gap: "var(--space-md)" }}>
-              <button type="submit" className="btn btn-primary">
+            <div className="flex gap-4 pt-4">
+              <button
+                type="submit"
+                className="px-6 py-3 bg-coral text-gray-900 font-title border-2 border-gray-900 rounded-lg neo-shadow-md hover:translate-y-0.5 hover:shadow-none transition-all"
+              >
                 Save Changes
               </button>
-              <button type="button" className="btn btn-outline" onClick={() => setEditing(false)}>
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                className="px-6 py-3 border-2 border-gray-900 rounded-lg font-title hover:bg-gray-100 transition-colors"
+              >
                 Cancel
               </button>
             </div>
           </form>
         </div>
       ) : (
-        /* Book Info */
         <>
-          <div className="card" style={{ maxWidth: "600px" }}>
-            {/* Cover placeholder */}
+          <div className="bg-white border-2 border-gray-900 rounded-xl p-6 neo-shadow-md">
             {book.coverId && (
-              <div style={{ marginBottom: "var(--space-lg)", textAlign: "center" }}>
+              <div className="mb-6 text-center">
                 <img
                   src={`https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`}
                   alt={book.title}
-                  style={{
-                    maxWidth: "200px",
-                    maxHeight: "300px",
-                    borderRadius: "8px",
-                    border: "2px solid var(--border-color)",
-                    boxShadow: "var(--shadow-md)",
-                  }}
+                  className="max-w-48 max-h-72 mx-auto rounded-lg border-2 border-gray-900 neo-shadow-md"
                 />
               </div>
             )}
 
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "var(--space-md)" }}>
-              <h2 className="subtitle" style={{ flex: 1 }}>{book.title}</h2>
-              <span className={`badge ${book.isRead ? "badge-cyan" : "badge-yellow"}`}>
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="font-title text-2xl flex-1">{book.title}</h2>
+              <span className={`px-3 py-1 text-sm font-medium rounded-full ${book.isRead ? "bg-cyan" : "bg-yellow"} text-gray-900`}>
                 {book.isRead ? "Read" : "Unread"}
               </span>
             </div>
 
-            <div style={{ marginBottom: "var(--space-lg)" }}>
-              <p style={{ color: "var(--text-secondary)", fontSize: "18px", marginBottom: "var(--space-md)" }}>
-                {book.author}
-              </p>
-              <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
-                <span className="badge badge-outline">{BOOK_TYPE_LABELS[book.bookType]}</span>
-                {book.categories.map((cat) => (
-                  <span key={cat} className="badge badge-purple">{CATEGORY_LABELS[cat]}</span>
-                ))}
-              </div>
+            <p className="text-gray-600 text-lg mb-4">{book.author}</p>
+
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="px-3 py-1 text-sm border-2 border-gray-300 rounded-full">
+                {BOOK_TYPE_LABELS[book.bookType]}
+              </span>
+              {book.categories.map((cat) => (
+                <span key={cat} className="px-3 py-1 text-sm bg-purple text-white rounded-full">
+                  {CATEGORY_LABELS[cat]}
+                </span>
+              ))}
             </div>
 
             {book.isbn && (
-              <div style={{ marginBottom: "var(--space-md)" }}>
-                <strong>ISBN:</strong> {book.isbn}
-              </div>
+              <p className="mb-2"><strong>ISBN:</strong> {book.isbn}</p>
             )}
 
             {book.firstPublishYear && (
-              <div style={{ marginBottom: "var(--space-md)" }}>
-                <strong>First Published:</strong> {book.firstPublishYear}
-              </div>
+              <p className="mb-2"><strong>First Published:</strong> {book.firstPublishYear}</p>
             )}
 
             {book.notes && (
-              <div style={{ marginBottom: "var(--space-lg)" }}>
+              <div className="mt-6 pt-6 border-t border-gray-200">
                 <strong>Notes:</strong>
-                <p style={{ marginTop: "var(--space-sm)", color: "var(--text-secondary)", whiteSpace: "pre-wrap" }}>
-                  {book.notes}
-                </p>
+                <p className="mt-2 text-gray-600 whitespace-pre-wrap">{book.notes}</p>
               </div>
             )}
           </div>
 
-          {/* Actions */}
-          <div className="card" style={{ maxWidth: "600px", marginTop: "var(--space-lg)" }}>
-            <h3 className="subtitle" style={{ marginBottom: "var(--space-md)" }}>Actions</h3>
-            <div style={{ display: "flex", gap: "var(--space-md)", flexWrap: "wrap" }}>
+          <div className="bg-white border-2 border-gray-900 rounded-xl p-6 neo-shadow-md mt-6">
+            <h3 className="font-title text-lg mb-4">Actions</h3>
+            <div className="flex flex-wrap gap-4">
               <button
-                className={`btn ${book.isRead ? "btn-outline" : "btn-secondary"}`}
                 onClick={handleToggleRead}
+                className={`px-4 py-2 font-title text-sm border-2 border-gray-900 rounded-lg transition-all ${
+                  book.isRead ? "bg-white hover:bg-gray-100" : "bg-cyan hover:translate-y-0.5"
+                }`}
               >
                 {book.isRead ? "Mark as Unread" : "Mark as Read"}
               </button>
-              <button className="btn btn-primary" onClick={() => setEditing(true)}>
+              <button
+                onClick={() => setEditing(true)}
+                className="px-4 py-2 bg-coral text-gray-900 font-title text-sm border-2 border-gray-900 rounded-lg hover:translate-y-0.5 transition-all"
+              >
                 Edit Book
               </button>
-              <button className="btn btn-danger" onClick={handleDelete}>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-500 text-white font-title text-sm border-2 border-gray-900 rounded-lg hover:bg-red-600 transition-colors"
+              >
                 Delete
               </button>
             </div>

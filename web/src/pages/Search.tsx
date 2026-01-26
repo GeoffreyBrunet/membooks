@@ -18,7 +18,6 @@ export function SearchPage() {
   const [searched, setSearched] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
 
-  // Debounced autocomplete
   useEffect(() => {
     if (query.length < 2) {
       setSuggestions([]);
@@ -49,7 +48,6 @@ export function SearchPage() {
   const handleAddBook = async (result: SearchResult, toWishlist: boolean = false) => {
     setAddingId(result.key);
 
-    // Check if already exists
     const author = result.author_name?.[0] || "Unknown";
     if (bookExists(result.title, author)) {
       alert("This book is already in your library!");
@@ -60,7 +58,6 @@ export function SearchPage() {
     const book = searchResultToBook(result);
     addBook({ ...book, inWishlist: toWishlist });
 
-    // Brief delay for feedback
     await new Promise((r) => setTimeout(r, 300));
     setAddingId(null);
 
@@ -72,7 +69,6 @@ export function SearchPage() {
   const handleSuggestionClick = (suggestion: SearchResult) => {
     setQuery(suggestion.title);
     setSuggestions([]);
-    // Trigger search
     setLoading(true);
     setSearched(true);
     searchBooks(suggestion.title).then((data) => {
@@ -82,84 +78,47 @@ export function SearchPage() {
   };
 
   return (
-    <div className="screen">
+    <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
-      <div className="screen-header">
-        <h1 className="title">Search Books</h1>
+      <div className="mb-8">
+        <h1 className="font-title text-3xl">Search Books</h1>
       </div>
 
       {/* Search Form */}
-      <form onSubmit={handleSearch} style={{ position: "relative", marginBottom: "var(--space-xl)" }}>
-        <div style={{ display: "flex", gap: "var(--space-md)" }}>
-          <div style={{ flex: 1, position: "relative" }}>
+      <form onSubmit={handleSearch} className="relative mb-8">
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
             <input
               type="text"
-              className="input"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by title, author, or ISBN..."
+              className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral transition-colors"
             />
 
             {/* Autocomplete Suggestions */}
             {suggestions.length > 0 && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  right: 0,
-                  background: "var(--bg-primary)",
-                  border: "2px solid var(--border-color)",
-                  borderTop: "none",
-                  borderRadius: "0 0 8px 8px",
-                  zIndex: 10,
-                  boxShadow: "var(--shadow-md)",
-                }}
-              >
+              <div className="absolute top-full left-0 right-0 bg-white border-2 border-t-0 border-gray-900 rounded-b-lg z-10 neo-shadow-md">
                 {suggestions.map((s) => (
                   <div
                     key={s.key}
                     onClick={() => handleSuggestionClick(s)}
-                    style={{
-                      padding: "var(--space-md)",
-                      cursor: "pointer",
-                      borderBottom: "1px solid var(--bg-tertiary)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--space-md)",
-                    }}
-                    onMouseOver={(e) => (e.currentTarget.style.background = "var(--bg-secondary)")}
-                    onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
+                    className="flex items-center gap-4 p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-200 last:border-0"
                   >
-                    <div
-                      style={{
-                        width: "40px",
-                        height: "50px",
-                        background: "var(--yellow)",
-                        borderRadius: "4px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "1px solid var(--border-color)",
-                        overflow: "hidden",
-                        flexShrink: 0,
-                      }}
-                    >
+                    <div className="w-10 h-12 bg-yellow rounded border border-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
                       {s.cover_i ? (
                         <img
                           src={getCoverUrl(s.cover_i, "S")}
                           alt=""
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span style={{ fontSize: "16px" }}>?</span>
+                        <span className="text-gray-500">?</span>
                       )}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {s.title}
-                      </div>
-                      <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">{s.title}</div>
+                      <div className="text-xs text-gray-500">
                         {s.author_name?.[0] || "Unknown Author"}
                       </div>
                     </div>
@@ -168,7 +127,11 @@ export function SearchPage() {
               </div>
             )}
           </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-3 bg-coral text-gray-900 font-title border-2 border-gray-900 rounded-lg neo-shadow-md hover:translate-y-0.5 hover:shadow-none transition-all disabled:opacity-50"
+          >
             {loading ? "..." : "Search"}
           </button>
         </div>
@@ -176,64 +139,72 @@ export function SearchPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="loading">
-          <div className="spinner" />
+        <div className="flex items-center justify-center py-16 text-gray-500">
+          <div className="w-6 h-6 border-3 border-gray-300 border-t-coral rounded-full animate-spin mr-3" />
           Searching...
         </div>
       )}
 
       {/* No Results */}
       {!loading && searched && results.length === 0 && (
-        <div className="empty-state">
-          <h3>No results found</h3>
-          <p>Try a different search term</p>
+        <div className="text-center py-16">
+          <h3 className="font-title text-xl mb-2">No results found</h3>
+          <p className="text-gray-600">Try a different search term</p>
         </div>
       )}
 
       {/* Results */}
       {!loading && results.length > 0 && (
-        <div className="grid grid-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {results.map((result) => {
             const author = result.author_name?.[0] || "Unknown";
             const alreadyOwned = bookExists(result.title, author);
 
             return (
-              <div key={result.key} className="book-card">
-                <div className="book-card-cover">
+              <div key={result.key} className="bg-white border-2 border-gray-900 rounded-xl overflow-hidden neo-shadow-md">
+                {/* Cover */}
+                <div className="h-48 bg-yellow flex items-center justify-center border-b-2 border-gray-900">
                   {result.cover_i ? (
-                    <img src={getCoverUrl(result.cover_i, "M")} alt={result.title} />
+                    <img
+                      src={getCoverUrl(result.cover_i, "M")}
+                      alt={result.title}
+                      className="h-full object-cover"
+                    />
                   ) : (
-                    <span className="book-card-cover-placeholder">?</span>
+                    <span className="text-4xl text-gray-400">?</span>
                   )}
                 </div>
-                <div className="book-card-content">
-                  <div className="book-card-header">
-                    <span className="book-card-title">{result.title}</span>
+
+                {/* Content */}
+                <div className="p-4">
+                  <div className="flex justify-between items-start gap-2 mb-2">
+                    <h3 className="font-title text-lg line-clamp-2">{result.title}</h3>
                     {alreadyOwned && (
-                      <span className="badge badge-cyan">In Library</span>
+                      <span className="px-2 py-1 text-xs bg-cyan text-gray-900 rounded-full whitespace-nowrap">
+                        In Library
+                      </span>
                     )}
                   </div>
-                  <div className="book-card-author">{author}</div>
+                  <p className="text-gray-600 text-sm mb-2">{author}</p>
                   {result.first_publish_year && (
-                    <div style={{ fontSize: "12px", color: "var(--text-tertiary)", marginTop: "4px" }}>
+                    <p className="text-xs text-gray-400 mb-4">
                       First published: {result.first_publish_year}
-                    </div>
+                    </p>
                   )}
 
                   {!alreadyOwned && (
-                    <div style={{ display: "flex", gap: "var(--space-sm)", marginTop: "var(--space-md)" }}>
+                    <div className="flex gap-2">
                       <button
-                        className="btn btn-primary btn-sm"
                         onClick={() => handleAddBook(result, false)}
                         disabled={addingId === result.key}
-                        style={{ flex: 1 }}
+                        className="flex-1 px-3 py-2 bg-coral text-gray-900 font-title text-sm border-2 border-gray-900 rounded-lg hover:translate-y-0.5 hover:shadow-none transition-all disabled:opacity-50"
                       >
                         {addingId === result.key ? "Adding..." : "Add to Library"}
                       </button>
                       <button
-                        className="btn btn-outline btn-sm"
                         onClick={() => handleAddBook(result, true)}
                         disabled={addingId === result.key}
+                        className="px-3 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors"
                       >
                         Wishlist
                       </button>

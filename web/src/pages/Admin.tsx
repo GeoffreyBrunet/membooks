@@ -21,32 +21,27 @@ export function AdminPage() {
     subscription?: AdminSubscription;
   } | null>(null);
 
-  // Stats
   const { data: stats } = useQuery({
     queryKey: ["admin", "stats"],
     queryFn: getAdminStats,
   });
 
-  // Users
   const { data: usersData, isLoading: usersLoading } = useQuery({
     queryKey: ["admin", "users", usersPage],
     queryFn: () => getAdminUsers(usersPage),
   });
 
-  // Subscriptions
   const { data: subsData, isLoading: subsLoading } = useQuery({
     queryKey: ["admin", "subscriptions", subsPage],
     queryFn: () => getAdminSubscriptions(subsPage),
     enabled: activeTab === "subscriptions",
   });
 
-  // User details
   const userDetailsMutation = useMutation({
     mutationFn: (userId: string) => getAdminUser(userId),
     onSuccess: (data) => setSelectedUser(data),
   });
 
-  // Toggle premium
   const togglePremiumMutation = useMutation({
     mutationFn: ({ userId, isPremium }: { userId: string; isPremium: boolean }) =>
       toggleUserPremium(userId, isPremium),
@@ -66,46 +61,48 @@ export function AdminPage() {
   };
 
   return (
-    <div className="screen">
+    <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
-      <div className="screen-header">
-        <Link to="/library" className="btn btn-outline btn-sm">
+      <div className="flex justify-between items-center mb-8">
+        <Link to="/library" className="px-4 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors">
           ← Back
         </Link>
-        <h1 className="title">Admin Dashboard</h1>
-        <div style={{ width: "80px" }} />
+        <h1 className="font-title text-3xl">Admin Dashboard</h1>
+        <div className="w-20" />
       </div>
 
       {/* Stats */}
-      <div className="stats-grid" style={{ marginBottom: "var(--space-xl)" }}>
-        <div className="stat-card">
-          <div className="stat-value">{stats?.totalUsers ?? "-"}</div>
-          <div className="stat-label">Total Users</div>
+      <div className="grid grid-cols-3 gap-6 mb-8">
+        <div className="bg-white border-2 border-gray-900 rounded-xl p-6 text-center neo-shadow-md">
+          <div className="font-title text-4xl mb-2">{stats?.totalUsers ?? "-"}</div>
+          <div className="text-gray-600">Total Users</div>
         </div>
-        <div className="stat-card purple">
-          <div className="stat-value">{stats?.premiumUsers ?? "-"}</div>
-          <div className="stat-label">Premium Users</div>
-          <div style={{ fontSize: "12px", color: "var(--text-tertiary)", marginTop: "4px" }}>
-            {stats?.conversionRate}% conversion
-          </div>
+        <div className="bg-purple text-white border-2 border-gray-900 rounded-xl p-6 text-center neo-shadow-md">
+          <div className="font-title text-4xl mb-2">{stats?.premiumUsers ?? "-"}</div>
+          <div>Premium Users</div>
+          <div className="text-sm opacity-80 mt-1">{stats?.conversionRate}% conversion</div>
         </div>
-        <div className="stat-card cyan">
-          <div className="stat-value">{stats?.activeSubscriptions ?? "-"}</div>
-          <div className="stat-label">Active Subscriptions</div>
+        <div className="bg-cyan border-2 border-gray-900 rounded-xl p-6 text-center neo-shadow-md">
+          <div className="font-title text-4xl mb-2">{stats?.activeSubscriptions ?? "-"}</div>
+          <div className="text-gray-800">Active Subscriptions</div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="tabs" style={{ marginBottom: "var(--space-lg)" }}>
+      <div className="flex gap-2 mb-6 border-b-2 border-gray-200">
         <button
-          className={`tab ${activeTab === "users" ? "active" : ""}`}
           onClick={() => setActiveTab("users")}
+          className={`px-6 py-3 font-title text-sm border-b-2 -mb-0.5 transition-colors ${
+            activeTab === "users" ? "border-coral text-coral" : "border-transparent text-gray-600 hover:text-gray-900"
+          }`}
         >
           Users
         </button>
         <button
-          className={`tab ${activeTab === "subscriptions" ? "active" : ""}`}
           onClick={() => setActiveTab("subscriptions")}
+          className={`px-6 py-3 font-title text-sm border-b-2 -mb-0.5 transition-colors ${
+            activeTab === "subscriptions" ? "border-coral text-coral" : "border-transparent text-gray-600 hover:text-gray-900"
+          }`}
         >
           Subscriptions
         </button>
@@ -113,46 +110,44 @@ export function AdminPage() {
 
       {/* Users Tab */}
       {activeTab === "users" && (
-        <div className="card">
+        <div className="bg-white border-2 border-gray-900 rounded-xl neo-shadow-md overflow-hidden">
           {usersLoading ? (
-            <div className="loading">
-              <div className="spinner" />
+            <div className="flex items-center justify-center py-16 text-gray-500">
+              <div className="w-6 h-6 border-3 border-gray-300 border-t-coral rounded-full animate-spin mr-3" />
               Loading users...
             </div>
           ) : usersData?.users.length === 0 ? (
-            <div className="empty-state">
-              <p>No users found</p>
-            </div>
+            <div className="text-center py-16 text-gray-500">No users found</div>
           ) : (
             <>
-              <div style={{ overflowX: "auto" }}>
-                <table className="table">
-                  <thead>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b-2 border-gray-900">
                     <tr>
-                      <th>Username</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Language</th>
-                      <th>Joined</th>
-                      <th>Actions</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Username</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Email</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Status</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Language</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Joined</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {usersData?.users.map((user) => (
-                      <tr key={user.id}>
-                        <td style={{ fontWeight: 600 }}>{user.username}</td>
-                        <td>{user.email}</td>
-                        <td>
-                          <span className={`badge ${user.isPremium ? "badge-purple" : "badge-outline"}`}>
+                      <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="px-4 py-3 font-semibold">{user.username}</td>
+                        <td className="px-4 py-3">{user.email}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-xs rounded-full ${user.isPremium ? "bg-purple text-white" : "border border-gray-300"}`}>
                             {user.isPremium ? "Premium" : "Free"}
                           </span>
                         </td>
-                        <td>{user.language?.toUpperCase() || "-"}</td>
-                        <td>{formatDate(user.createdAt)}</td>
-                        <td>
+                        <td className="px-4 py-3">{user.language?.toUpperCase() || "-"}</td>
+                        <td className="px-4 py-3">{formatDate(user.createdAt)}</td>
+                        <td className="px-4 py-3">
                           <button
-                            className="btn btn-primary btn-sm"
                             onClick={() => userDetailsMutation.mutate(user.id)}
+                            className="px-3 py-1.5 bg-coral text-gray-900 font-title text-xs border-2 border-gray-900 rounded-lg hover:translate-y-0.5 transition-all"
                           >
                             View
                           </button>
@@ -163,22 +158,22 @@ export function AdminPage() {
                 </table>
               </div>
               {usersData?.pagination && (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "var(--space-lg)", paddingTop: "var(--space-lg)", borderTop: "2px solid var(--border-color)" }}>
-                  <div style={{ color: "var(--text-secondary)" }}>
+                <div className="flex justify-between items-center p-4 border-t-2 border-gray-200">
+                  <span className="text-sm text-gray-600">
                     Page {usersData.pagination.page} of {usersData.pagination.totalPages} ({usersData.pagination.total} users)
-                  </div>
-                  <div style={{ display: "flex", gap: "var(--space-sm)" }}>
+                  </span>
+                  <div className="flex gap-2">
                     <button
-                      className="btn btn-outline btn-sm"
                       disabled={usersData.pagination.page <= 1}
                       onClick={() => setUsersPage((p) => p - 1)}
+                      className="px-3 py-1.5 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
                     <button
-                      className="btn btn-outline btn-sm"
                       disabled={usersData.pagination.page >= usersData.pagination.totalPages}
                       onClick={() => setUsersPage((p) => p + 1)}
+                      className="px-3 py-1.5 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>
@@ -192,63 +187,63 @@ export function AdminPage() {
 
       {/* Subscriptions Tab */}
       {activeTab === "subscriptions" && (
-        <div className="card">
+        <div className="bg-white border-2 border-gray-900 rounded-xl neo-shadow-md overflow-hidden">
           {subsLoading ? (
-            <div className="loading">
-              <div className="spinner" />
+            <div className="flex items-center justify-center py-16 text-gray-500">
+              <div className="w-6 h-6 border-3 border-gray-300 border-t-coral rounded-full animate-spin mr-3" />
               Loading subscriptions...
             </div>
           ) : subsData?.subscriptions.length === 0 ? (
-            <div className="empty-state">
-              <p>No subscriptions found</p>
-            </div>
+            <div className="text-center py-16 text-gray-500">No subscriptions found</div>
           ) : (
             <>
-              <div style={{ overflowX: "auto" }}>
-                <table className="table">
-                  <thead>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b-2 border-gray-900">
                     <tr>
-                      <th>User</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Period End</th>
-                      <th>Cancel at End</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">User</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Email</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Status</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Period End</th>
+                      <th className="px-4 py-3 text-left font-title text-gray-600 uppercase text-xs">Cancel at End</th>
                     </tr>
                   </thead>
                   <tbody>
                     {subsData?.subscriptions.map((sub) => (
-                      <tr key={sub.id}>
-                        <td style={{ fontWeight: 600 }}>{sub.username || "-"}</td>
-                        <td>{sub.userEmail || "-"}</td>
-                        <td>
-                          <span className={`badge ${sub.status === "active" ? "badge-cyan" : sub.status === "canceled" ? "badge-coral" : "badge-yellow"}`}>
+                      <tr key={sub.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="px-4 py-3 font-semibold">{sub.username || "-"}</td>
+                        <td className="px-4 py-3">{sub.userEmail || "-"}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            sub.status === "active" ? "bg-cyan" : sub.status === "canceled" ? "bg-coral" : "bg-yellow"
+                          } text-gray-900`}>
                             {sub.status}
                           </span>
                         </td>
-                        <td>{formatDate(sub.currentPeriodEnd)}</td>
-                        <td>{sub.cancelAtPeriodEnd ? "Yes" : "No"}</td>
+                        <td className="px-4 py-3">{formatDate(sub.currentPeriodEnd)}</td>
+                        <td className="px-4 py-3">{sub.cancelAtPeriodEnd ? "Yes" : "No"}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               {subsData?.pagination && (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "var(--space-lg)", paddingTop: "var(--space-lg)", borderTop: "2px solid var(--border-color)" }}>
-                  <div style={{ color: "var(--text-secondary)" }}>
+                <div className="flex justify-between items-center p-4 border-t-2 border-gray-200">
+                  <span className="text-sm text-gray-600">
                     Page {subsData.pagination.page} of {subsData.pagination.totalPages} ({subsData.pagination.total} subscriptions)
-                  </div>
-                  <div style={{ display: "flex", gap: "var(--space-sm)" }}>
+                  </span>
+                  <div className="flex gap-2">
                     <button
-                      className="btn btn-outline btn-sm"
                       disabled={subsData.pagination.page <= 1}
                       onClick={() => setSubsPage((p) => p - 1)}
+                      className="px-3 py-1.5 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
                     <button
-                      className="btn btn-outline btn-sm"
                       disabled={subsData.pagination.page >= subsData.pagination.totalPages}
                       onClick={() => setSubsPage((p) => p + 1)}
+                      className="px-3 py-1.5 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>
@@ -262,58 +257,46 @@ export function AdminPage() {
 
       {/* User Modal */}
       {selectedUser && (
-        <div className="modal-overlay" onClick={() => setSelectedUser(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2 className="subtitle" style={{ marginBottom: "var(--space-lg)" }}>User Details</h2>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-6" onClick={() => setSelectedUser(null)}>
+          <div className="bg-white border-2 border-gray-900 rounded-xl p-6 max-w-md w-full neo-shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-title text-xl mb-6">User Details</h2>
 
-            <div style={{ marginBottom: "var(--space-lg)" }}>
-              <div style={{ marginBottom: "var(--space-md)" }}>
-                <strong>Username:</strong> {selectedUser.user.username}
-              </div>
-              <div style={{ marginBottom: "var(--space-md)" }}>
-                <strong>Email:</strong> {selectedUser.user.email}
-              </div>
-              <div style={{ marginBottom: "var(--space-md)" }}>
+            <div className="space-y-3 mb-6">
+              <div><strong>Username:</strong> {selectedUser.user.username}</div>
+              <div><strong>Email:</strong> {selectedUser.user.email}</div>
+              <div>
                 <strong>Status:</strong>{" "}
-                <span className={`badge ${selectedUser.user.isPremium ? "badge-purple" : "badge-outline"}`}>
+                <span className={`px-2 py-1 text-xs rounded-full ${selectedUser.user.isPremium ? "bg-purple text-white" : "border border-gray-300"}`}>
                   {selectedUser.user.isPremium ? "Premium" : "Free"}
                 </span>
               </div>
-              <div style={{ marginBottom: "var(--space-md)" }}>
-                <strong>Language:</strong> {selectedUser.user.language?.toUpperCase() || "-"}
-              </div>
-              <div style={{ marginBottom: "var(--space-md)" }}>
-                <strong>Stripe Customer:</strong> {selectedUser.user.stripeCustomerId || "None"}
-              </div>
-              <div style={{ marginBottom: "var(--space-md)" }}>
-                <strong>Joined:</strong> {formatDate(selectedUser.user.createdAt)}
-              </div>
+              <div><strong>Language:</strong> {selectedUser.user.language?.toUpperCase() || "-"}</div>
+              <div><strong>Stripe Customer:</strong> {selectedUser.user.stripeCustomerId || "None"}</div>
+              <div><strong>Joined:</strong> {formatDate(selectedUser.user.createdAt)}</div>
 
               {selectedUser.subscription && (
                 <>
-                  <div style={{ margin: "var(--space-lg) 0", borderTop: "2px solid var(--border-color)" }} />
-                  <div style={{ marginBottom: "var(--space-md)" }}>
+                  <div className="border-t-2 border-gray-200 my-4" />
+                  <div>
                     <strong>Subscription Status:</strong>{" "}
-                    <span className={`badge ${selectedUser.subscription.status === "active" ? "badge-cyan" : "badge-coral"}`}>
+                    <span className={`px-2 py-1 text-xs rounded-full ${selectedUser.subscription.status === "active" ? "bg-cyan" : "bg-coral"} text-gray-900`}>
                       {selectedUser.subscription.status}
                     </span>
                   </div>
-                  <div style={{ marginBottom: "var(--space-md)" }}>
-                    <strong>Period End:</strong> {formatDate(selectedUser.subscription.currentPeriodEnd)}
-                  </div>
-                  <div>
-                    <strong>Cancel at End:</strong> {selectedUser.subscription.cancelAtPeriodEnd ? "Yes" : "No"}
-                  </div>
+                  <div><strong>Period End:</strong> {formatDate(selectedUser.subscription.currentPeriodEnd)}</div>
+                  <div><strong>Cancel at End:</strong> {selectedUser.subscription.cancelAtPeriodEnd ? "Yes" : "No"}</div>
                 </>
               )}
             </div>
 
-            <div style={{ display: "flex", gap: "var(--space-md)" }}>
-              <button className="btn btn-outline" onClick={() => setSelectedUser(null)}>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="px-4 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors"
+              >
                 Close
               </button>
               <button
-                className={`btn ${selectedUser.user.isPremium ? "btn-danger" : "btn-secondary"}`}
                 onClick={() =>
                   togglePremiumMutation.mutate({
                     userId: selectedUser.user.id,
@@ -321,6 +304,9 @@ export function AdminPage() {
                   })
                 }
                 disabled={togglePremiumMutation.isPending}
+                className={`px-4 py-2 font-title text-sm border-2 border-gray-900 rounded-lg transition-all disabled:opacity-50 ${
+                  selectedUser.user.isPremium ? "bg-red-500 text-white hover:bg-red-600" : "bg-cyan hover:translate-y-0.5"
+                }`}
               >
                 {selectedUser.user.isPremium ? "Remove Premium" : "Grant Premium"}
               </button>

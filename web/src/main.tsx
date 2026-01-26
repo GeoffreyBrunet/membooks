@@ -1,4 +1,3 @@
-import React from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet, Link, redirect } from "@tanstack/react-router";
@@ -53,22 +52,66 @@ function RootLayout() {
   }
 
   return (
-    <div className="app-layout">
-      <nav className="navbar">
-        <Link to="/library" className="navbar-brand">Membooks</Link>
-        <ul className="navbar-nav">
-          <li><Link to="/library">Library</Link></li>
-          <li><Link to="/search">Search</Link></li>
-          <li><Link to="/statistics">Statistics</Link></li>
-          <li><Link to="/subscription">Premium</Link></li>
-          <li><Link to="/admin">Admin</Link></li>
-        </ul>
-        <div className="navbar-user">
-          <span>{session.email}</span>
-          <Link to="/profile" className="btn btn-outline btn-sm">Profile</Link>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <nav className="bg-white border-b-2 border-gray-900 neo-shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link to="/library" className="font-title text-2xl text-coral hover:text-coral/80">
+            Membooks
+          </Link>
+          <ul className="flex items-center gap-6">
+            <li>
+              <Link
+                to="/library"
+                className="font-medium text-gray-700 hover:text-coral transition-colors"
+              >
+                Library
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/search"
+                className="font-medium text-gray-700 hover:text-coral transition-colors"
+              >
+                Search
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/statistics"
+                className="font-medium text-gray-700 hover:text-coral transition-colors"
+              >
+                Statistics
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/subscription"
+                className="font-medium text-gray-700 hover:text-coral transition-colors"
+              >
+                Premium
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin"
+                className="font-medium text-gray-700 hover:text-coral transition-colors"
+              >
+                Admin
+              </Link>
+            </li>
+          </ul>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">{session.email}</span>
+            <Link
+              to="/profile"
+              className="px-4 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors neo-shadow-sm hover:translate-y-0.5 hover:shadow-none"
+            >
+              Profile
+            </Link>
+          </div>
         </div>
       </nav>
-      <main className="main-content">
+      <main className="flex-1">
         <Outlet />
       </main>
     </div>
@@ -177,9 +220,7 @@ const router = createRouter({ routeTree });
 // Render App
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </React.StrictMode>
+  <QueryClientProvider client={queryClient}>
+    <RouterProvider router={router} />
+  </QueryClientProvider>
 );
