@@ -1,6 +1,5 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
-import { staticPlugin } from "@elysiajs/static";
 import { authRoutes } from "./routes/auth";
 import { subscriptionRoutes, webhookRoutes } from "./routes/subscription";
 import { adminRoutes } from "./routes/admin";
@@ -32,10 +31,6 @@ const app = new Elysia()
     const errorMessage = error instanceof Error ? error.message : String(error);
     return { error: "Internal Server Error", message: errorMessage };
   })
-  .use(staticPlugin({
-    assets: "src/admin",
-    prefix: "/admin-ui",
-  }))
   .get("/", () => ({ message: "Membooks API is running" }))
   .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
   .use(authRoutes)

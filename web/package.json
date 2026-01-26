@@ -1,0 +1,24 @@
+{
+  "name": "membooks-web",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --hot src/server.ts",
+    "build": "bun build src/index.html --outdir=dist",
+    "start": "bun run src/server.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.64.2",
+    "@tanstack/react-router": "^1.95.1",
+    "elysia": "^1.4.22",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.9.3"
+  }
+}
