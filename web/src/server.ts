@@ -15,6 +15,8 @@ const app = new Elysia()
   .get("/subscription", index)
   .get("/admin", index)
   .get("/admin/*", index)
+  .get("/book/*", index)
+  .get("/series/*", index)
   // Proxy API requests
   .all("/api/*", async ({ request }) => {
     const url = new URL(request.url);
