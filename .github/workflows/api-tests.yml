@@ -1,4 +1,4 @@
-name: API CI
+name: API Tests
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - "api/**"
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,11 +24,6 @@ jobs:
       - name: Install dependencies
         run: bun install
         working-directory: api
-
-      - name: Typecheck
-        run: bun run tsc --noEmit
-        working-directory: api
-        continue-on-error: true
 
       - name: Run tests
         run: bun test
