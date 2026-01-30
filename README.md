@@ -146,3 +146,8 @@ curl http://localhost:3000/auth/me \
 - [React Native](https://reactnative.dev/) 0.81
 - [Expo Router](https://docs.expo.dev/router/introduction/) 6.0
 - TypeScript
+
+## Palette de couleurs
+- Orange: #e38337
+- Rose: #ff9c90
+- Vert: #7dad98
