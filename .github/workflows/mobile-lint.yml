@@ -1,0 +1,30 @@
+name: Mobile Lint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "mobile/**"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: mobile
+
+      - name: Run lint
+        run: bun run lint
+        working-directory: mobile
