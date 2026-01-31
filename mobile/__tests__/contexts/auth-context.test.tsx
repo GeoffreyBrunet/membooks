@@ -1,20 +1,34 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test';
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { AuthProvider, useAuth } from '@/contexts/auth-context';
 
-// Mock auth service
+// Create controllable mock functions BEFORE mock.module
+const mockLogin = mock();
+const mockRegister = mock();
+const mockSocialLogin = mock();
+const mockLogout = mock(() => Promise.resolve(undefined));
+const mockDeleteAccount = mock();
+const mockGetSession = mock(() => Promise.resolve(null));
+const mockGetProfile = mock(() => Promise.resolve({ success: false }));
+const mockChangePassword = mock();
+const mockUpdateProfile = mock();
+const mockIsAuthenticated = mock();
+
 mock.module('@/services/auth', () => ({
-  login: mock(),
-  register: mock(),
-  socialLogin: mock(),
-  logout: mock(() => Promise.resolve(undefined)),
-  deleteAccount: mock(),
-  getSession: mock(),
-  getProfile: mock(),
+  login: mockLogin,
+  register: mockRegister,
+  socialLogin: mockSocialLogin,
+  logout: mockLogout,
+  deleteAccount: mockDeleteAccount,
+  getSession: mockGetSession,
+  getProfile: mockGetProfile,
+  changePassword: mockChangePassword,
+  updateProfile: mockUpdateProfile,
+  isAuthenticated: mockIsAuthenticated,
 }));
 
-const authService = require('@/services/auth');
+// Use require (not import) to ensure auth-context loads AFTER mock.module takes effect
+const { AuthProvider, useAuth } = require('@/contexts/auth-context');
 
 const mockUser = {
   id: 'user-1',
@@ -32,17 +46,17 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 async function waitForLoaded(result: { current: { isLoading: boolean } }) {
   await waitFor(() => {
     expect(result.current.isLoading).toBe(false);
-  });
+  }, { timeout: 5000 });
 }
 
 beforeEach(() => {
-  authService.getSession.mockReset().mockResolvedValue(null);
-  authService.getProfile.mockReset().mockResolvedValue({ success: false });
-  authService.login.mockReset();
-  authService.register.mockReset();
-  authService.socialLogin.mockReset();
-  authService.logout.mockReset().mockResolvedValue(undefined);
-  authService.deleteAccount.mockReset();
+  mockGetSession.mockClear().mockImplementation(() => Promise.resolve(null));
+  mockGetProfile.mockClear().mockImplementation(() => Promise.resolve({ success: false }));
+  mockLogin.mockClear();
+  mockRegister.mockClear();
+  mockSocialLogin.mockClear();
+  mockLogout.mockClear().mockImplementation(() => Promise.resolve(undefined));
+  mockDeleteAccount.mockClear();
 });
 
 describe('AuthContext', () => {
@@ -57,14 +71,12 @@ describe('AuthContext', () => {
   });
 
   it('loads existing session and refreshes profile', async () => {
-    authService.getSession.mockResolvedValueOnce({
-      token: 'jwt-token',
-      user: mockUser,
-    });
-    authService.getProfile.mockResolvedValueOnce({
-      success: true,
-      user: { ...mockUser, username: 'refreshed' },
-    });
+    mockGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    );
+    mockGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: { ...mockUser, username: 'refreshed' } })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -75,14 +87,12 @@ describe('AuthContext', () => {
   });
 
   it('clears user when token is expired (Unauthorized)', async () => {
-    authService.getSession.mockResolvedValueOnce({
-      token: 'expired-token',
-      user: mockUser,
-    });
-    authService.getProfile.mockResolvedValueOnce({
-      success: false,
-      error: 'Unauthorized',
-    });
+    mockGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'expired-token', user: mockUser })
+    );
+    mockGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: false, error: 'Unauthorized' })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -93,11 +103,9 @@ describe('AuthContext', () => {
   });
 
   it('login sets user on success', async () => {
-    authService.login.mockResolvedValueOnce({
-      success: true,
-      user: mockUser,
-      token: 'jwt-token',
-    });
+    mockLogin.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -116,10 +124,9 @@ describe('AuthContext', () => {
   });
 
   it('login does not set user on failure', async () => {
-    authService.login.mockResolvedValueOnce({
-      success: false,
-      error: 'invalid_credentials',
-    });
+    mockLogin.mockImplementation(() =>
+      Promise.resolve({ success: false, error: 'invalid_credentials' })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -137,11 +144,9 @@ describe('AuthContext', () => {
   });
 
   it('register sets user on success', async () => {
-    authService.register.mockResolvedValueOnce({
-      success: true,
-      user: mockUser,
-      token: 'jwt-token',
-    });
+    mockRegister.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -160,11 +165,9 @@ describe('AuthContext', () => {
   });
 
   it('socialLogin sets user on success', async () => {
-    authService.socialLogin.mockResolvedValueOnce({
-      success: true,
-      user: mockUser,
-      token: 'jwt-token',
-    });
+    mockSocialLogin.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -181,14 +184,12 @@ describe('AuthContext', () => {
   });
 
   it('logout clears user', async () => {
-    authService.getSession.mockResolvedValueOnce({
-      token: 'jwt-token',
-      user: mockUser,
-    });
-    authService.getProfile.mockResolvedValueOnce({
-      success: true,
-      user: mockUser,
-    });
+    mockGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    );
+    mockGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -201,19 +202,19 @@ describe('AuthContext', () => {
 
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
-    expect(authService.logout).toHaveBeenCalled();
+    expect(mockLogout).toHaveBeenCalled();
   });
 
   it('deleteAccount clears user on success', async () => {
-    authService.getSession.mockResolvedValueOnce({
-      token: 'jwt-token',
-      user: mockUser,
-    });
-    authService.getProfile.mockResolvedValueOnce({
-      success: true,
-      user: mockUser,
-    });
-    authService.deleteAccount.mockResolvedValueOnce({ success: true });
+    mockGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    );
+    mockGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser })
+    );
+    mockDeleteAccount.mockImplementation(() =>
+      Promise.resolve({ success: true })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -229,18 +230,15 @@ describe('AuthContext', () => {
   });
 
   it('deleteAccount does not clear user on failure', async () => {
-    authService.getSession.mockResolvedValueOnce({
-      token: 'jwt-token',
-      user: mockUser,
-    });
-    authService.getProfile.mockResolvedValueOnce({
-      success: true,
-      user: mockUser,
-    });
-    authService.deleteAccount.mockResolvedValueOnce({
-      success: false,
-      error: 'server_error',
-    });
+    mockGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    );
+    mockGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser })
+    );
+    mockDeleteAccount.mockImplementation(() =>
+      Promise.resolve({ success: false, error: 'server_error' })
+    );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -254,16 +252,20 @@ describe('AuthContext', () => {
   });
 
   it('refreshProfile updates user', async () => {
-    authService.getSession.mockResolvedValueOnce({
-      token: 'jwt-token',
-      user: mockUser,
-    });
-    authService.getProfile
-      .mockResolvedValueOnce({ success: true, user: mockUser })
-      .mockResolvedValueOnce({
+    let profileCallCount = 0;
+    mockGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    );
+    mockGetProfile.mockImplementation(() => {
+      profileCallCount++;
+      if (profileCallCount === 1) {
+        return Promise.resolve({ success: true, user: mockUser });
+      }
+      return Promise.resolve({
         success: true,
         user: { ...mockUser, username: 'refreshed' },
       });
+    });
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 

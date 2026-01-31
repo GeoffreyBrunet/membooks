@@ -28,7 +28,8 @@ mock.module('@/services/database', () => ({
   seriesExists: mockSeriesExists,
 }));
 
-import { BooksProvider, useBooks } from '@/contexts/books-context';
+// Use require (not import) to ensure books-context loads AFTER mock.module takes effect
+const { BooksProvider, useBooks } = require('@/contexts/books-context');
 
 const mockBook: Book = {
   id: 'book-1',
