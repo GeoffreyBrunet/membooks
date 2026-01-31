@@ -40,6 +40,7 @@ import {
   updateSeries,
   deleteSeries,
   seriesExists,
+  seedDatabaseIfEmpty,
 } from '@/services/database';
 
 // Track if we've initialized in this test run
@@ -400,5 +401,77 @@ describe('Series CRUD', () => {
     mockGetFirstAsync.mockResolvedValueOnce({ count: 0 });
     const exists = await seriesExists('nonexistent');
     expect(exists).toBe(false);
+  });
+});
+
+describe('updateBook all fields', () => {
+  it('updates title, author, bookType, categories, inWishlist, seriesId, volumeNumber, releaseDate', async () => {
+    await ensureInit();
+    await updateBook('book-1', {
+      title: 'New Title',
+      author: 'New Author',
+      bookType: 'manga',
+      categories: ['adventure'],
+      isRead: false,
+      inWishlist: true,
+      seriesId: 's1',
+      volumeNumber: 5,
+      releaseDate: '2025-12-01',
+    });
+
+    expect(mockRunAsync).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE books SET'),
+      [
+        'New Title',
+        'New Author',
+        'manga',
+        '["adventure"]',
+        0,
+        1,
+        's1',
+        5,
+        '2025-12-01',
+        'book-1',
+      ]
+    );
+  });
+});
+
+describe('updateSeries all fields', () => {
+  it('updates name, author, bookType, categories', async () => {
+    await ensureInit();
+    await updateSeries('series-1', {
+      name: 'New Name',
+      author: 'New Author',
+      bookType: 'manga',
+      categories: ['fantasy'],
+    });
+
+    expect(mockRunAsync).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE series SET'),
+      ['New Name', 'New Author', 'manga', '["fantasy"]', 'series-1']
+    );
+  });
+});
+
+describe('seedDatabaseIfEmpty', () => {
+  it('skips seeding when books already exist', async () => {
+    await ensureInit();
+    mockGetFirstAsync.mockResolvedValueOnce({ count: 5 });
+
+    await seedDatabaseIfEmpty();
+
+    // Should NOT have called insertBook or insertSeries
+    expect(mockRunAsync).not.toHaveBeenCalled();
+  });
+
+  it('seeds database when empty', async () => {
+    await ensureInit();
+    mockGetFirstAsync.mockResolvedValueOnce({ count: 0 });
+
+    await seedDatabaseIfEmpty();
+
+    // Should have called runAsync for inserts
+    expect(mockRunAsync).toHaveBeenCalled();
   });
 });

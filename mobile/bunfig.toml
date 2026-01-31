@@ -1,5 +1,8 @@
 [test]
 preload = ["./__mocks__/setup.ts"]
+coverageThreshold = 0.8
+coverageSkipTestFiles = true
+coveragePathIgnorePatterns = ["**/__mocks__/**"]
 
 [test.moduleNameMapper]
 "@/(.+)" = "./$1"
