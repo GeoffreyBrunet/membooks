@@ -1,24 +1,34 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test';
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { BooksProvider, useBooks } from '@/contexts/books-context';
 import type { Book, Series } from '@/types/book';
 
-// Mock database service
+// Create controllable mock functions BEFORE mock.module
+const mockInitDatabase = mock(() => Promise.resolve(undefined));
+const mockSeedDatabaseIfEmpty = mock(() => Promise.resolve(undefined));
+const mockGetAllBooks = mock(() => Promise.resolve([] as Book[]));
+const mockGetAllSeries = mock(() => Promise.resolve([] as Series[]));
+const mockInsertBook = mock(() => Promise.resolve(undefined));
+const mockInsertSeries = mock(() => Promise.resolve(undefined));
+const mockUpdateBook = mock(() => Promise.resolve(undefined));
+const mockDeleteBook = mock(() => Promise.resolve(undefined));
+const mockBookExists = mock(() => Promise.resolve(false));
+const mockSeriesExists = mock(() => Promise.resolve(false));
+
 mock.module('@/services/database', () => ({
-  initDatabase: mock(() => Promise.resolve(undefined)),
-  seedDatabaseIfEmpty: mock(() => Promise.resolve(undefined)),
-  getAllBooks: mock(() => Promise.resolve([])),
-  getAllSeries: mock(() => Promise.resolve([])),
-  insertBook: mock(() => Promise.resolve(undefined)),
-  insertSeries: mock(() => Promise.resolve(undefined)),
-  updateBook: mock(() => Promise.resolve(undefined)),
-  deleteBook: mock(() => Promise.resolve(undefined)),
-  bookExists: mock(() => Promise.resolve(false)),
-  seriesExists: mock(() => Promise.resolve(false)),
+  initDatabase: mockInitDatabase,
+  seedDatabaseIfEmpty: mockSeedDatabaseIfEmpty,
+  getAllBooks: mockGetAllBooks,
+  getAllSeries: mockGetAllSeries,
+  insertBook: mockInsertBook,
+  insertSeries: mockInsertSeries,
+  updateBook: mockUpdateBook,
+  deleteBook: mockDeleteBook,
+  bookExists: mockBookExists,
+  seriesExists: mockSeriesExists,
 }));
 
-const db = require('@/services/database');
+import { BooksProvider, useBooks } from '@/contexts/books-context';
 
 const mockBook: Book = {
   id: 'book-1',
@@ -67,40 +77,42 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 async function waitForLoaded(result: { current: { isLoading: boolean } }) {
   await waitFor(() => {
     expect(result.current.isLoading).toBe(false);
-  });
+  }, { timeout: 5000 });
 }
 
 beforeEach(() => {
-  db.initDatabase.mockReset().mockResolvedValue(undefined);
-  db.seedDatabaseIfEmpty.mockReset().mockResolvedValue(undefined);
-  db.getAllBooks.mockReset().mockResolvedValue([]);
-  db.getAllSeries.mockReset().mockResolvedValue([]);
-  db.insertBook.mockReset().mockResolvedValue(undefined);
-  db.insertSeries.mockReset().mockResolvedValue(undefined);
-  db.updateBook.mockReset().mockResolvedValue(undefined);
-  db.deleteBook.mockReset().mockResolvedValue(undefined);
-  db.bookExists.mockReset().mockResolvedValue(false);
-  db.seriesExists.mockReset().mockResolvedValue(false);
+  mockInitDatabase.mockClear().mockImplementation(() => Promise.resolve(undefined));
+  mockSeedDatabaseIfEmpty.mockClear().mockImplementation(() => Promise.resolve(undefined));
+  mockGetAllBooks.mockClear().mockImplementation(() => Promise.resolve([]));
+  mockGetAllSeries.mockClear().mockImplementation(() => Promise.resolve([]));
+  mockInsertBook.mockClear().mockImplementation(() => Promise.resolve(undefined));
+  mockInsertSeries.mockClear().mockImplementation(() => Promise.resolve(undefined));
+  mockUpdateBook.mockClear().mockImplementation(() => Promise.resolve(undefined));
+  mockDeleteBook.mockClear().mockImplementation(() => Promise.resolve(undefined));
+  mockBookExists.mockClear().mockImplementation(() => Promise.resolve(false));
+  mockSeriesExists.mockClear().mockImplementation(() => Promise.resolve(false));
 });
 
 describe('BooksContext', () => {
   it('initializes database and loads data', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockBook]);
-    db.getAllSeries.mockResolvedValueOnce([mockSeries]);
+    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]));
+    mockGetAllSeries.mockImplementation(() => Promise.resolve([mockSeries]));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
     await waitForLoaded(result);
 
-    expect(db.initDatabase).toHaveBeenCalled();
-    expect(db.seedDatabaseIfEmpty).toHaveBeenCalled();
+    expect(mockInitDatabase).toHaveBeenCalled();
+    expect(mockSeedDatabaseIfEmpty).toHaveBeenCalled();
     expect(result.current.books).toHaveLength(1);
     expect(result.current.series).toHaveLength(1);
     expect(result.current.isLoading).toBe(false);
   });
 
   it('filters ownedBooks (not in wishlist)', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockBook, mockWishlistBook, mockUpcomingBook]);
+    mockGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook])
+    );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -111,7 +123,9 @@ describe('BooksContext', () => {
   });
 
   it('filters wishlistBooks (in wishlist, no future release date)', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockBook, mockWishlistBook, mockUpcomingBook]);
+    mockGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook])
+    );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -122,7 +136,9 @@ describe('BooksContext', () => {
   });
 
   it('filters upcomingBooks (in wishlist with future release date)', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockBook, mockWishlistBook, mockUpcomingBook]);
+    mockGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook])
+    );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -143,7 +159,7 @@ describe('BooksContext', () => {
       id: 'up-2',
       releaseDate: '2099-03-01',
     };
-    db.getAllBooks.mockResolvedValueOnce([upcoming1, upcoming2]);
+    mockGetAllBooks.mockImplementation(() => Promise.resolve([upcoming1, upcoming2]));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -162,13 +178,13 @@ describe('BooksContext', () => {
       await result.current.addBook(mockBook);
     });
 
-    expect(db.bookExists).toHaveBeenCalledWith('book-1');
-    expect(db.insertBook).toHaveBeenCalledWith(mockBook);
+    expect(mockBookExists).toHaveBeenCalledWith('book-1');
+    expect(mockInsertBook).toHaveBeenCalledWith(mockBook);
     expect(result.current.books).toHaveLength(1);
   });
 
   it('addBook skips if book already exists', async () => {
-    db.bookExists.mockResolvedValueOnce(true);
+    mockBookExists.mockImplementation(() => Promise.resolve(true));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -178,7 +194,7 @@ describe('BooksContext', () => {
       await result.current.addBook(mockBook);
     });
 
-    expect(db.insertBook).not.toHaveBeenCalled();
+    expect(mockInsertBook).not.toHaveBeenCalled();
     expect(result.current.books).toHaveLength(0);
   });
 
@@ -191,13 +207,13 @@ describe('BooksContext', () => {
       await result.current.addSeries(mockSeries);
     });
 
-    expect(db.seriesExists).toHaveBeenCalledWith('series-1');
-    expect(db.insertSeries).toHaveBeenCalledWith(mockSeries);
+    expect(mockSeriesExists).toHaveBeenCalledWith('series-1');
+    expect(mockInsertSeries).toHaveBeenCalledWith(mockSeries);
     expect(result.current.series).toHaveLength(1);
   });
 
   it('addSeries skips if series already exists', async () => {
-    db.seriesExists.mockResolvedValueOnce(true);
+    mockSeriesExists.mockImplementation(() => Promise.resolve(true));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -207,11 +223,11 @@ describe('BooksContext', () => {
       await result.current.addSeries(mockSeries);
     });
 
-    expect(db.insertSeries).not.toHaveBeenCalled();
+    expect(mockInsertSeries).not.toHaveBeenCalled();
   });
 
   it('updateBook updates database and state', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockBook]);
+    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -221,12 +237,12 @@ describe('BooksContext', () => {
       await result.current.updateBook('book-1', { isRead: false });
     });
 
-    expect(db.updateBook).toHaveBeenCalledWith('book-1', { isRead: false });
+    expect(mockUpdateBook).toHaveBeenCalledWith('book-1', { isRead: false });
     expect(result.current.books[0].isRead).toBe(false);
   });
 
   it('removeBook deletes from database and state', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockBook]);
+    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -236,12 +252,12 @@ describe('BooksContext', () => {
       await result.current.removeBook('book-1');
     });
 
-    expect(db.deleteBook).toHaveBeenCalledWith('book-1');
+    expect(mockDeleteBook).toHaveBeenCalledWith('book-1');
     expect(result.current.books).toHaveLength(0);
   });
 
   it('moveToOwned sets inWishlist to false', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockWishlistBook]);
+    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockWishlistBook]));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -251,12 +267,14 @@ describe('BooksContext', () => {
       await result.current.moveToOwned('book-2');
     });
 
-    expect(db.updateBook).toHaveBeenCalledWith('book-2', { inWishlist: false });
+    expect(mockUpdateBook).toHaveBeenCalledWith('book-2', { inWishlist: false });
     expect(result.current.books[0].inWishlist).toBe(false);
   });
 
   it('getBookById returns the correct book', async () => {
-    db.getAllBooks.mockResolvedValueOnce([mockBook, mockWishlistBook]);
+    mockGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook])
+    );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -267,7 +285,7 @@ describe('BooksContext', () => {
   });
 
   it('getSeriesById returns the correct series', async () => {
-    db.getAllSeries.mockResolvedValueOnce([mockSeries]);
+    mockGetAllSeries.mockImplementation(() => Promise.resolve([mockSeries]));
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -290,7 +308,9 @@ describe('BooksContext', () => {
       seriesId: 'series-1',
       volumeNumber: 1,
     };
-    db.getAllBooks.mockResolvedValueOnce([vol2, vol1, mockWishlistBook]);
+    mockGetAllBooks.mockImplementation(() =>
+      Promise.resolve([vol2, vol1, mockWishlistBook])
+    );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
