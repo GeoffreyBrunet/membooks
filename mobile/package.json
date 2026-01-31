@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "bun test __tests__/services/ --coverage && bun test __tests__/contexts/ __tests__/components/ __tests__/hooks/"
+    "test": "bun test __tests__/services/ --coverage && bun test __tests__/contexts/ && bun test __tests__/components/ __tests__/hooks/"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
