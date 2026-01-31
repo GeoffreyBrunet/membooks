@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "expo lint"
+    "test": "bun test __tests__/services/ && bun test __tests__/contexts/ __tests__/components/ __tests__/hooks/"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -51,10 +51,11 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^13.3.3",
     "@types/react": "~19.1.17",
-    "typescript": "~5.9.3",
     "eslint": "^9.39.2",
-    "eslint-config-expo": "~10.0.0"
+    "eslint-config-expo": "~10.0.0",
+    "typescript": "~5.9.3"
   },
   "private": true
 }

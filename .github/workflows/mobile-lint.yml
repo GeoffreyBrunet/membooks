@@ -33,3 +33,7 @@ jobs:
       - name: Lint
         run: bun run lint
         working-directory: mobile
+
+      - name: Test
+        run: bun run test
+        working-directory: mobile

@@ -1,0 +1,5 @@
+[test]
+preload = ["./__mocks__/setup.ts"]
+
+[test.moduleNameMapper]
+"@/(.+)" = "./$1"
