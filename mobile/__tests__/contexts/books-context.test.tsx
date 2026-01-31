@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test';
 import React from 'react';
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { BooksProvider, useBooks } from '@/contexts/books-context';
 import type { Book, Series } from '@/types/book';
 
@@ -64,6 +64,12 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <BooksProvider>{children}</BooksProvider>
 );
 
+async function waitForLoaded(result: { current: { isLoading: boolean } }) {
+  await waitFor(() => {
+    expect(result.current.isLoading).toBe(false);
+  });
+}
+
 beforeEach(() => {
   db.initDatabase.mockReset().mockResolvedValue(undefined);
   db.seedDatabaseIfEmpty.mockReset().mockResolvedValue(undefined);
@@ -84,7 +90,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(db.initDatabase).toHaveBeenCalled();
     expect(db.seedDatabaseIfEmpty).toHaveBeenCalled();
@@ -98,7 +104,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.ownedBooks).toHaveLength(1);
     expect(result.current.ownedBooks[0].id).toBe('book-1');
@@ -109,10 +115,8 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
-    // mockWishlistBook has no release date, so should be in wishlist
-    // mockUpcomingBook has future release date, so should NOT be in wishlist
     expect(result.current.wishlistBooks).toHaveLength(1);
     expect(result.current.wishlistBooks[0].id).toBe('book-2');
   });
@@ -122,7 +126,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.upcomingBooks).toHaveLength(1);
     expect(result.current.upcomingBooks[0].id).toBe('book-3');
@@ -143,7 +147,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.upcomingBooks[0].id).toBe('up-2');
     expect(result.current.upcomingBooks[1].id).toBe('up-1');
@@ -152,7 +156,7 @@ describe('BooksContext', () => {
   it('addBook inserts into database and updates state', async () => {
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.addBook(mockBook);
@@ -168,7 +172,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.addBook(mockBook);
@@ -181,7 +185,7 @@ describe('BooksContext', () => {
   it('addSeries inserts into database and updates state', async () => {
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.addSeries(mockSeries);
@@ -197,7 +201,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.addSeries(mockSeries);
@@ -211,7 +215,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.updateBook('book-1', { isRead: false });
@@ -226,7 +230,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.removeBook('book-1');
@@ -241,7 +245,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.moveToOwned('book-2');
@@ -256,7 +260,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.getBookById('book-1')).toEqual(mockBook);
     expect(result.current.getBookById('nonexistent')).toBeUndefined();
@@ -267,7 +271,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.getSeriesById('series-1')).toEqual(mockSeries);
     expect(result.current.getSeriesById('nonexistent')).toBeUndefined();
@@ -290,7 +294,7 @@ describe('BooksContext', () => {
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     const seriesBooks = result.current.getBooksForSeries('series-1');
     expect(seriesBooks).toHaveLength(2);

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test';
 import React from 'react';
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { AuthProvider, useAuth } from '@/contexts/auth-context';
 
 // Mock auth service
@@ -29,6 +29,12 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <AuthProvider>{children}</AuthProvider>
 );
 
+async function waitForLoaded(result: { current: { isLoading: boolean } }) {
+  await waitFor(() => {
+    expect(result.current.isLoading).toBe(false);
+  });
+}
+
 beforeEach(() => {
   authService.getSession.mockReset().mockResolvedValue(null);
   authService.getProfile.mockReset().mockResolvedValue({ success: false });
@@ -43,7 +49,7 @@ describe('AuthContext', () => {
   it('starts not authenticated with no session', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
@@ -62,7 +68,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.user?.username).toBe('refreshed');
@@ -80,7 +86,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
@@ -95,7 +101,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       const response = await result.current.login({
@@ -117,7 +123,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       const response = await result.current.login({
@@ -139,7 +145,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       const response = await result.current.register({
@@ -162,7 +168,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.socialLogin({
@@ -186,7 +192,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
     expect(result.current.isAuthenticated).toBe(true);
 
     await act(async () => {
@@ -211,7 +217,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       const response = await result.current.deleteAccount();
@@ -238,7 +244,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.deleteAccount();
@@ -261,7 +267,7 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    await act(async () => {});
+    await waitForLoaded(result);
 
     await act(async () => {
       await result.current.refreshProfile();
