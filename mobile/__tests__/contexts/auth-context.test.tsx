@@ -1,34 +1,18 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
+import { describe, it, expect, beforeEach, spyOn } from 'bun:test';
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react-native';
+import * as authService from '@/services/auth';
+import { AuthProvider, useAuth } from '@/contexts/auth-context';
 
-// Create controllable mock functions BEFORE mock.module
-const mockLogin = mock();
-const mockRegister = mock();
-const mockSocialLogin = mock();
-const mockLogout = mock(() => Promise.resolve(undefined));
-const mockDeleteAccount = mock();
-const mockGetSession = mock(() => Promise.resolve(null));
-const mockGetProfile = mock(() => Promise.resolve({ success: false }));
-const mockChangePassword = mock();
-const mockUpdateProfile = mock();
-const mockIsAuthenticated = mock();
-
-mock.module('@/services/auth', () => ({
-  login: mockLogin,
-  register: mockRegister,
-  socialLogin: mockSocialLogin,
-  logout: mockLogout,
-  deleteAccount: mockDeleteAccount,
-  getSession: mockGetSession,
-  getProfile: mockGetProfile,
-  changePassword: mockChangePassword,
-  updateProfile: mockUpdateProfile,
-  isAuthenticated: mockIsAuthenticated,
-}));
-
-// Use require (not import) to ensure auth-context loads AFTER mock.module takes effect
-const { AuthProvider, useAuth } = require('@/contexts/auth-context');
+// Use spyOn on the auth module namespace instead of mock.module
+// This avoids CJS/ESM module instance issues on Linux Bun
+const spyLogin = spyOn(authService, 'login');
+const spyRegister = spyOn(authService, 'register');
+const spySocialLogin = spyOn(authService, 'socialLogin');
+const spyLogout = spyOn(authService, 'logout');
+const spyDeleteAccount = spyOn(authService, 'deleteAccount');
+const spyGetSession = spyOn(authService, 'getSession');
+const spyGetProfile = spyOn(authService, 'getProfile');
 
 const mockUser = {
   id: 'user-1',
@@ -50,13 +34,13 @@ async function waitForLoaded(result: { current: { isLoading: boolean } }) {
 }
 
 beforeEach(() => {
-  mockGetSession.mockClear().mockImplementation(() => Promise.resolve(null));
-  mockGetProfile.mockClear().mockImplementation(() => Promise.resolve({ success: false }));
-  mockLogin.mockClear();
-  mockRegister.mockClear();
-  mockSocialLogin.mockClear();
-  mockLogout.mockClear().mockImplementation(() => Promise.resolve(undefined));
-  mockDeleteAccount.mockClear();
+  spyGetSession.mockReset().mockImplementation(() => Promise.resolve(null) as any);
+  spyGetProfile.mockReset().mockImplementation(() => Promise.resolve({ success: false }) as any);
+  spyLogin.mockReset();
+  spyRegister.mockReset();
+  spySocialLogin.mockReset();
+  spyLogout.mockReset().mockImplementation(() => Promise.resolve(undefined) as any);
+  spyDeleteAccount.mockReset();
 });
 
 describe('AuthContext', () => {
@@ -71,11 +55,11 @@ describe('AuthContext', () => {
   });
 
   it('loads existing session and refreshes profile', async () => {
-    mockGetSession.mockImplementation(() =>
-      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    spyGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser }) as any
     );
-    mockGetProfile.mockImplementation(() =>
-      Promise.resolve({ success: true, user: { ...mockUser, username: 'refreshed' } })
+    spyGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: { ...mockUser, username: 'refreshed' } }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -87,11 +71,11 @@ describe('AuthContext', () => {
   });
 
   it('clears user when token is expired (Unauthorized)', async () => {
-    mockGetSession.mockImplementation(() =>
-      Promise.resolve({ token: 'expired-token', user: mockUser })
+    spyGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'expired-token', user: mockUser }) as any
     );
-    mockGetProfile.mockImplementation(() =>
-      Promise.resolve({ success: false, error: 'Unauthorized' })
+    spyGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: false, error: 'Unauthorized' }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -103,8 +87,8 @@ describe('AuthContext', () => {
   });
 
   it('login sets user on success', async () => {
-    mockLogin.mockImplementation(() =>
-      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' })
+    spyLogin.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -124,8 +108,8 @@ describe('AuthContext', () => {
   });
 
   it('login does not set user on failure', async () => {
-    mockLogin.mockImplementation(() =>
-      Promise.resolve({ success: false, error: 'invalid_credentials' })
+    spyLogin.mockImplementation(() =>
+      Promise.resolve({ success: false, error: 'invalid_credentials' }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -144,8 +128,8 @@ describe('AuthContext', () => {
   });
 
   it('register sets user on success', async () => {
-    mockRegister.mockImplementation(() =>
-      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' })
+    spyRegister.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -165,8 +149,8 @@ describe('AuthContext', () => {
   });
 
   it('socialLogin sets user on success', async () => {
-    mockSocialLogin.mockImplementation(() =>
-      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' })
+    spySocialLogin.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser, token: 'jwt-token' }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -184,11 +168,11 @@ describe('AuthContext', () => {
   });
 
   it('logout clears user', async () => {
-    mockGetSession.mockImplementation(() =>
-      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    spyGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser }) as any
     );
-    mockGetProfile.mockImplementation(() =>
-      Promise.resolve({ success: true, user: mockUser })
+    spyGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -202,18 +186,18 @@ describe('AuthContext', () => {
 
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
-    expect(mockLogout).toHaveBeenCalled();
+    expect(spyLogout).toHaveBeenCalled();
   });
 
   it('deleteAccount clears user on success', async () => {
-    mockGetSession.mockImplementation(() =>
-      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    spyGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser }) as any
     );
-    mockGetProfile.mockImplementation(() =>
-      Promise.resolve({ success: true, user: mockUser })
+    spyGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser }) as any
     );
-    mockDeleteAccount.mockImplementation(() =>
-      Promise.resolve({ success: true })
+    spyDeleteAccount.mockImplementation(() =>
+      Promise.resolve({ success: true }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -230,14 +214,14 @@ describe('AuthContext', () => {
   });
 
   it('deleteAccount does not clear user on failure', async () => {
-    mockGetSession.mockImplementation(() =>
-      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    spyGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser }) as any
     );
-    mockGetProfile.mockImplementation(() =>
-      Promise.resolve({ success: true, user: mockUser })
+    spyGetProfile.mockImplementation(() =>
+      Promise.resolve({ success: true, user: mockUser }) as any
     );
-    mockDeleteAccount.mockImplementation(() =>
-      Promise.resolve({ success: false, error: 'server_error' })
+    spyDeleteAccount.mockImplementation(() =>
+      Promise.resolve({ success: false, error: 'server_error' }) as any
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -253,18 +237,18 @@ describe('AuthContext', () => {
 
   it('refreshProfile updates user', async () => {
     let profileCallCount = 0;
-    mockGetSession.mockImplementation(() =>
-      Promise.resolve({ token: 'jwt-token', user: mockUser })
+    spyGetSession.mockImplementation(() =>
+      Promise.resolve({ token: 'jwt-token', user: mockUser }) as any
     );
-    mockGetProfile.mockImplementation(() => {
+    spyGetProfile.mockImplementation(() => {
       profileCallCount++;
       if (profileCallCount === 1) {
-        return Promise.resolve({ success: true, user: mockUser });
+        return Promise.resolve({ success: true, user: mockUser }) as any;
       }
       return Promise.resolve({
         success: true,
         user: { ...mockUser, username: 'refreshed' },
-      });
+      }) as any;
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper });

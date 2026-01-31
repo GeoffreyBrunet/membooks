@@ -1,35 +1,22 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
+import { describe, it, expect, beforeEach, spyOn } from 'bun:test';
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react-native';
+import * as db from '@/services/database';
+import { BooksProvider, useBooks } from '@/contexts/books-context';
 import type { Book, Series } from '@/types/book';
 
-// Create controllable mock functions BEFORE mock.module
-const mockInitDatabase = mock(() => Promise.resolve(undefined));
-const mockSeedDatabaseIfEmpty = mock(() => Promise.resolve(undefined));
-const mockGetAllBooks = mock(() => Promise.resolve([] as Book[]));
-const mockGetAllSeries = mock(() => Promise.resolve([] as Series[]));
-const mockInsertBook = mock(() => Promise.resolve(undefined));
-const mockInsertSeries = mock(() => Promise.resolve(undefined));
-const mockUpdateBook = mock(() => Promise.resolve(undefined));
-const mockDeleteBook = mock(() => Promise.resolve(undefined));
-const mockBookExists = mock(() => Promise.resolve(false));
-const mockSeriesExists = mock(() => Promise.resolve(false));
-
-mock.module('@/services/database', () => ({
-  initDatabase: mockInitDatabase,
-  seedDatabaseIfEmpty: mockSeedDatabaseIfEmpty,
-  getAllBooks: mockGetAllBooks,
-  getAllSeries: mockGetAllSeries,
-  insertBook: mockInsertBook,
-  insertSeries: mockInsertSeries,
-  updateBook: mockUpdateBook,
-  deleteBook: mockDeleteBook,
-  bookExists: mockBookExists,
-  seriesExists: mockSeriesExists,
-}));
-
-// Use require (not import) to ensure books-context loads AFTER mock.module takes effect
-const { BooksProvider, useBooks } = require('@/contexts/books-context');
+// Use spyOn on the database module namespace instead of mock.module
+// This avoids CJS/ESM module instance issues on Linux Bun
+const spyInitDatabase = spyOn(db, 'initDatabase');
+const spySeedDatabaseIfEmpty = spyOn(db, 'seedDatabaseIfEmpty');
+const spyGetAllBooks = spyOn(db, 'getAllBooks');
+const spyGetAllSeries = spyOn(db, 'getAllSeries');
+const spyInsertBook = spyOn(db, 'insertBook');
+const spyInsertSeries = spyOn(db, 'insertSeries');
+const spyUpdateBook = spyOn(db, 'updateBook');
+const spyDeleteBook = spyOn(db, 'deleteBook');
+const spyBookExists = spyOn(db, 'bookExists');
+const spySeriesExists = spyOn(db, 'seriesExists');
 
 const mockBook: Book = {
   id: 'book-1',
@@ -82,37 +69,37 @@ async function waitForLoaded(result: { current: { isLoading: boolean } }) {
 }
 
 beforeEach(() => {
-  mockInitDatabase.mockClear().mockImplementation(() => Promise.resolve(undefined));
-  mockSeedDatabaseIfEmpty.mockClear().mockImplementation(() => Promise.resolve(undefined));
-  mockGetAllBooks.mockClear().mockImplementation(() => Promise.resolve([]));
-  mockGetAllSeries.mockClear().mockImplementation(() => Promise.resolve([]));
-  mockInsertBook.mockClear().mockImplementation(() => Promise.resolve(undefined));
-  mockInsertSeries.mockClear().mockImplementation(() => Promise.resolve(undefined));
-  mockUpdateBook.mockClear().mockImplementation(() => Promise.resolve(undefined));
-  mockDeleteBook.mockClear().mockImplementation(() => Promise.resolve(undefined));
-  mockBookExists.mockClear().mockImplementation(() => Promise.resolve(false));
-  mockSeriesExists.mockClear().mockImplementation(() => Promise.resolve(false));
+  spyInitDatabase.mockReset().mockImplementation(() => Promise.resolve(undefined) as any);
+  spySeedDatabaseIfEmpty.mockReset().mockImplementation(() => Promise.resolve(undefined) as any);
+  spyGetAllBooks.mockReset().mockImplementation(() => Promise.resolve([] as Book[]) as any);
+  spyGetAllSeries.mockReset().mockImplementation(() => Promise.resolve([] as Series[]) as any);
+  spyInsertBook.mockReset().mockImplementation(() => Promise.resolve(undefined) as any);
+  spyInsertSeries.mockReset().mockImplementation(() => Promise.resolve(undefined) as any);
+  spyUpdateBook.mockReset().mockImplementation(() => Promise.resolve(undefined) as any);
+  spyDeleteBook.mockReset().mockImplementation(() => Promise.resolve(undefined) as any);
+  spyBookExists.mockReset().mockImplementation(() => Promise.resolve(false) as any);
+  spySeriesExists.mockReset().mockImplementation(() => Promise.resolve(false) as any);
 });
 
 describe('BooksContext', () => {
   it('initializes database and loads data', async () => {
-    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]));
-    mockGetAllSeries.mockImplementation(() => Promise.resolve([mockSeries]));
+    spyGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]) as any);
+    spyGetAllSeries.mockImplementation(() => Promise.resolve([mockSeries]) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
     await waitForLoaded(result);
 
-    expect(mockInitDatabase).toHaveBeenCalled();
-    expect(mockSeedDatabaseIfEmpty).toHaveBeenCalled();
+    expect(spyInitDatabase).toHaveBeenCalled();
+    expect(spySeedDatabaseIfEmpty).toHaveBeenCalled();
     expect(result.current.books).toHaveLength(1);
     expect(result.current.series).toHaveLength(1);
     expect(result.current.isLoading).toBe(false);
   });
 
   it('filters ownedBooks (not in wishlist)', async () => {
-    mockGetAllBooks.mockImplementation(() =>
-      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook])
+    spyGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook]) as any
     );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
@@ -124,8 +111,8 @@ describe('BooksContext', () => {
   });
 
   it('filters wishlistBooks (in wishlist, no future release date)', async () => {
-    mockGetAllBooks.mockImplementation(() =>
-      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook])
+    spyGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook]) as any
     );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
@@ -137,8 +124,8 @@ describe('BooksContext', () => {
   });
 
   it('filters upcomingBooks (in wishlist with future release date)', async () => {
-    mockGetAllBooks.mockImplementation(() =>
-      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook])
+    spyGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook, mockUpcomingBook]) as any
     );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
@@ -160,7 +147,7 @@ describe('BooksContext', () => {
       id: 'up-2',
       releaseDate: '2099-03-01',
     };
-    mockGetAllBooks.mockImplementation(() => Promise.resolve([upcoming1, upcoming2]));
+    spyGetAllBooks.mockImplementation(() => Promise.resolve([upcoming1, upcoming2]) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -179,13 +166,13 @@ describe('BooksContext', () => {
       await result.current.addBook(mockBook);
     });
 
-    expect(mockBookExists).toHaveBeenCalledWith('book-1');
-    expect(mockInsertBook).toHaveBeenCalledWith(mockBook);
+    expect(spyBookExists).toHaveBeenCalledWith('book-1');
+    expect(spyInsertBook).toHaveBeenCalledWith(mockBook);
     expect(result.current.books).toHaveLength(1);
   });
 
   it('addBook skips if book already exists', async () => {
-    mockBookExists.mockImplementation(() => Promise.resolve(true));
+    spyBookExists.mockImplementation(() => Promise.resolve(true) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -195,7 +182,7 @@ describe('BooksContext', () => {
       await result.current.addBook(mockBook);
     });
 
-    expect(mockInsertBook).not.toHaveBeenCalled();
+    expect(spyInsertBook).not.toHaveBeenCalled();
     expect(result.current.books).toHaveLength(0);
   });
 
@@ -208,13 +195,13 @@ describe('BooksContext', () => {
       await result.current.addSeries(mockSeries);
     });
 
-    expect(mockSeriesExists).toHaveBeenCalledWith('series-1');
-    expect(mockInsertSeries).toHaveBeenCalledWith(mockSeries);
+    expect(spySeriesExists).toHaveBeenCalledWith('series-1');
+    expect(spyInsertSeries).toHaveBeenCalledWith(mockSeries);
     expect(result.current.series).toHaveLength(1);
   });
 
   it('addSeries skips if series already exists', async () => {
-    mockSeriesExists.mockImplementation(() => Promise.resolve(true));
+    spySeriesExists.mockImplementation(() => Promise.resolve(true) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -224,11 +211,11 @@ describe('BooksContext', () => {
       await result.current.addSeries(mockSeries);
     });
 
-    expect(mockInsertSeries).not.toHaveBeenCalled();
+    expect(spyInsertSeries).not.toHaveBeenCalled();
   });
 
   it('updateBook updates database and state', async () => {
-    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]));
+    spyGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -238,12 +225,12 @@ describe('BooksContext', () => {
       await result.current.updateBook('book-1', { isRead: false });
     });
 
-    expect(mockUpdateBook).toHaveBeenCalledWith('book-1', { isRead: false });
+    expect(spyUpdateBook).toHaveBeenCalledWith('book-1', { isRead: false });
     expect(result.current.books[0].isRead).toBe(false);
   });
 
   it('removeBook deletes from database and state', async () => {
-    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]));
+    spyGetAllBooks.mockImplementation(() => Promise.resolve([mockBook]) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -253,12 +240,12 @@ describe('BooksContext', () => {
       await result.current.removeBook('book-1');
     });
 
-    expect(mockDeleteBook).toHaveBeenCalledWith('book-1');
+    expect(spyDeleteBook).toHaveBeenCalledWith('book-1');
     expect(result.current.books).toHaveLength(0);
   });
 
   it('moveToOwned sets inWishlist to false', async () => {
-    mockGetAllBooks.mockImplementation(() => Promise.resolve([mockWishlistBook]));
+    spyGetAllBooks.mockImplementation(() => Promise.resolve([mockWishlistBook]) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -268,13 +255,13 @@ describe('BooksContext', () => {
       await result.current.moveToOwned('book-2');
     });
 
-    expect(mockUpdateBook).toHaveBeenCalledWith('book-2', { inWishlist: false });
+    expect(spyUpdateBook).toHaveBeenCalledWith('book-2', { inWishlist: false });
     expect(result.current.books[0].inWishlist).toBe(false);
   });
 
   it('getBookById returns the correct book', async () => {
-    mockGetAllBooks.mockImplementation(() =>
-      Promise.resolve([mockBook, mockWishlistBook])
+    spyGetAllBooks.mockImplementation(() =>
+      Promise.resolve([mockBook, mockWishlistBook]) as any
     );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
@@ -286,7 +273,7 @@ describe('BooksContext', () => {
   });
 
   it('getSeriesById returns the correct series', async () => {
-    mockGetAllSeries.mockImplementation(() => Promise.resolve([mockSeries]));
+    spyGetAllSeries.mockImplementation(() => Promise.resolve([mockSeries]) as any);
 
     const { result } = renderHook(() => useBooks(), { wrapper });
 
@@ -309,8 +296,8 @@ describe('BooksContext', () => {
       seriesId: 'series-1',
       volumeNumber: 1,
     };
-    mockGetAllBooks.mockImplementation(() =>
-      Promise.resolve([vol2, vol1, mockWishlistBook])
+    spyGetAllBooks.mockImplementation(() =>
+      Promise.resolve([vol2, vol1, mockWishlistBook]) as any
     );
 
     const { result } = renderHook(() => useBooks(), { wrapper });
