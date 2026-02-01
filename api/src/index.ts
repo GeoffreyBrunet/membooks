@@ -4,10 +4,14 @@ import { authRoutes } from "./routes/auth";
 import { subscriptionRoutes, webhookRoutes } from "./routes/subscription";
 import { adminRoutes } from "./routes/admin";
 
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+  : [];
+
 const app = new Elysia()
   .use(
     cors({
-      origin: true,
+      origin: allowedOrigins.length > 0 ? allowedOrigins : true,
       credentials: true,
     })
   )
