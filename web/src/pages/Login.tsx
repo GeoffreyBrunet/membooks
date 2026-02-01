@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { login } from "../services/auth";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function LoginPage() {
+  usePageTitle("Sign In");
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile, changePassword, deleteAccount, logout } from "../services/auth";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function ProfilePage() {
+  usePageTitle("Profile");
   const queryClient = useQueryClient();
 
   const { data: profileData, isLoading } = useQuery({

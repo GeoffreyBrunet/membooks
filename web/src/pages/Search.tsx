@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { usePageTitle } from "../hooks/usePageTitle";
 import {
   searchBooks,
   addBook,
@@ -10,6 +11,7 @@ import {
 } from "../services/books";
 
 export function SearchPage() {
+  usePageTitle("Search");
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);

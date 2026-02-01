@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { register } from "../services/auth";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function RegisterPage() {
+  usePageTitle("Create Account");
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePageTitle } from "../hooks/usePageTitle";
 import {
   getAdminStats,
   getAdminUsers,
@@ -12,6 +13,7 @@ import {
 } from "../services/admin";
 
 export function AdminPage() {
+  usePageTitle("Admin");
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"users" | "subscriptions">("users");
   const [usersPage, setUsersPage] = useState(1);

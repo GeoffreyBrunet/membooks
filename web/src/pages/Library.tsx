@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
+import { usePageTitle } from "../hooks/usePageTitle";
 import {
   getOwnedBooks,
   getWishlistBooks,
@@ -28,6 +29,7 @@ interface LibraryItem {
 }
 
 export function LibraryPage() {
+  usePageTitle("Library");
   const [activeTab, setActiveTab] = useState<Tab>("books");
   const [books, setBooks] = useState<Book[]>([]);
   const [wishlist, setWishlist] = useState<Book[]>([]);
