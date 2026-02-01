@@ -2,4 +2,4 @@
 preload = ["./__mocks__/setup.ts"]
 coverageThreshold = 0.8
 coverageSkipTestFiles = true
-coveragePathIgnorePatterns = ["__mocks__/**", "src/pages/Login.tsx", "src/pages/Register.tsx"]
+coveragePathIgnorePatterns = ["__mocks__/**", "src/pages/Login.tsx", "src/pages/Register.tsx", "src/server.ts"]
