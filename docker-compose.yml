@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: membooks
+      POSTGRES_PASSWORD: membooks
+      POSTGRES_DB: membooks
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U membooks"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://membooks:membooks@db:5432/membooks
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-secure-random-string}
+      PORT: 3000
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PREMIUM_PRICE_ID: ${STRIPE_PREMIUM_PRICE_ID:-}
+      APP_URL: ${APP_URL:-membooks://}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
