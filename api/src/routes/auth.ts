@@ -72,6 +72,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         password: t.String({ minLength: 8 }),
         language: t.Optional(t.String()),
       }),
+      detail: { tags: ["Auth"], summary: "Register", description: "Create a new user account and return a JWT token." },
     }
   )
   .post(
@@ -117,6 +118,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         email: t.String({ format: "email" }),
         password: t.String(),
       }),
+      detail: { tags: ["Auth"], summary: "Login", description: "Authenticate with email and password, returns a JWT token." },
     }
   )
   .get(
@@ -155,6 +157,9 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
       }
 
       return { user };
+    },
+    {
+      detail: { tags: ["Auth"], summary: "Get current user", description: "Return the authenticated user's profile. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   )
   .put(
@@ -212,6 +217,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         username: t.Optional(t.String({ minLength: 3, maxLength: 30 })),
         language: t.Optional(t.String()),
       }),
+      detail: { tags: ["Auth"], summary: "Update profile", description: "Update the authenticated user's username or language. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   )
   .delete(
@@ -244,6 +250,9 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
       await db.delete(users).where(eq(users.id, payload.sub as string));
 
       return { success: true };
+    },
+    {
+      detail: { tags: ["Auth"], summary: "Delete account", description: "Permanently delete the authenticated user's account. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   )
   .put(
@@ -299,5 +308,6 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         currentPassword: t.String(),
         newPassword: t.String({ minLength: 8 }),
       }),
+      detail: { tags: ["Auth"], summary: "Change password", description: "Change the authenticated user's password. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   );
