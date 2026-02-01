@@ -127,6 +127,53 @@ describe("Login Rate Limiting", () => {
   });
 });
 
+describe("Login Rate Limiting — production threshold (5 req/min)", () => {
+  test("should allow the first 5 requests and block the 6th", async () => {
+    const app = createRateLimitedApp(5, 10);
+    const ip = "172.16.0.1";
+
+    for (let i = 0; i < 5; i++) {
+      const response = await app.handle(loginRequest(ip));
+      expect(response.status).toBe(200);
+      expect(response.headers.get("x-ratelimit-remaining")).toBe(String(4 - i));
+    }
+
+    const blocked = await app.handle(loginRequest(ip));
+    expect(blocked.status).toBe(429);
+    const body = await blocked.json();
+    expect(body.error).toBe("Too many requests");
+    expect(body.message).toContain("login");
+    expect(blocked.headers.get("x-ratelimit-remaining")).toBe("0");
+  });
+
+  test("should include all three rate limit headers on every response", async () => {
+    const app = createRateLimitedApp(5, 10);
+
+    const response = await app.handle(loginRequest("172.16.0.2"));
+    expect(response.headers.get("x-ratelimit-limit")).toBe("5");
+    expect(response.headers.get("x-ratelimit-remaining")).toBe("4");
+    const resetValue = response.headers.get("x-ratelimit-reset");
+    expect(resetValue).toBeDefined();
+    expect(Number(resetValue)).toBeGreaterThan(0);
+  });
+
+  test("should not block a different IP when one IP is rate limited", async () => {
+    const app = createRateLimitedApp(5, 10);
+
+    // Exhaust limit for first IP
+    for (let i = 0; i < 5; i++) {
+      await app.handle(loginRequest("172.16.0.3"));
+    }
+    const blocked = await app.handle(loginRequest("172.16.0.3"));
+    expect(blocked.status).toBe(429);
+
+    // Second IP should be unaffected
+    const allowed = await app.handle(loginRequest("172.16.0.4"));
+    expect(allowed.status).toBe(200);
+    expect(allowed.headers.get("x-ratelimit-remaining")).toBe("4");
+  });
+});
+
 describe("Register Rate Limiting", () => {
   test("should allow requests under the limit", async () => {
     const app = createRateLimitedApp(5, 2);
