@@ -1,10 +1,12 @@
 import { describe, test, expect } from "bun:test";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 
 const dockerfile = readFileSync(resolve(import.meta.dir, "../Dockerfile"), "utf-8");
 const dockerignore = readFileSync(resolve(import.meta.dir, "../.dockerignore"), "utf-8");
-const composefile = readFileSync(resolve(import.meta.dir, "../../docker-compose.yml"), "utf-8");
+
+const composePath = resolve(import.meta.dir, "../../docker-compose.yml");
+const composefile = existsSync(composePath) ? readFileSync(composePath, "utf-8") : null;
 
 describe("Dockerfile", () => {
   test("should use oven/bun as base image", () => {
@@ -71,7 +73,10 @@ describe(".dockerignore", () => {
   });
 });
 
-describe("docker-compose.yml", () => {
+// docker-compose.yml lives at repo root — not available inside Docker build context
+const skipCompose = !composefile;
+
+describe.skipIf(skipCompose)("docker-compose.yml", () => {
   test("should define api service", () => {
     expect(composefile).toContain("api:");
   });
