@@ -9,7 +9,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "bun test __tests__/services/ --coverage && bun test __tests__/contexts/ && bun test __tests__/components/ __tests__/hooks/"
+    "test": "bun test __tests__/services/ --coverage && bun test __tests__/contexts/ && bun test __tests__/components/ __tests__/hooks/ __tests__/eas-build.test.ts",
+    "build:preview": "eas build --profile preview --platform all",
+    "build:production": "eas build --profile production --platform all"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -53,6 +55,7 @@
   "devDependencies": {
     "@testing-library/react-native": "^13.3.3",
     "@types/react": "~19.1.17",
+    "eas-cli": "^16.4.0",
     "eslint": "^9.39.2",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.3"
