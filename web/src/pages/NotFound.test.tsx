@@ -1,5 +1,5 @@
-import { describe, test, expect } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { describe, test, expect, afterEach } from "bun:test";
+import { render, screen, cleanup } from "@testing-library/react";
 import {
   createRootRoute,
   createRoute,
@@ -8,6 +8,8 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import { NotFoundPage } from "./NotFound";
+
+afterEach(cleanup);
 
 async function renderWithRouter(initialPath: string) {
   const rootRoute = createRootRoute({
