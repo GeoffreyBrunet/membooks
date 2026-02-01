@@ -1,3 +1,8 @@
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
+if (!globalThis.document) {
+  GlobalRegistrator.register();
+}
+
 import { describe, test, expect } from "bun:test";
 import { render, screen } from "@testing-library/react";
 import {
