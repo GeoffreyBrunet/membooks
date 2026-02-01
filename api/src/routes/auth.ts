@@ -4,6 +4,19 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { users } from "../db/schema";
 import { hashPassword, verifyPassword } from "../utils/password";
+import { RateLimiter } from "../utils/rateLimiter";
+
+// 5 attempts per minute for login, 10 per minute for register
+export const loginLimiter = new RateLimiter({ maxRequests: 5, windowMs: 60_000 });
+export const registerLimiter = new RateLimiter({ maxRequests: 10, windowMs: 60_000 });
+
+function getClientIp(request: Request): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
 
 export const authRoutes = new Elysia({ prefix: "/auth" })
   .use(
@@ -72,6 +85,17 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         password: t.String({ minLength: 8 }),
         language: t.Optional(t.String()),
       }),
+      beforeHandle: ({ request, set }) => {
+        const ip = getClientIp(request);
+        const result = registerLimiter.check(ip);
+        set.headers["x-ratelimit-limit"] = "10";
+        set.headers["x-ratelimit-remaining"] = String(result.remaining);
+        set.headers["x-ratelimit-reset"] = String(Math.ceil(result.resetAt / 1000));
+        if (result.limited) {
+          set.status = 429;
+          return { error: "Too many requests", message: "Too many registration attempts. Please try again later." };
+        }
+      },
       detail: { tags: ["Auth"], summary: "Register", description: "Create a new user account and return a JWT token." },
     }
   )
@@ -118,6 +142,17 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         email: t.String({ format: "email" }),
         password: t.String(),
       }),
+      beforeHandle: ({ request, set }) => {
+        const ip = getClientIp(request);
+        const result = loginLimiter.check(ip);
+        set.headers["x-ratelimit-limit"] = "5";
+        set.headers["x-ratelimit-remaining"] = String(result.remaining);
+        set.headers["x-ratelimit-reset"] = String(Math.ceil(result.resetAt / 1000));
+        if (result.limited) {
+          set.status = 429;
+          return { error: "Too many requests", message: "Too many login attempts. Please try again later." };
+        }
+      },
       detail: { tags: ["Auth"], summary: "Login", description: "Authenticate with email and password, returns a JWT token." },
     }
   )
