@@ -17,6 +17,8 @@ const app = new Elysia()
   .get("/admin/*", index)
   .get("/book/*", index)
   .get("/series/*", index)
+  // Catch-all: serve SPA for unknown routes (client handles 404)
+  .get("/*", index)
   // Proxy API requests
   .all("/api/*", async ({ request }) => {
     const url = new URL(request.url);

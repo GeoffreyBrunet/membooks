@@ -34,7 +34,7 @@ function setAuth(token = "tok") {
 
 beforeEach(() => {
   localStorage.clear();
-  window.location.href = "";
+  window.location.href = "http://localhost/";
 });
 
 // --- getSession / setSession / clearSession ---
@@ -139,7 +139,7 @@ describe("logout", () => {
     setAuth();
     logout();
     expect(getSession()).toBeNull();
-    expect(window.location.href).toBe("/login");
+    expect(window.location.pathname).toBe("/login");
   });
 });
 
