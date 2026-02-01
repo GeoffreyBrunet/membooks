@@ -114,6 +114,9 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
       });
 
       return { url: session.url };
+    },
+    {
+      detail: { tags: ["Subscription"], summary: "Create checkout session", description: "Create a Stripe checkout session for premium subscription. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   )
   // Get current subscription status
@@ -158,6 +161,9 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
             }
           : null,
       };
+    },
+    {
+      detail: { tags: ["Subscription"], summary: "Get subscription status", description: "Return the current user's premium and subscription status. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   )
   // Cancel subscription
@@ -212,6 +218,9 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
         .where(eq(subscriptions.id, subscription.id));
 
       return { success: true };
+    },
+    {
+      detail: { tags: ["Subscription"], summary: "Cancel subscription", description: "Cancel the current subscription at period end. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   )
   // Reactivate subscription (if canceled but still in period)
@@ -266,6 +275,9 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
         .where(eq(subscriptions.id, subscription.id));
 
       return { success: true };
+    },
+    {
+      detail: { tags: ["Subscription"], summary: "Reactivate subscription", description: "Reactivate a canceled subscription before the current period ends. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   );
 
@@ -401,5 +413,8 @@ export const webhookRoutes = new Elysia({ prefix: "/webhook" }).post(
     }
 
     return { received: true };
+  },
+  {
+    detail: { tags: ["Webhook"], summary: "Stripe webhook", description: "Handle Stripe webhook events (checkout.session.completed, subscription updates, payment failures)." },
   }
 );

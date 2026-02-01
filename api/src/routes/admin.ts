@@ -68,6 +68,8 @@ export const adminRoutes = new Elysia({ prefix: "/admin" })
         ? ((premiumUsers.count / totalUsers.count) * 100).toFixed(1)
         : 0,
     };
+  }, {
+    detail: { tags: ["Admin"], summary: "Dashboard stats", description: "Get platform statistics (total users, premium users, conversion rate). Requires admin access.", security: [{ bearerAuth: [] }] },
   })
   // List all users
   .get("/users", async ({ isAdmin, set, query }) => {
@@ -105,6 +107,8 @@ export const adminRoutes = new Elysia({ prefix: "/admin" })
         totalPages: Math.ceil(total.count / limit),
       },
     };
+  }, {
+    detail: { tags: ["Admin"], summary: "List users", description: "List all users with pagination. Requires admin access.", security: [{ bearerAuth: [] }] },
   })
   // Get single user with subscription
   .get("/users/:id", async ({ isAdmin, set, params }) => {
@@ -137,6 +141,8 @@ export const adminRoutes = new Elysia({ prefix: "/admin" })
     });
 
     return { user, subscription };
+  }, {
+    detail: { tags: ["Admin"], summary: "Get user details", description: "Get a single user's profile and subscription details. Requires admin access.", security: [{ bearerAuth: [] }] },
   })
   // Toggle premium status manually
   .post(
@@ -172,6 +178,7 @@ export const adminRoutes = new Elysia({ prefix: "/admin" })
       body: t.Object({
         isPremium: t.Boolean(),
       }),
+      detail: { tags: ["Admin"], summary: "Toggle premium status", description: "Manually toggle a user's premium status. Requires admin access.", security: [{ bearerAuth: [] }] },
     }
   )
   // List all subscriptions
@@ -213,4 +220,6 @@ export const adminRoutes = new Elysia({ prefix: "/admin" })
         totalPages: Math.ceil(total.count / limit),
       },
     };
+  }, {
+    detail: { tags: ["Admin"], summary: "List subscriptions", description: "List all subscriptions with user info and pagination. Requires admin access.", security: [{ bearerAuth: [] }] },
   });

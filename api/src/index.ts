@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
+import { swagger } from "@elysiajs/swagger";
 import { authRoutes } from "./routes/auth";
 import { subscriptionRoutes, webhookRoutes } from "./routes/subscription";
 import { adminRoutes } from "./routes/admin";
@@ -13,6 +14,35 @@ const app = new Elysia()
     cors({
       origin: allowedOrigins.length > 0 ? allowedOrigins : true,
       credentials: true,
+    })
+  )
+  .use(
+    swagger({
+      path: "/swagger",
+      documentation: {
+        info: {
+          title: "Membooks API",
+          version: "1.0.0",
+          description:
+            "API for Membooks — a book tracking application. Manage user accounts, premium subscriptions via Stripe, and admin operations.",
+        },
+        tags: [
+          { name: "General", description: "Health check and root endpoints" },
+          { name: "Auth", description: "User authentication and account management" },
+          { name: "Subscription", description: "Premium subscription management via Stripe" },
+          { name: "Webhook", description: "Stripe webhook handler" },
+          { name: "Admin", description: "Admin dashboard and user management" },
+        ],
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        },
+      },
     })
   )
   // Global error handler to ensure JSON responses
@@ -35,8 +65,12 @@ const app = new Elysia()
     const errorMessage = error instanceof Error ? error.message : String(error);
     return { error: "Internal Server Error", message: errorMessage };
   })
-  .get("/", () => ({ message: "Membooks API is running" }))
-  .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
+  .get("/", () => ({ message: "Membooks API is running" }), {
+    detail: { tags: ["General"], summary: "Root", description: "Returns a simple message confirming the API is running." },
+  })
+  .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }), {
+    detail: { tags: ["General"], summary: "Health check", description: "Returns the current health status and server timestamp." },
+  })
   .use(authRoutes)
   .use(subscriptionRoutes)
   .use(webhookRoutes)
