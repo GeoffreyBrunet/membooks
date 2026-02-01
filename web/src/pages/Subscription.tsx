@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePageTitle } from "../hooks/usePageTitle";
 import {
   getSubscriptionStatus,
   createCheckoutSession,
@@ -8,6 +9,7 @@ import {
 } from "../services/subscription";
 
 export function SubscriptionPage() {
+  usePageTitle("Premium");
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({

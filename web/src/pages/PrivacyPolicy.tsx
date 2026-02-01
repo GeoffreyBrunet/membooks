@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function PrivacyPolicyPage() {
+  usePageTitle("Privacy Policy");
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-6">
       <div className="max-w-3xl mx-auto">

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { usePageTitle } from "../hooks/usePageTitle";
 import { getStatistics, BOOK_TYPE_LABELS, CATEGORY_LABELS, type BookType, type BookCategory } from "../services/books";
 
 const TYPE_COLORS: Record<BookType, string> = {
@@ -23,6 +24,7 @@ const CATEGORY_COLORS: Record<BookCategory, string> = {
 };
 
 export function StatisticsPage() {
+  usePageTitle("Statistics");
   const stats = getStatistics();
 
   const typeData = Object.entries(stats.byType)

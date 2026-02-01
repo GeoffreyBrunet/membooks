@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { usePageTitle } from "../hooks/usePageTitle";
 import {
   getSeries,
   getBooksForSeries,
@@ -12,6 +13,7 @@ import {
 } from "../services/books";
 
 export function SeriesDetailPage() {
+  usePageTitle("Series Details");
   const navigate = useNavigate();
   const { seriesId } = useParams({ from: "/series/$seriesId" });
   const [series, setSeries] = useState<Series | null>(null);
