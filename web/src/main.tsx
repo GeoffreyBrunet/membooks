@@ -13,6 +13,7 @@ import { SubscriptionPage } from "./pages/Subscription";
 import { AdminPage } from "./pages/Admin";
 import { BookDetailPage } from "./pages/BookDetail";
 import { SeriesDetailPage } from "./pages/SeriesDetail";
+import { NotFoundPage } from "./pages/NotFound";
 
 // Services
 import { getSession } from "./services/auth";
@@ -121,6 +122,7 @@ function RootLayout() {
 // Routes
 const rootRoute = createRootRoute({
   component: RootLayout,
+  notFoundComponent: NotFoundPage,
 });
 
 const loginRoute = createRoute({
