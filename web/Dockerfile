@@ -1,26 +1,38 @@
-FROM oven/bun:1 AS base
-WORKDIR /app
+# use the official Bun image
+# see all versions at https://hub.docker.com/r/oven/bun/tags
+FROM oven/bun AS base
+WORKDIR /usr/src/app
 
-# Install dependencies (cached layer)
-FROM base AS deps
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production
+# install dependencies into temp directory
+# this will cache them and speed up future builds
+FROM base AS install
+RUN mkdir -p /temp/dev
+COPY package.json bun.lock /temp/dev/
+RUN cd /temp/dev && bun install --frozen-lockfile
 
-# Build
-FROM base AS build
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+# install with --production (exclude devDependencies)
+RUN mkdir -p /temp/prod
+COPY package.json bun.lock /temp/prod/
+RUN cd /temp/prod && bun install --frozen-lockfile --production
+
+# copy node_modules from temp directory
+# then copy all (non-ignored) project files into the image
+FROM base AS prerelease
+COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
+
+# tests & build
+ENV NODE_ENV=production
+RUN bun test
 RUN bun run build
 
-# Production
+# copy production dependencies and source code into final image
 FROM base AS release
-COPY --from=deps /app/node_modules node_modules
-COPY --from=build /app/dist dist
-COPY --from=build /app/src/server.ts src/server.ts
-COPY --from=build /app/src/index.html src/index.html
-COPY package.json .
+COPY --from=install /temp/prod/node_modules node_modules
+COPY --from=prerelease /usr/src/app/dist dist
+COPY --from=prerelease /usr/src/app/package.json .
 
+# run the app
 USER bun
-EXPOSE 3001
-CMD ["bun", "run", "src/server.ts"]
+EXPOSE 3001/tcp
+ENTRYPOINT [ "bun", "run", "dist/server.js" ]

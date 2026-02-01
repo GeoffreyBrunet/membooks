@@ -7,7 +7,8 @@
     "dev": "bun run --hot src/server.ts",
     "build": "bun run build.ts",
     "start": "bun run src/server.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test --coverage"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.64.2",
@@ -18,9 +19,13 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^20.4.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/bun": "latest",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "happy-dom": "^20.4.0",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
   }
