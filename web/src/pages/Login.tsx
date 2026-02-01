@@ -94,6 +94,12 @@ export function LoginPage() {
             Register
           </Link>
         </p>
+
+        <div className="mt-6 text-center text-xs text-gray-400 space-x-3">
+          <Link to="/privacy" className="hover:text-gray-600 transition-colors">Privacy Policy</Link>
+          <span>&middot;</span>
+          <Link to="/terms" className="hover:text-gray-600 transition-colors">Terms of Service</Link>
+        </div>
       </div>
     </div>
   );

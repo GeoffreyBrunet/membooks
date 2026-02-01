@@ -14,6 +14,8 @@ import { AdminPage } from "./pages/Admin";
 import { BookDetailPage } from "./pages/BookDetail";
 import { SeriesDetailPage } from "./pages/SeriesDetail";
 import { NotFoundPage } from "./pages/NotFound";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicy";
+import { TermsPage } from "./pages/Terms";
 
 // Services
 import { getSession } from "./services/auth";
@@ -203,6 +205,18 @@ const seriesDetailRoute = createRoute({
   component: SeriesDetailPage,
 });
 
+const privacyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/privacy",
+  component: PrivacyPolicyPage,
+});
+
+const termsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/terms",
+  component: TermsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -215,6 +229,8 @@ const routeTree = rootRoute.addChildren([
   adminRoute,
   bookDetailRoute,
   seriesDetailRoute,
+  privacyRoute,
+  termsRoute,
 ]);
 
 const router = createRouter({ routeTree });
