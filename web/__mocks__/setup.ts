@@ -1,4 +1,8 @@
-// In-memory localStorage mock
+// Register happy-dom for full DOM support (needed by component tests)
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
+GlobalRegistrator.register();
+
+// In-memory localStorage mock (overrides happy-dom's localStorage)
 const store = new Map<string, string>();
 
 const localStorageMock: Storage = {
@@ -10,14 +14,7 @@ const localStorageMock: Storage = {
   key: (index: number) => [...store.keys()][index] ?? null,
 };
 
-Object.defineProperty(globalThis, "localStorage", { value: localStorageMock, writable: true });
+Object.defineProperty(globalThis, "localStorage", { value: localStorageMock, writable: true, configurable: true });
 
 // Mock fetch
 globalThis.fetch = (() => { throw new Error("fetch not mocked"); }) as any;
-
-// Mock window.location
-const locationMock = { href: "", assign: () => {} };
-Object.defineProperty(globalThis, "window", {
-  value: { location: locationMock },
-  writable: true,
-});
