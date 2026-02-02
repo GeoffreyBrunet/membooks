@@ -6,6 +6,7 @@ import { BooksProvider } from "@/contexts/books-context";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { useThemeColors } from "@/hooks/use-theme-colors";
+import { useOTAUpdates } from "@/hooks/use-ota-updates";
 import "@/lib/i18n";
 
 function RootLayoutNav() {
@@ -13,6 +14,9 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const colors = useThemeColors();
+
+  // Check for OTA updates on launch
+  useOTAUpdates();
 
   useEffect(() => {
     if (isLoading) return;

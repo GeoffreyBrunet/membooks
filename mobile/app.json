@@ -32,6 +32,12 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/99d8a9a2-d925-49e2-8b1e-3fb95c16784d"
+    },
     "plugins": [
       [
         "expo-camera",
