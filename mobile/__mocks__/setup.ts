@@ -36,6 +36,7 @@ mock.module('react-native', () => {
     TextInput: (props: any) => React.createElement('TextInput', props),
     ScrollView: ({ children, ...props }: any) => React.createElement('ScrollView', props, children),
     ActivityIndicator: (props: any) => React.createElement('ActivityIndicator', props),
+    KeyboardAvoidingView: ({ children, ...props }: any) => React.createElement('View', props, children),
     Alert: {
       alert: mock(),
     },

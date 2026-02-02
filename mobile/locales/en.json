@@ -61,8 +61,13 @@
       "wishlist": "Wishlist",
       "releases": "Coming"
     },
+    "emptyLibrary": "Your library is empty. Search for books to add!",
     "emptyWishlist": "Your wishlist is empty. Search for books to add!",
-    "emptyUpcoming": "No upcoming releases. Add books with future release dates to your wishlist!"
+    "emptyUpcoming": "No upcoming releases. Add books with future release dates to your wishlist!",
+    "comingSoon": "Coming Soon"
+  },
+  "proposals": {
+    "subtitle": "Get personalized book recommendations based on your reading history and preferences."
   },
   "wishlist": {
     "moveToOwned": "I got it!",
