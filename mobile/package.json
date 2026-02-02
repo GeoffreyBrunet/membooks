@@ -11,7 +11,11 @@
     "lint": "expo lint",
     "test": "bun test __tests__/services/ --coverage && bun test __tests__/contexts/ && bun test __tests__/components/ __tests__/hooks/ __tests__/eas-build.test.ts",
     "build:preview": "eas build --profile preview --platform all",
-    "build:production": "eas build --profile production --platform all"
+    "build:preview:android": "eas build --profile preview --platform android",
+    "build:preview:ios": "eas build --profile preview --platform ios",
+    "build:production": "eas build --profile production --platform all",
+    "build:production:android": "eas build --profile production --platform android",
+    "build:production:ios": "eas build --profile production --platform ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
