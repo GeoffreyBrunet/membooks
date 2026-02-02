@@ -198,6 +198,25 @@ export default function Home() {
           </View>
 
           {/* Books list */}
+          {libraryItems.length === 0 && (
+            <View style={styles.emptyContainer}>
+              <View
+                style={[
+                  styles.emptyCard,
+                  {
+                    backgroundColor: colors.backgroundSecondary,
+                    borderColor: colors.border,
+                    shadowColor: colors.shadow,
+                  },
+                ]}
+              >
+                <Ionicons name="book-outline" size={48} color={colors.textSecondary} />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  {t('home.emptyLibrary')}
+                </Text>
+              </View>
+            </View>
+          )}
           <View style={styles.list}>
             {libraryItems.map((item, index) => (
               <View key={item.data.id}>
@@ -241,9 +260,21 @@ export default function Home() {
 
           {sortedWishlist.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                {t('home.emptyWishlist')}
-              </Text>
+              <View
+                style={[
+                  styles.emptyCard,
+                  {
+                    backgroundColor: colors.backgroundSecondary,
+                    borderColor: colors.border,
+                    shadowColor: colors.shadow,
+                  },
+                ]}
+              >
+                <Ionicons name="heart-outline" size={48} color={colors.textSecondary} />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  {t('home.emptyWishlist')}
+                </Text>
+              </View>
             </View>
           ) : (
             <View style={styles.list}>
@@ -286,9 +317,21 @@ export default function Home() {
 
           {upcomingBooks.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                {t('home.emptyUpcoming')}
-              </Text>
+              <View
+                style={[
+                  styles.emptyCard,
+                  {
+                    backgroundColor: colors.backgroundSecondary,
+                    borderColor: colors.border,
+                    shadowColor: colors.shadow,
+                  },
+                ]}
+              >
+                <Ionicons name="megaphone-outline" size={48} color={colors.textSecondary} />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  {t('home.emptyUpcoming')}
+                </Text>
+              </View>
             </View>
           ) : (
             <View style={styles.list}>
@@ -469,6 +512,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: spacing['2xl'],
+  },
+  emptyCard: {
+    padding: spacing['2xl'],
+    alignItems: 'center',
+    gap: spacing.md,
+    ...borders.card,
+    ...shadows.md,
   },
   emptyText: {
     ...typography.body,

@@ -61,8 +61,13 @@
       "wishlist": "Wishlist",
       "releases": "À venir"
     },
+    "emptyLibrary": "Votre bibliotheque est vide. Recherchez des livres a ajouter !",
     "emptyWishlist": "Votre wishlist est vide. Recherchez des livres a ajouter !",
-    "emptyUpcoming": "Aucune sortie a venir. Ajoutez des livres avec une date de sortie future a votre wishlist !"
+    "emptyUpcoming": "Aucune sortie a venir. Ajoutez des livres avec une date de sortie future a votre wishlist !",
+    "comingSoon": "Bientot disponible"
+  },
+  "proposals": {
+    "subtitle": "Recevez des recommandations de livres basees sur votre historique de lecture et vos preferences."
   },
   "wishlist": {
     "moveToOwned": "Je l'ai !",
