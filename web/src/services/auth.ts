@@ -1,5 +1,4 @@
 const API_URL = "/api";
-const SESSION_KEY = "membooks_session";
 
 export interface User {
   id: string;
@@ -10,35 +9,12 @@ export interface User {
   createdAt: string;
 }
 
-export interface Session {
-  token: string;
-  email: string;
-  user?: User;
-}
-
-export function getSession(): Session | null {
-  const data = localStorage.getItem(SESSION_KEY);
-  if (!data) return null;
-  try {
-    return JSON.parse(data);
-  } catch {
-    return null;
-  }
-}
-
-export function setSession(session: Session): void {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
-export function clearSession(): void {
-  localStorage.removeItem(SESSION_KEY);
-}
-
 export async function login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
   try {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
 
@@ -48,7 +24,6 @@ export async function login(email: string, password: string): Promise<{ success:
       return { success: false, error: data.error || "Login failed" };
     }
 
-    setSession({ token: data.token, email });
     return { success: true };
   } catch {
     return { success: false, error: "Network error" };
@@ -64,6 +39,7 @@ export async function register(
     const response = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, username, password }),
     });
 
@@ -73,37 +49,33 @@ export async function register(
       return { success: false, error: data.error || "Registration failed" };
     }
 
-    setSession({ token: data.token, email });
     return { success: true };
   } catch {
     return { success: false, error: "Network error" };
   }
 }
 
-export function logout(): void {
-  clearSession();
+export async function logout(): Promise<void> {
+  try {
+    await fetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch {
+    // Ignore errors, redirect anyway
+  }
   window.location.href = "/login";
 }
 
 export async function getProfile(): Promise<{ success: boolean; user?: User; error?: string }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
-    const response = await fetch(`${API_URL}/auth/profile`, {
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-      },
+    const response = await fetch(`${API_URL}/auth/me`, {
+      credentials: "include",
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      if (response.status === 401) {
-        clearSession();
-      }
       return { success: false, error: data.error || "Failed to get profile" };
     }
 
@@ -116,18 +88,11 @@ export async function getProfile(): Promise<{ success: boolean; user?: User; err
 export async function updateProfile(
   updates: { username?: string; language?: string }
 ): Promise<{ success: boolean; error?: string }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
-    const response = await fetch(`${API_URL}/auth/profile`, {
+    const response = await fetch(`${API_URL}/auth/me`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.token}`,
-      },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(updates),
     });
 
@@ -147,18 +112,11 @@ export async function changePassword(
   currentPassword: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
-    const response = await fetch(`${API_URL}/auth/change-password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.token}`,
-      },
+    const response = await fetch(`${API_URL}/auth/password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ currentPassword, newPassword }),
     });
 
@@ -175,17 +133,10 @@ export async function changePassword(
 }
 
 export async function deleteAccount(): Promise<{ success: boolean; error?: string }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
-    const response = await fetch(`${API_URL}/auth/account`, {
+    const response = await fetch(`${API_URL}/auth/me`, {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-      },
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -194,9 +145,13 @@ export async function deleteAccount(): Promise<{ success: boolean; error?: strin
       return { success: false, error: data.error || "Failed to delete account" };
     }
 
-    clearSession();
     return { success: true };
   } catch {
     return { success: false, error: "Network error" };
   }
+}
+
+export async function isAuthenticated(): Promise<boolean> {
+  const result = await getProfile();
+  return result.success;
 }

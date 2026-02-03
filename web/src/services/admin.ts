@@ -1,5 +1,3 @@
-import { getSession } from "./auth";
-
 const API_URL = "/api";
 
 export interface AdminStats {
@@ -40,16 +38,11 @@ export interface PaginatedResponse<T> {
 }
 
 async function adminFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const session = getSession();
-  if (!session) {
-    throw new Error("Not authenticated");
-  }
-
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${session.token}`,
       ...options?.headers,
     },
   });
