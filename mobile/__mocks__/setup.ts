@@ -170,6 +170,13 @@ mock.module('expo-web-browser', () => ({
   coolDownAsync: () => Promise.resolve(),
 }));
 
+// Mock expo-updates
+mock.module('expo-updates', () => ({
+  checkForUpdateAsync: mock(() => Promise.resolve({ isAvailable: false })),
+  fetchUpdateAsync: mock(() => Promise.resolve({ isNew: true })),
+  reloadAsync: mock(() => Promise.resolve()),
+}));
+
 // Mock react-native-safe-area-context
 mock.module('react-native-safe-area-context', () => {
   const React = require('react');
