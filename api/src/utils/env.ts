@@ -39,3 +39,6 @@ export function validateEnv(): void {
     });
   }
 }
+
+// Run validation immediately on import, before other modules load
+validateEnv();

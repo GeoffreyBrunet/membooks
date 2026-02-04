@@ -1,3 +1,4 @@
+import "./utils/env";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
@@ -5,9 +6,6 @@ import { authRoutes } from "./routes/auth";
 import { subscriptionRoutes, webhookRoutes } from "./routes/subscription";
 import { adminRoutes } from "./routes/admin";
 import { logger } from "./utils/logger";
-import { validateEnv } from "./utils/env";
-
-validateEnv();
 
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
