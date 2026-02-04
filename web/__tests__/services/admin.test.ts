@@ -34,10 +34,6 @@ beforeEach(() => {
 // --- adminFetch (tested indirectly through all functions) ---
 
 describe("adminFetch – auth and error handling", () => {
-  it("throws when not authenticated", async () => {
-    await expect(getAdminStats()).rejects.toThrow("Not authenticated");
-  });
-
   it("throws Unauthorized on 401", async () => {
     setAuth();
     mockFetch({ ok: false, status: 401, json: () => Promise.resolve({}) });

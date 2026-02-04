@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet, Link, redirect } from "@tanstack/react-router";
 
 // Pages
@@ -18,7 +18,7 @@ import { PrivacyPolicyPage } from "./pages/PrivacyPolicy";
 import { TermsPage } from "./pages/Terms";
 
 // Services
-import { getSession } from "./services/auth";
+import { getProfile, User } from "./services/auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,18 +29,18 @@ const queryClient = new QueryClient({
   },
 });
 
-// Auth check helper
+// Auth check helper - checks session via API
 const requireAuth = async () => {
-  const session = getSession();
-  if (!session) {
+  const result = await getProfile();
+  if (!result.success) {
     throw redirect({ to: "/login" });
   }
-  return session;
+  return result.user;
 };
 
 const requireGuest = async () => {
-  const session = getSession();
-  if (session) {
+  const result = await getProfile();
+  if (result.success) {
     throw redirect({ to: "/library" });
   }
   return null;
@@ -48,9 +48,25 @@ const requireGuest = async () => {
 
 // Root Layout
 function RootLayout() {
-  const session = getSession();
+  const { data: user, isLoading } = useQuery<User | null>({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const result = await getProfile();
+      return result.success ? result.user! : null;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  });
 
-  if (!session) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-coral"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Outlet />;
   }
 
@@ -104,7 +120,7 @@ function RootLayout() {
             </li>
           </ul>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{session.email}</span>
+            <span className="text-sm text-gray-600">{user.email}</span>
             <Link
               to="/profile"
               className="px-4 py-2 border-2 border-gray-900 rounded-lg font-title text-sm hover:bg-gray-100 transition-colors neo-shadow-sm hover:translate-y-0.5 hover:shadow-none"

@@ -1,8 +1,5 @@
 import { describe, it, expect, beforeEach, mock } from "bun:test";
 import {
-  getSession,
-  setSession,
-  clearSession,
   login,
   register,
   logout,
@@ -10,6 +7,7 @@ import {
   updateProfile,
   changePassword,
   deleteAccount,
+  isAuthenticated,
 } from "../../src/services/auth";
 
 function mockFetch(response: Partial<Response>) {
@@ -28,60 +26,33 @@ function mockFetchNetworkError() {
   globalThis.fetch = mock(() => Promise.reject(new Error("network"))) as unknown as typeof fetch;
 }
 
-function setAuth(token = "tok") {
-  localStorage.setItem("membooks_session", JSON.stringify({ token, email: "a@b.c" }));
-}
-
 beforeEach(() => {
-  localStorage.clear();
   window.location.href = "http://localhost/";
-});
-
-// --- getSession / setSession / clearSession ---
-
-describe("getSession", () => {
-  it("returns null when empty", () => {
-    expect(getSession()).toBeNull();
-  });
-
-  it("parses stored session", () => {
-    const s = { token: "t", email: "a@b.c" };
-    localStorage.setItem("membooks_session", JSON.stringify(s));
-    expect(getSession()).toEqual(s);
-  });
-
-  it("returns null on invalid JSON", () => {
-    localStorage.setItem("membooks_session", "bad{json");
-    expect(getSession()).toBeNull();
-  });
-});
-
-describe("setSession", () => {
-  it("stores session in localStorage", () => {
-    setSession({ token: "t", email: "a@b.c" });
-    expect(JSON.parse(localStorage.getItem("membooks_session")!)).toEqual({
-      token: "t",
-      email: "a@b.c",
-    });
-  });
-});
-
-describe("clearSession", () => {
-  it("removes session from localStorage", () => {
-    setAuth();
-    clearSession();
-    expect(localStorage.getItem("membooks_session")).toBeNull();
-  });
 });
 
 // --- login ---
 
 describe("login", () => {
-  it("succeeds and stores session", async () => {
-    mockFetch({ ok: true, json: () => Promise.resolve({ token: "abc" }) });
+  it("succeeds when API returns ok", async () => {
+    mockFetch({ ok: true, json: () => Promise.resolve({ user: { id: "1" } }) });
     const res = await login("a@b.c", "pw");
     expect(res).toEqual({ success: true });
-    expect(getSession()?.token).toBe("abc");
+  });
+
+  it("sends credentials include", async () => {
+    let capturedOptions: RequestInit | undefined;
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      capturedOptions = options;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers(),
+      } as Response);
+    }) as unknown as typeof fetch;
+
+    await login("a@b.c", "pw");
+    expect(capturedOptions?.credentials).toBe("include");
   });
 
   it("returns error on API failure", async () => {
@@ -106,11 +77,26 @@ describe("login", () => {
 // --- register ---
 
 describe("register", () => {
-  it("succeeds and stores session", async () => {
-    mockFetch({ ok: true, json: () => Promise.resolve({ token: "abc" }) });
+  it("succeeds when API returns ok", async () => {
+    mockFetch({ ok: true, json: () => Promise.resolve({ user: { id: "1" } }) });
     const res = await register("a@b.c", "user", "pw");
     expect(res).toEqual({ success: true });
-    expect(getSession()?.token).toBe("abc");
+  });
+
+  it("sends credentials include", async () => {
+    let capturedOptions: RequestInit | undefined;
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      capturedOptions = options;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers(),
+      } as Response);
+    }) as unknown as typeof fetch;
+
+    await register("a@b.c", "user", "pw");
+    expect(capturedOptions?.credentials).toBe("include");
   });
 
   it("returns error on API failure", async () => {
@@ -135,10 +121,26 @@ describe("register", () => {
 // --- logout ---
 
 describe("logout", () => {
-  it("clears session and redirects", () => {
-    setAuth();
-    logout();
-    expect(getSession()).toBeNull();
+  it("calls logout API and redirects", async () => {
+    let capturedUrl: string | undefined;
+    globalThis.fetch = mock((url: string) => {
+      capturedUrl = url;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers(),
+      } as Response);
+    }) as unknown as typeof fetch;
+
+    await logout();
+    expect(capturedUrl).toContain("/auth/logout");
+    expect(window.location.pathname).toBe("/login");
+  });
+
+  it("redirects even on API error", async () => {
+    mockFetchNetworkError();
+    await logout();
     expect(window.location.pathname).toBe("/login");
   });
 });
@@ -146,29 +148,36 @@ describe("logout", () => {
 // --- getProfile ---
 
 describe("getProfile", () => {
-  it("returns not authenticated when no session", async () => {
-    const res = await getProfile();
-    expect(res).toEqual({ success: false, error: "Not authenticated" });
-  });
-
   it("returns user on success", async () => {
-    setAuth();
     const user = { id: "1", email: "a@b.c", username: "u", language: "en", isPremium: false, createdAt: "2024-01-01" };
     mockFetch({ ok: true, json: () => Promise.resolve({ user }) });
     const res = await getProfile();
     expect(res).toEqual({ success: true, user });
   });
 
-  it("clears session on 401", async () => {
-    setAuth();
-    mockFetch({ ok: false, status: 401, json: () => Promise.resolve({ error: "expired" }) });
+  it("sends credentials include", async () => {
+    let capturedOptions: RequestInit | undefined;
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      capturedOptions = options;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ user: {} }),
+        headers: new Headers(),
+      } as Response);
+    }) as unknown as typeof fetch;
+
+    await getProfile();
+    expect(capturedOptions?.credentials).toBe("include");
+  });
+
+  it("returns error on 401", async () => {
+    mockFetch({ ok: false, status: 401, json: () => Promise.resolve({ error: "Unauthorized" }) });
     const res = await getProfile();
     expect(res.success).toBe(false);
-    expect(getSession()).toBeNull();
   });
 
   it("handles network error", async () => {
-    setAuth();
     mockFetchNetworkError();
     const res = await getProfile();
     expect(res).toEqual({ success: false, error: "Network error" });
@@ -178,27 +187,35 @@ describe("getProfile", () => {
 // --- updateProfile ---
 
 describe("updateProfile", () => {
-  it("returns not authenticated when no session", async () => {
-    const res = await updateProfile({ username: "new" });
-    expect(res).toEqual({ success: false, error: "Not authenticated" });
-  });
-
   it("succeeds", async () => {
-    setAuth();
     mockFetch({ ok: true, json: () => Promise.resolve({}) });
     const res = await updateProfile({ username: "new" });
     expect(res).toEqual({ success: true });
   });
 
+  it("sends credentials include", async () => {
+    let capturedOptions: RequestInit | undefined;
+    globalThis.fetch = mock((url: string, options?: RequestInit) => {
+      capturedOptions = options;
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers(),
+      } as Response);
+    }) as unknown as typeof fetch;
+
+    await updateProfile({ username: "new" });
+    expect(capturedOptions?.credentials).toBe("include");
+  });
+
   it("returns error on failure", async () => {
-    setAuth();
     mockFetch({ ok: false, json: () => Promise.resolve({ error: "fail" }) });
     const res = await updateProfile({ username: "new" });
     expect(res).toEqual({ success: false, error: "fail" });
   });
 
   it("handles network error", async () => {
-    setAuth();
     mockFetchNetworkError();
     const res = await updateProfile({ username: "new" });
     expect(res).toEqual({ success: false, error: "Network error" });
@@ -208,27 +225,19 @@ describe("updateProfile", () => {
 // --- changePassword ---
 
 describe("changePassword", () => {
-  it("returns not authenticated when no session", async () => {
-    const res = await changePassword("old", "new");
-    expect(res).toEqual({ success: false, error: "Not authenticated" });
-  });
-
   it("succeeds", async () => {
-    setAuth();
     mockFetch({ ok: true, json: () => Promise.resolve({}) });
     const res = await changePassword("old", "new");
     expect(res).toEqual({ success: true });
   });
 
   it("returns error on failure", async () => {
-    setAuth();
     mockFetch({ ok: false, json: () => Promise.resolve({ error: "wrong" }) });
     const res = await changePassword("old", "new");
     expect(res).toEqual({ success: false, error: "wrong" });
   });
 
   it("handles network error", async () => {
-    setAuth();
     mockFetchNetworkError();
     const res = await changePassword("old", "new");
     expect(res).toEqual({ success: false, error: "Network error" });
@@ -238,30 +247,37 @@ describe("changePassword", () => {
 // --- deleteAccount ---
 
 describe("deleteAccount", () => {
-  it("returns not authenticated when no session", async () => {
-    const res = await deleteAccount();
-    expect(res).toEqual({ success: false, error: "Not authenticated" });
-  });
-
-  it("succeeds and clears session", async () => {
-    setAuth();
+  it("succeeds", async () => {
     mockFetch({ ok: true, json: () => Promise.resolve({}) });
     const res = await deleteAccount();
     expect(res).toEqual({ success: true });
-    expect(getSession()).toBeNull();
   });
 
   it("returns error on failure", async () => {
-    setAuth();
     mockFetch({ ok: false, json: () => Promise.resolve({ error: "nope" }) });
     const res = await deleteAccount();
     expect(res).toEqual({ success: false, error: "nope" });
   });
 
   it("handles network error", async () => {
-    setAuth();
     mockFetchNetworkError();
     const res = await deleteAccount();
     expect(res).toEqual({ success: false, error: "Network error" });
+  });
+});
+
+// --- isAuthenticated ---
+
+describe("isAuthenticated", () => {
+  it("returns true when getProfile succeeds", async () => {
+    mockFetch({ ok: true, json: () => Promise.resolve({ user: { id: "1" } }) });
+    const result = await isAuthenticated();
+    expect(result).toBe(true);
+  });
+
+  it("returns false when getProfile fails", async () => {
+    mockFetch({ ok: false, status: 401, json: () => Promise.resolve({ error: "Unauthorized" }) });
+    const result = await isAuthenticated();
+    expect(result).toBe(false);
   });
 });

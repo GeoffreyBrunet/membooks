@@ -5,6 +5,8 @@ import Stripe from "stripe";
 import { db } from "../db";
 import { users, subscriptions } from "../db/schema";
 
+const COOKIE_NAME = "membooks_auth";
+
 // Lazy initialization of Stripe to allow server startup without API key
 let _stripe: Stripe | null = null;
 
@@ -45,15 +47,17 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   // Create checkout session for subscription
   .post(
     "/checkout",
-    async ({ headers, jwt, set }) => {
+    async ({ headers, cookie, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {
@@ -122,15 +126,17 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   // Get current subscription status
   .get(
     "/status",
-    async ({ headers, jwt, set }) => {
+    async ({ headers, cookie, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {
@@ -169,15 +175,17 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   // Cancel subscription
   .post(
     "/cancel",
-    async ({ headers, jwt, set }) => {
+    async ({ headers, cookie, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {
@@ -226,15 +234,17 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   // Reactivate subscription (if canceled but still in period)
   .post(
     "/reactivate",
-    async ({ headers, jwt, set }) => {
+    async ({ headers, cookie, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {

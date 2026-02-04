@@ -1,5 +1,3 @@
-import { getSession } from "./auth";
-
 const API_URL = "/api";
 
 export interface SubscriptionStatus {
@@ -16,16 +14,9 @@ export async function getSubscriptionStatus(): Promise<{
   data?: SubscriptionStatus;
   error?: string;
 }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
     const response = await fetch(`${API_URL}/subscription/status`, {
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-      },
+      credentials: "include",
     });
 
     const contentType = response.headers.get("content-type");
@@ -36,6 +27,9 @@ export async function getSubscriptionStatus(): Promise<{
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        return { success: false, error: "Not authenticated" };
+      }
       return { success: false, error: data.error };
     }
 
@@ -50,22 +44,18 @@ export async function createCheckoutSession(): Promise<{
   url?: string;
   error?: string;
 }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
     const response = await fetch(`${API_URL}/subscription/checkout`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-      },
+      credentials: "include",
     });
 
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        return { success: false, error: "Not authenticated" };
+      }
       return { success: false, error: data.error };
     }
 
@@ -79,22 +69,18 @@ export async function cancelSubscription(): Promise<{
   success: boolean;
   error?: string;
 }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
     const response = await fetch(`${API_URL}/subscription/cancel`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-      },
+      credentials: "include",
     });
 
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        return { success: false, error: "Not authenticated" };
+      }
       return { success: false, error: data.error };
     }
 
@@ -108,22 +94,18 @@ export async function reactivateSubscription(): Promise<{
   success: boolean;
   error?: string;
 }> {
-  const session = getSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
   try {
     const response = await fetch(`${API_URL}/subscription/reactivate`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${session.token}`,
-      },
+      credentials: "include",
     });
 
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        return { success: false, error: "Not authenticated" };
+      }
       return { success: false, error: data.error };
     }
 

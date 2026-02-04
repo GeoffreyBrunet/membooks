@@ -10,6 +10,37 @@ import { RateLimiter } from "../utils/rateLimiter";
 export const loginLimiter = new RateLimiter({ maxRequests: 5, windowMs: 60_000 });
 export const registerLimiter = new RateLimiter({ maxRequests: 10, windowMs: 60_000 });
 
+const COOKIE_NAME = "membooks_auth";
+const isProduction = process.env.NODE_ENV === "production";
+
+function setAuthCookie(set: { cookie?: Record<string, unknown> }, token: string) {
+  set.cookie = {
+    ...set.cookie,
+    [COOKIE_NAME]: {
+      value: token,
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    },
+  };
+}
+
+function clearAuthCookie(set: { cookie?: Record<string, unknown> }) {
+  set.cookie = {
+    ...set.cookie,
+    [COOKIE_NAME]: {
+      value: "",
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 0,
+    },
+  };
+}
+
 function getClientIp(request: Request): string {
   return (
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -73,9 +104,10 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         email: newUser.email,
       });
 
+      setAuthCookie(set, token);
+
       return {
         user: newUser,
-        token,
       };
     },
     {
@@ -96,7 +128,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
           return { error: "Too many requests", message: "Too many registration attempts. Please try again later." };
         }
       },
-      detail: { tags: ["Auth"], summary: "Register", description: "Create a new user account and return a JWT token." },
+      detail: { tags: ["Auth"], summary: "Register", description: "Create a new user account and set an httpOnly auth cookie." },
     }
   )
   .post(
@@ -125,6 +157,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         email: user.email,
       });
 
+      setAuthCookie(set, token);
+
       return {
         user: {
           id: user.id,
@@ -134,7 +168,6 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
           isPremium: user.isPremium,
           createdAt: user.createdAt,
         },
-        token,
       };
     },
     {
@@ -153,20 +186,22 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
           return { error: "Too many requests", message: "Too many login attempts. Please try again later." };
         }
       },
-      detail: { tags: ["Auth"], summary: "Login", description: "Authenticate with email and password, returns a JWT token." },
+      detail: { tags: ["Auth"], summary: "Login", description: "Authenticate with email and password and set an httpOnly auth cookie." },
     }
   )
   .get(
     "/me",
-    async ({ headers, jwt, set }) => {
+    async ({ headers, cookie, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {
@@ -199,15 +234,17 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
   )
   .put(
     "/me",
-    async ({ headers, body, jwt, set }) => {
+    async ({ headers, cookie, body, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {
@@ -257,15 +294,17 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
   )
   .delete(
     "/me",
-    async ({ headers, jwt, set }) => {
+    async ({ headers, cookie, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {
@@ -292,15 +331,17 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
   )
   .put(
     "/password",
-    async ({ headers, body, jwt, set }) => {
+    async ({ headers, cookie, body, jwt, set }) => {
+      const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const token = cookieToken || headerToken;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      if (!token) {
         set.status = 401;
         return { error: "Unauthorized" };
       }
 
-      const token = authHeader.slice(7);
       const payload = await jwt.verify(token);
 
       if (!payload) {
@@ -343,6 +384,16 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         currentPassword: t.String(),
         newPassword: t.String({ minLength: 8 }),
       }),
-      detail: { tags: ["Auth"], summary: "Change password", description: "Change the authenticated user's password. Requires Bearer token.", security: [{ bearerAuth: [] }] },
+      detail: { tags: ["Auth"], summary: "Change password", description: "Change the authenticated user's password. Requires auth cookie or Bearer token.", security: [{ bearerAuth: [] }] },
+    }
+  )
+  .post(
+    "/logout",
+    async ({ set }) => {
+      clearAuthCookie(set);
+      return { success: true };
+    },
+    {
+      detail: { tags: ["Auth"], summary: "Logout", description: "Clear the auth cookie and log the user out." },
     }
   );

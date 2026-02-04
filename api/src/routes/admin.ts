@@ -4,6 +4,8 @@ import { eq, desc, count } from "drizzle-orm";
 import { db } from "../db";
 import { users, subscriptions } from "../db/schema";
 
+const COOKIE_NAME = "membooks_auth";
+
 // Simple admin auth - in production, use proper admin roles
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").map(e => e.trim());
 
@@ -16,15 +18,17 @@ export const adminRoutes = new Elysia({ prefix: "/admin" })
     })
   )
   // Middleware to check admin access
-  .derive(async ({ headers, jwt, set }) => {
+  .derive(async ({ headers, cookie, jwt, set }) => {
+    const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
     const authHeader = headers.authorization;
+    const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const token = cookieToken || headerToken;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!token) {
       set.status = 401;
       return { isAdmin: false, adminUser: null };
     }
 
-    const token = authHeader.slice(7);
     const payload = await jwt.verify(token);
 
     if (!payload) {
