@@ -29,7 +29,7 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET || "fallback-secret-for-development",
+      secret: process.env.JWT_SECRET!,
       exp: "7d",
     })
   )
