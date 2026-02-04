@@ -34,6 +34,12 @@ beforeEach(() => {
 
 describe("getSubscriptionStatus", () => {
   it("returns not authenticated when no session", async () => {
+    mockFetch({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ error: "Not authenticated" }),
+      headers: new Headers({ "content-type": "application/json" }),
+    });
     const res = await getSubscriptionStatus();
     expect(res).toEqual({ success: false, error: "Not authenticated" });
   });
@@ -83,6 +89,11 @@ describe("getSubscriptionStatus", () => {
 
 describe("createCheckoutSession", () => {
   it("returns not authenticated when no session", async () => {
+    mockFetch({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ error: "Not authenticated" }),
+    });
     const res = await createCheckoutSession();
     expect(res).toEqual({ success: false, error: "Not authenticated" });
   });
@@ -113,6 +124,11 @@ describe("createCheckoutSession", () => {
 
 describe("cancelSubscription", () => {
   it("returns not authenticated when no session", async () => {
+    mockFetch({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ error: "Not authenticated" }),
+    });
     const res = await cancelSubscription();
     expect(res).toEqual({ success: false, error: "Not authenticated" });
   });
@@ -143,6 +159,11 @@ describe("cancelSubscription", () => {
 
 describe("reactivateSubscription", () => {
   it("returns not authenticated when no session", async () => {
+    mockFetch({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ error: "Not authenticated" }),
+    });
     const res = await reactivateSubscription();
     expect(res).toEqual({ success: false, error: "Not authenticated" });
   });
