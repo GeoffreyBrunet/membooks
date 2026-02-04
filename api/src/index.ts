@@ -4,10 +4,13 @@ import { swagger } from "@elysiajs/swagger";
 import { authRoutes } from "./routes/auth";
 import { subscriptionRoutes, webhookRoutes } from "./routes/subscription";
 import { adminRoutes } from "./routes/admin";
+import { logger } from "./utils/logger";
 
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
   : [];
+
+const requestTimings = new WeakMap<Request, number>();
 
 const app = new Elysia()
   .use(
@@ -45,8 +48,23 @@ const app = new Elysia()
       },
     })
   )
+  .onRequest(({ request }) => {
+    requestTimings.set(request, performance.now());
+  })
+  .onAfterResponse(({ request, set }) => {
+    const start = requestTimings.get(request);
+    requestTimings.delete(request);
+    const url = new URL(request.url);
+    if (url.pathname === "/health") return;
+    logger.info("request completed", {
+      method: request.method,
+      path: url.pathname,
+      status: set.status ?? 200,
+      duration_ms: start ? Math.round(performance.now() - start) : undefined,
+    });
+  })
   // Global error handler to ensure JSON responses
-  .onError(({ code, error, set }) => {
+  .onError(({ code, error, set, request }) => {
     set.headers["content-type"] = "application/json";
 
     if (code === "NOT_FOUND") {
@@ -60,7 +78,13 @@ const app = new Elysia()
       return { error: "Validation Error", message: errorMessage };
     }
 
-    console.error("Server error:", error);
+    const url = new URL(request.url);
+    logger.error("server error", {
+      method: request.method,
+      path: url.pathname,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     set.status = 500;
     const errorMessage = error instanceof Error ? error.message : String(error);
     return { error: "Internal Server Error", message: errorMessage };
@@ -77,8 +101,9 @@ const app = new Elysia()
   .use(adminRoutes)
   .listen(process.env.PORT || 3000);
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
+logger.info("server started", {
+  hostname: app.server?.hostname,
+  port: app.server?.port,
+});
 
 export type App = typeof app;

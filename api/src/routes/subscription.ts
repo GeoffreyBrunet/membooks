@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { db } from "../db";
 import { users, subscriptions } from "../db/schema";
+import { logger } from "../utils/logger";
 
 const COOKIE_NAME = "membooks_auth";
 
@@ -39,7 +40,10 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   // Handle errors in subscription routes
   .onError(({ error, set }) => {
     set.headers["content-type"] = "application/json";
-    console.error("Subscription route error:", error);
+    logger.error("subscription route error", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     set.status = 500;
     const errorMessage = error instanceof Error ? error.message : String(error);
     return { error: "Internal Server Error", message: errorMessage };
