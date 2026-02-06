@@ -25,7 +25,15 @@ export const subscriptions = pgTable("subscriptions", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const webhookEvents = pgTable("webhook_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  stripeEventId: text("stripe_event_id").notNull().unique(),
+  eventType: text("event_type").notNull(),
+  processedAt: timestamp("processed_at").notNull().defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type NewSubscription = typeof subscriptions.$inferInsert;
+export type WebhookEvent = typeof webhookEvents.$inferSelect;

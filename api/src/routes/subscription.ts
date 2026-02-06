@@ -3,7 +3,7 @@ import { jwt } from "@elysiajs/jwt";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { db } from "../db";
-import { users, subscriptions } from "../db/schema";
+import { users, subscriptions, webhookEvents } from "../db/schema";
 import { logger } from "../utils/logger";
 
 const COOKIE_NAME = "membooks_auth";
@@ -306,6 +306,15 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
     }
   );
 
+// Events the webhook is configured to handle
+const HANDLED_EVENTS = [
+  "checkout.session.completed",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "invoice.payment_failed",
+  "invoice.payment_succeeded",
+] as const;
+
 // Stripe webhook handler (separate from authenticated routes)
 export const webhookRoutes = new Elysia({ prefix: "/webhook" }).post(
   "/stripe",
@@ -314,132 +323,248 @@ export const webhookRoutes = new Elysia({ prefix: "/webhook" }).post(
     const body = await request.text();
 
     if (!sig) {
+      logger.warn("webhook received without signature");
       set.status = 400;
       return { error: "Missing signature" };
+    }
+
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      logger.error("STRIPE_WEBHOOK_SECRET is not configured");
+      set.status = 500;
+      return { error: "Webhook not configured" };
     }
 
     let event: Stripe.Event;
 
     try {
-      event = getStripe().webhooks.constructEvent(
-        body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      );
+      event = getStripe().webhooks.constructEvent(body, sig, webhookSecret);
     } catch (err: any) {
+      logger.warn("webhook signature verification failed", { error: err.message });
       set.status = 400;
       return { error: `Webhook Error: ${err.message}` };
     }
 
-    switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.userId;
+    // Idempotency: skip already-processed events (Stripe may retry)
+    const existing = await db.query.webhookEvents.findFirst({
+      where: eq(webhookEvents.stripeEventId, event.id),
+    });
 
-        if (userId && session.subscription) {
-          const stripeSubscription = await getStripe().subscriptions.retrieve(
-            session.subscription as string
-          );
+    if (existing) {
+      logger.info("webhook event already processed, skipping", {
+        eventId: event.id,
+        eventType: event.type,
+      });
+      return { received: true };
+    }
 
-          // Create local subscription record
-          const priceId = stripeSubscription.items.data[0]?.price.id;
-          const periodStart = (stripeSubscription as any).current_period_start;
-          const periodEnd = (stripeSubscription as any).current_period_end;
+    logger.info("webhook event received", {
+      eventId: event.id,
+      eventType: event.type,
+      livemode: event.livemode,
+    });
 
-          await db.insert(subscriptions).values({
-            userId,
-            stripeSubscriptionId: stripeSubscription.id,
-            stripePriceId: priceId || PREMIUM_PRICE_ID,
-            status: stripeSubscription.status,
-            currentPeriodStart: new Date(periodStart * 1000),
-            currentPeriodEnd: new Date(periodEnd * 1000),
-          });
+    try {
+      switch (event.type) {
+        case "checkout.session.completed": {
+          const session = event.data.object as Stripe.Checkout.Session;
+          const userId = session.metadata?.userId;
 
-          // Update user to premium
-          await db
-            .update(users)
-            .set({ isPremium: true, updatedAt: new Date() })
-            .where(eq(users.id, userId));
+          if (userId && session.subscription) {
+            const stripeSubscription = await getStripe().subscriptions.retrieve(
+              session.subscription as string
+            );
+
+            const priceId = stripeSubscription.items.data[0]?.price.id;
+            const periodStart = (stripeSubscription as any).current_period_start;
+            const periodEnd = (stripeSubscription as any).current_period_end;
+
+            // Upsert: handle retries without failing on duplicate
+            const existingSub = await db.query.subscriptions.findFirst({
+              where: eq(subscriptions.stripeSubscriptionId, stripeSubscription.id),
+            });
+
+            if (existingSub) {
+              await db
+                .update(subscriptions)
+                .set({
+                  status: stripeSubscription.status,
+                  stripePriceId: priceId || PREMIUM_PRICE_ID,
+                  currentPeriodStart: new Date(periodStart * 1000),
+                  currentPeriodEnd: new Date(periodEnd * 1000),
+                  updatedAt: new Date(),
+                })
+                .where(eq(subscriptions.stripeSubscriptionId, stripeSubscription.id));
+            } else {
+              await db.insert(subscriptions).values({
+                userId,
+                stripeSubscriptionId: stripeSubscription.id,
+                stripePriceId: priceId || PREMIUM_PRICE_ID,
+                status: stripeSubscription.status,
+                currentPeriodStart: new Date(periodStart * 1000),
+                currentPeriodEnd: new Date(periodEnd * 1000),
+              });
+            }
+
+            await db
+              .update(users)
+              .set({ isPremium: true, updatedAt: new Date() })
+              .where(eq(users.id, userId));
+
+            logger.info("checkout completed", {
+              userId,
+              subscriptionId: stripeSubscription.id,
+              status: stripeSubscription.status,
+            });
+          }
+          break;
         }
-        break;
-      }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription;
-        const periodStart = (subscription as any).current_period_start;
-        const periodEnd = (subscription as any).current_period_end;
+        case "customer.subscription.updated": {
+          const subscription = event.data.object as Stripe.Subscription;
+          const periodStart = (subscription as any).current_period_start;
+          const periodEnd = (subscription as any).current_period_end;
 
-        await db
-          .update(subscriptions)
-          .set({
-            status: subscription.status,
-            currentPeriodStart: new Date(periodStart * 1000),
-            currentPeriodEnd: new Date(periodEnd * 1000),
-            cancelAtPeriodEnd: subscription.cancel_at_period_end,
-            updatedAt: new Date(),
-          })
-          .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
-
-        // Update user premium status based on subscription status
-        const sub = await db.query.subscriptions.findFirst({
-          where: eq(subscriptions.stripeSubscriptionId, subscription.id),
-        });
-
-        if (sub) {
-          const isPremium = ["active", "trialing"].includes(subscription.status);
-          await db
-            .update(users)
-            .set({ isPremium, updatedAt: new Date() })
-            .where(eq(users.id, sub.userId));
-        }
-        break;
-      }
-
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
-
-        await db
-          .update(subscriptions)
-          .set({
-            status: "canceled",
-            updatedAt: new Date(),
-          })
-          .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
-
-        // Remove premium status
-        const sub = await db.query.subscriptions.findFirst({
-          where: eq(subscriptions.stripeSubscriptionId, subscription.id),
-        });
-
-        if (sub) {
-          await db
-            .update(users)
-            .set({ isPremium: false, updatedAt: new Date() })
-            .where(eq(users.id, sub.userId));
-        }
-        break;
-      }
-
-      case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = (invoice as any).subscription as string;
-
-        if (subscriptionId) {
           await db
             .update(subscriptions)
             .set({
-              status: "past_due",
+              status: subscription.status,
+              currentPeriodStart: new Date(periodStart * 1000),
+              currentPeriodEnd: new Date(periodEnd * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
               updatedAt: new Date(),
             })
-            .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
+            .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
+
+          const sub = await db.query.subscriptions.findFirst({
+            where: eq(subscriptions.stripeSubscriptionId, subscription.id),
+          });
+
+          if (sub) {
+            const isPremium = ["active", "trialing"].includes(subscription.status);
+            await db
+              .update(users)
+              .set({ isPremium, updatedAt: new Date() })
+              .where(eq(users.id, sub.userId));
+
+            logger.info("subscription updated", {
+              userId: sub.userId,
+              subscriptionId: subscription.id,
+              status: subscription.status,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            });
+          }
+          break;
         }
-        break;
+
+        case "customer.subscription.deleted": {
+          const subscription = event.data.object as Stripe.Subscription;
+
+          await db
+            .update(subscriptions)
+            .set({
+              status: "canceled",
+              updatedAt: new Date(),
+            })
+            .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
+
+          const sub = await db.query.subscriptions.findFirst({
+            where: eq(subscriptions.stripeSubscriptionId, subscription.id),
+          });
+
+          if (sub) {
+            await db
+              .update(users)
+              .set({ isPremium: false, updatedAt: new Date() })
+              .where(eq(users.id, sub.userId));
+
+            logger.info("subscription deleted", {
+              userId: sub.userId,
+              subscriptionId: subscription.id,
+            });
+          }
+          break;
+        }
+
+        case "invoice.payment_failed": {
+          const invoice = event.data.object as Stripe.Invoice;
+          const subscriptionId = (invoice as any).subscription as string;
+
+          if (subscriptionId) {
+            await db
+              .update(subscriptions)
+              .set({
+                status: "past_due",
+                updatedAt: new Date(),
+              })
+              .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
+
+            logger.warn("invoice payment failed", {
+              invoiceId: invoice.id,
+              subscriptionId,
+            });
+          }
+          break;
+        }
+
+        case "invoice.payment_succeeded": {
+          const invoice = event.data.object as Stripe.Invoice;
+          const subscriptionId = (invoice as any).subscription as string;
+
+          if (subscriptionId) {
+            // Re-activate premium on successful renewal payment
+            const sub = await db.query.subscriptions.findFirst({
+              where: eq(subscriptions.stripeSubscriptionId, subscriptionId),
+            });
+
+            if (sub) {
+              await db
+                .update(subscriptions)
+                .set({ status: "active", updatedAt: new Date() })
+                .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
+
+              await db
+                .update(users)
+                .set({ isPremium: true, updatedAt: new Date() })
+                .where(eq(users.id, sub.userId));
+
+              logger.info("invoice payment succeeded", {
+                invoiceId: invoice.id,
+                subscriptionId,
+                userId: sub.userId,
+              });
+            }
+          }
+          break;
+        }
+
+        default:
+          logger.info("unhandled webhook event type", { eventType: event.type });
       }
+
+      // Record event as processed for idempotency
+      await db.insert(webhookEvents).values({
+        stripeEventId: event.id,
+        eventType: event.type,
+      });
+    } catch (err) {
+      logger.error("webhook event processing failed", {
+        eventId: event.id,
+        eventType: event.type,
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      });
+      set.status = 500;
+      return { error: "Event processing failed" };
     }
 
     return { received: true };
   },
   {
-    detail: { tags: ["Webhook"], summary: "Stripe webhook", description: "Handle Stripe webhook events (checkout.session.completed, subscription updates, payment failures)." },
+    detail: {
+      tags: ["Webhook"],
+      summary: "Stripe webhook",
+      description: `Production webhook endpoint for Stripe events. Configured events: ${HANDLED_EVENTS.join(", ")}. URL: https://membooks-api.fly.dev/webhook/stripe`,
+    },
   }
 );
