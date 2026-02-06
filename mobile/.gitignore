@@ -10,3 +10,9 @@ expo-env.d.ts
 *.keystore
 credentials.json
 google-services.json
+
+# iOS signing (never commit certificates or provisioning profiles)
+*.p12
+*.mobileprovision
+*.provisionprofile
+AuthKey_*.p8

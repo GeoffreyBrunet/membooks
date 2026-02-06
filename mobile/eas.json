@@ -8,6 +8,9 @@
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
+      "ios": {
+        "credentialsSource": "remote"
+      },
       "android": {
         "credentialsSource": "remote"
       }
@@ -16,7 +19,8 @@
       "distribution": "internal",
       "channel": "preview",
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "credentialsSource": "remote"
       },
       "android": {
         "buildType": "apk",
@@ -27,7 +31,9 @@
       "autoIncrement": true,
       "channel": "production",
       "ios": {
-        "distribution": "store"
+        "distribution": "store",
+        "credentialsSource": "remote",
+        "autoIncrement": "buildNumber"
       },
       "android": {
         "buildType": "app-bundle",
