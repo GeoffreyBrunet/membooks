@@ -126,7 +126,10 @@ export default function Home() {
                 <Text
                   style={[
                     styles.tabText,
-                    { color: isActive ? colors.text : colors.textSecondary },
+                    {
+                      color: isActive ? colors.text : colors.textMuted,
+                      fontWeight: isActive ? '700' : '500',
+                    },
                   ]}
                 >
                   {t(`home.tabs.${tab}`)}
@@ -212,12 +215,15 @@ export default function Home() {
             </View>
           )}
           <View style={styles.list}>
-            {libraryItems.map((item) => (
+            {libraryItems.map((item, index) => (
               <View key={item.data.id}>
                 {item.type === 'series' ? (
                   <SeriesCard series={item.data} ownedCount={item.ownedCount} readCount={item.readCount} />
                 ) : (
                   <BookCard book={item.data} />
+                )}
+                {index < libraryItems.length - 1 && (
+                  <View style={[styles.separator, { backgroundColor: colors.border }]} />
                 )}
               </View>
             ))}
@@ -264,9 +270,12 @@ export default function Home() {
             </View>
           ) : (
             <View style={styles.list}>
-              {sortedWishlist.map((book) => (
+              {sortedWishlist.map((book, index) => (
                 <View key={book.id}>
                   <WishlistCard book={book} />
+                  {index < sortedWishlist.length - 1 && (
+                    <View style={[styles.separator, { backgroundColor: colors.border }]} />
+                  )}
                 </View>
               ))}
             </View>
@@ -313,7 +322,7 @@ export default function Home() {
             </View>
           ) : (
             <View style={styles.list}>
-              {upcomingBooks.map((book) => (
+              {upcomingBooks.map((book, index) => (
                 <View key={book.id}>
                   <View
                     style={[
@@ -321,6 +330,7 @@ export default function Home() {
                       {
                         backgroundColor: colors.backgroundSecondary,
                         borderColor: colors.border,
+                        borderLeftColor: colors.accent4,
                         shadowColor: colors.shadow,
                       },
                     ]}
@@ -355,6 +365,9 @@ export default function Home() {
                       {book.author}
                     </Text>
                   </View>
+                  {index < upcomingBooks.length - 1 && (
+                    <View style={[styles.separator, { backgroundColor: colors.border }]} />
+                  )}
                 </View>
               ))}
             </View>
@@ -423,13 +436,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   tabText: {
-    ...typography.labelSmall,
+    ...typography.label,
   },
   tabUnderline: {
-    height: 2,
+    height: 3,
     marginTop: 4,
-    borderRadius: 1,
-    width: '60%',
+    borderRadius: 2,
+    width: '50%',
   },
   countBadge: {
     alignSelf: 'flex-start',
@@ -445,6 +458,11 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     gap: spacing.md,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    marginTop: spacing.md,
+    marginHorizontal: spacing.lg,
   },
   placeholderContainer: {
     flex: 1,
@@ -478,6 +496,7 @@ const styles = StyleSheet.create({
   },
   upcomingCard: {
     padding: spacing.cardPadding,
+    borderLeftWidth: 3,
     ...borders.card,
     ...shadows.md,
   },
@@ -490,6 +509,7 @@ const styles = StyleSheet.create({
   },
   upcomingTitle: {
     ...typography.title,
+    fontWeight: 'bold',
     flex: 1,
   },
   upcomingAuthor: {

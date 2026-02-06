@@ -60,16 +60,26 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               pressed && styles.tabPressed,
             ]}
           >
-            <Ionicons
-              name={iconName}
-              size={22}
-              color={isFocused ? colors.primary : colors.textMuted}
-            />
+            <View
+              style={[
+                styles.iconContainer,
+                isFocused && {
+                  backgroundColor: colors.primary + '18',
+                },
+              ]}
+            >
+              <Ionicons
+                name={iconName}
+                size={isFocused ? 24 : 21}
+                color={isFocused ? colors.primary : colors.textMuted}
+              />
+            </View>
             <Text
               style={[
                 styles.label,
                 {
                   color: isFocused ? colors.primary : colors.textMuted,
+                  fontWeight: isFocused ? '600' : '400',
                 },
               ]}
             >
@@ -93,13 +103,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: spacing.xs,
-    gap: 2,
+    gap: 3,
   },
   tabPressed: {
     opacity: 0.6,
   },
+  iconContainer: {
+    width: 48,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   label: {
     ...typography.labelSmall,
-    fontSize: 10,
+    fontSize: 11,
   },
 });

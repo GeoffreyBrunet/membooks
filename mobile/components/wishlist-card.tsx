@@ -13,7 +13,6 @@ import {
   borders,
   shadows,
   typography,
-  borderWidths,
   borderRadius,
 } from '@/constants';
 import type { Book } from '@/types/book';
@@ -48,6 +47,7 @@ export function WishlistCard({ book }: WishlistCardProps) {
         {
           backgroundColor: colors.backgroundSecondary,
           borderColor: colors.border,
+          borderLeftColor: colors.accent3,
           shadowColor: colors.shadow,
         },
       ]}
@@ -115,6 +115,7 @@ export function WishlistCard({ book }: WishlistCardProps) {
 const styles = StyleSheet.create({
   container: {
     padding: spacing.cardPadding,
+    borderLeftWidth: 3,
     ...borders.card,
     ...shadows.md,
   },
@@ -123,6 +124,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.title,
+    fontWeight: 'bold',
     marginBottom: spacing.xs,
   },
   author: {
@@ -136,8 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    borderWidth: borderWidths.medium,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },

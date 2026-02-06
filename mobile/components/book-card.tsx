@@ -12,7 +12,6 @@ import {
   borders,
   shadows,
   typography,
-  borderWidths,
   borderRadius,
 } from '@/constants';
 import type { Book } from '@/types/book';
@@ -33,6 +32,7 @@ export function BookCard({ book }: BookCardProps) {
           {
             backgroundColor: colors.backgroundSecondary,
             borderColor: colors.border,
+            borderLeftColor: book.isRead ? colors.secondary : colors.primary,
             shadowColor: colors.shadow,
           },
           pressed && styles.pressed,
@@ -50,7 +50,6 @@ export function BookCard({ book }: BookCardProps) {
               styles.statusBadge,
               {
                 backgroundColor: book.isRead ? colors.secondary : colors.accent1,
-                borderColor: colors.border,
               },
             ]}
           >
@@ -73,12 +72,13 @@ export function BookCard({ book }: BookCardProps) {
 const styles = StyleSheet.create({
   container: {
     padding: spacing.cardPadding,
+    borderLeftWidth: 3,
     ...borders.card,
     ...shadows.md,
   },
   pressed: {
-    transform: [{ scale: 0.96 }, { translateY: 2 }],
-    shadowOffset: { width: 0, height: 1 },
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
   },
   header: {
     flexDirection: 'row',
@@ -89,13 +89,13 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.title,
+    fontWeight: 'bold',
     flex: 1,
   },
   statusBadge: {
-    paddingVertical: 2,
+    paddingVertical: 3,
     paddingHorizontal: spacing.sm,
-    borderWidth: borderWidths.thin,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.full,
   },
   statusText: {
     ...typography.labelSmall,

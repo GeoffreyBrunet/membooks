@@ -13,7 +13,6 @@ import {
   borders,
   shadows,
   typography,
-  borderWidths,
   borderRadius,
 } from '@/constants';
 import type { Series } from '@/types/book';
@@ -39,6 +38,7 @@ export function SeriesCard({ series, ownedCount, readCount }: SeriesCardProps) {
           {
             backgroundColor: colors.backgroundSecondary,
             borderColor: colors.border,
+            borderLeftColor: colors.accent2,
             shadowColor: colors.shadow,
           },
           pressed && styles.pressed,
@@ -107,12 +107,13 @@ export function SeriesCard({ series, ownedCount, readCount }: SeriesCardProps) {
 const styles = StyleSheet.create({
   container: {
     padding: spacing.cardPadding,
+    borderLeftWidth: 3,
     ...borders.card,
     ...shadows.md,
   },
   pressed: {
-    transform: [{ scale: 0.96 }, { translateY: 2 }],
-    shadowOffset: { width: 0, height: 1 },
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
   },
   header: {
     flexDirection: 'row',
@@ -123,13 +124,13 @@ const styles = StyleSheet.create({
   },
   seriesName: {
     ...typography.title,
+    fontWeight: 'bold',
     flex: 1,
   },
   statusBadge: {
-    paddingVertical: 2,
+    paddingVertical: 3,
     paddingHorizontal: spacing.sm,
-    borderWidth: borderWidths.thin,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.full,
   },
   statusText: {
     ...typography.labelSmall,
@@ -145,12 +146,12 @@ const styles = StyleSheet.create({
     ...typography.label,
   },
   progressBarContainer: {
-    height: 12,
-    borderWidth: borderWidths.medium,
-    borderRadius: borderRadius.sm,
+    height: 8,
+    borderRadius: borderRadius.full,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
+    borderRadius: borderRadius.full,
   },
 });
