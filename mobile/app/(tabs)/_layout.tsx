@@ -1,6 +1,6 @@
 /**
  * Tab Layout - Bottom Navigation Bar
- * Neo-Memphis style with custom tab bar
+ * Minimalist style with custom tab bar
  */
 
 import { Tabs } from 'expo-router';

@@ -1,6 +1,6 @@
 /**
  * Design System - Membooks
- * Neo-Memphis style foundations
+ * Minimalist style foundations
  */
 
 // Colors

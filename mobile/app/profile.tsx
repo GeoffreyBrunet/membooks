@@ -385,7 +385,7 @@ function createStyles(colors: Colors) {
       justifyContent: "space-between",
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.md,
-      borderBottomWidth: 2,
+      borderBottomWidth: 0.5,
       borderBottomColor: colors.border,
     },
     backButton: {
@@ -418,8 +418,6 @@ function createStyles(colors: Colors) {
       height: 100,
       borderRadius: 50,
       backgroundColor: colors.primary,
-      borderWidth: 3,
-      borderColor: colors.border,
       justifyContent: "center",
       alignItems: "center",
       ...shadows.md,
@@ -435,8 +433,6 @@ function createStyles(colors: Colors) {
       paddingHorizontal: spacing.md,
       backgroundColor: colors.accent1,
       borderRadius: borderRadius.full,
-      borderWidth: 2,
-      borderColor: colors.border,
     },
     premiumText: {
       ...typography.labelSmall,
@@ -448,8 +444,6 @@ function createStyles(colors: Colors) {
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.lg,
       borderRadius: borderRadius.md,
-      borderWidth: 2,
-      borderColor: colors.border,
     },
     subscriptionButtonFree: {
       backgroundColor: colors.primary,
@@ -468,7 +462,7 @@ function createStyles(colors: Colors) {
     },
     errorContainer: {
       backgroundColor: colors.error + "20",
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.error,
       borderRadius: borderRadius.md,
       padding: spacing.md,
@@ -481,7 +475,7 @@ function createStyles(colors: Colors) {
     card: {
       backgroundColor: colors.backgroundSecondary,
       borderRadius: borderRadius.lg,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.border,
       padding: spacing.lg,
       ...shadows.sm,
@@ -489,7 +483,7 @@ function createStyles(colors: Colors) {
     dangerCard: {
       backgroundColor: colors.error + "10",
       borderRadius: borderRadius.lg,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.error,
       padding: spacing.lg,
       ...shadows.sm,
@@ -518,7 +512,7 @@ function createStyles(colors: Colors) {
     },
     input: {
       backgroundColor: colors.background,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.border,
       borderRadius: borderRadius.md,
       padding: spacing.md,
@@ -533,7 +527,7 @@ function createStyles(colors: Colors) {
       flex: 1,
       padding: spacing.md,
       borderRadius: borderRadius.md,
-      borderWidth: 2,
+      borderWidth: 1,
       alignItems: "center",
     },
     editButton: {
@@ -568,7 +562,7 @@ function createStyles(colors: Colors) {
       flex: 1,
       padding: spacing.md,
       borderRadius: borderRadius.md,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.border,
       alignItems: "center",
       backgroundColor: colors.background,
@@ -588,7 +582,7 @@ function createStyles(colors: Colors) {
     deleteAccountButton: {
       padding: spacing.md,
       borderRadius: borderRadius.md,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.error,
       backgroundColor: colors.background,
       alignItems: "center",
@@ -600,7 +594,7 @@ function createStyles(colors: Colors) {
     logoutButton: {
       padding: spacing.md,
       borderRadius: borderRadius.md,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.error,
       alignItems: "center",

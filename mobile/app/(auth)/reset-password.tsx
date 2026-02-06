@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   },
   form: {
     borderRadius: 12,
-    borderWidth: 2,
+    borderWidth: 1,
     padding: spacing.xl,
   },
   title: {
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   errorContainer: {
-    borderWidth: 2,
+    borderWidth: 1,
     borderRadius: 8,
     padding: spacing.md,
     marginBottom: spacing.lg,

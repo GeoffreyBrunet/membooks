@@ -145,10 +145,7 @@ export default function Home() {
           <Pressable
             style={[
               styles.headerButton,
-              {
-                backgroundColor: colors.accent1,
-                borderColor: colors.border,
-              },
+              { backgroundColor: colors.accent1 },
             ]}
             onPress={() => router.push('/statistics')}
           >
@@ -159,10 +156,7 @@ export default function Home() {
           <Pressable
             style={[
               styles.profileButton,
-              {
-                backgroundColor: colors.primary,
-                borderColor: colors.border,
-              },
+              { backgroundColor: colors.primary },
             ]}
             onPress={() => router.push('/profile')}
           >
@@ -218,20 +212,12 @@ export default function Home() {
             </View>
           )}
           <View style={styles.list}>
-            {libraryItems.map((item, index) => (
+            {libraryItems.map((item) => (
               <View key={item.data.id}>
                 {item.type === 'series' ? (
                   <SeriesCard series={item.data} ownedCount={item.ownedCount} readCount={item.readCount} />
                 ) : (
                   <BookCard book={item.data} />
-                )}
-                {/* Separator between items */}
-                {index < libraryItems.length - 1 && (
-                  <View style={styles.separatorContainer}>
-                    <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                    <View style={[styles.separatorDiamond, { backgroundColor: colors.accent1, borderColor: colors.border }]} />
-                    <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                  </View>
                 )}
               </View>
             ))}
@@ -278,17 +264,9 @@ export default function Home() {
             </View>
           ) : (
             <View style={styles.list}>
-              {sortedWishlist.map((book, index) => (
+              {sortedWishlist.map((book) => (
                 <View key={book.id}>
                   <WishlistCard book={book} />
-                  {/* Separator between items */}
-                  {index < sortedWishlist.length - 1 && (
-                    <View style={styles.separatorContainer}>
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                      <View style={[styles.separatorDiamond, { backgroundColor: colors.accent1, borderColor: colors.border }]} />
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                    </View>
-                  )}
                 </View>
               ))}
             </View>
@@ -335,7 +313,7 @@ export default function Home() {
             </View>
           ) : (
             <View style={styles.list}>
-              {upcomingBooks.map((book, index) => (
+              {upcomingBooks.map((book) => (
                 <View key={book.id}>
                   <View
                     style={[
@@ -377,14 +355,6 @@ export default function Home() {
                       {book.author}
                     </Text>
                   </View>
-                  {/* Separator between items */}
-                  {index < upcomingBooks.length - 1 && (
-                    <View style={styles.separatorContainer}>
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                      <View style={[styles.separatorDiamond, { backgroundColor: colors.secondary, borderColor: colors.border }]} />
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                    </View>
-                  )}
                 </View>
               ))}
             </View>
@@ -433,7 +403,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -441,7 +410,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -476,23 +444,7 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-  },
-  separatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.lg,
-  },
-  separatorLine: {
-    flex: 1,
-    height: 2,
-  },
-  separatorDiamond: {
-    width: 10,
-    height: 10,
-    marginHorizontal: spacing.md,
-    borderWidth: 2,
-    transform: [{ rotate: '45deg' }],
+    gap: spacing.md,
   },
   placeholderContainer: {
     flex: 1,
@@ -546,8 +498,7 @@ const styles = StyleSheet.create({
   releaseDateBadge: {
     paddingVertical: 2,
     paddingHorizontal: spacing.sm,
-    borderWidth: 2,
-    borderRadius: 4,
+    borderRadius: 6,
   },
   releaseDateText: {
     ...typography.labelSmall,

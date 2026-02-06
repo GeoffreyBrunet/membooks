@@ -18,10 +18,10 @@ export const spacing = {
   '5xl': 96,
 
   // Component-specific spacing
-  screenPadding: 16,
-  cardPadding: 16,
-  inputPadding: 12,
-  buttonPaddingVertical: 12,
+  screenPadding: 20,
+  cardPadding: 20,
+  inputPadding: 14,
+  buttonPaddingVertical: 14,
   buttonPaddingHorizontal: 24,
 } as const;
 

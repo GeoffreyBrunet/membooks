@@ -1,6 +1,6 @@
 /**
  * BookCard Component
- * Displays a standalone book in Neo-Memphis style
+ * Displays a standalone book with minimalist style
  */
 
 import { Pressable, Text, View, StyleSheet } from 'react-native';

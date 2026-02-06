@@ -1,16 +1,16 @@
 /**
- * Neo-Memphis Color Palette
- * Bold, contrasting colors with visible borders and stylized elements
+ * Minimalist Color Palette
+ * Same vibrant palette, subtle borders and soft shadows
  */
 
-// Base palette - Neo-Memphis primary colors
+// Base palette - Primary colors
 const palette = {
   // Core blacks and whites
   black: '#000000',
   white: '#FFFFFF',
   offWhite: '#F5F5F0',
 
-  // Primary Neo-Memphis colors
+  // Primary colors
   coral: '#FF6B6B',
   yellow: '#FFE66D',
   cyan: '#4ECDC4',
@@ -49,9 +49,9 @@ export const lightColors = {
   textMuted: palette.gray400,
   textInverse: palette.white,
 
-  // Borders (always visible in Neo-Memphis)
-  border: palette.black,
-  borderLight: palette.gray300,
+  // Borders (subtle, not dominant)
+  border: palette.gray200,
+  borderLight: palette.gray100,
 
   // Primary actions
   primary: palette.coral,
@@ -67,8 +67,8 @@ export const lightColors = {
   accent3: palette.pink,
   accent4: palette.blue,
 
-  // Shadow color (for offset shadows)
-  shadow: palette.black,
+  // Shadow color (for soft shadows)
+  shadow: palette.gray700,
 
   // Semantic
   success: palette.success,
@@ -90,9 +90,9 @@ export const darkColors = {
   textMuted: palette.gray500,
   textInverse: palette.black,
 
-  // Borders (always visible in Neo-Memphis)
-  border: palette.white,
-  borderLight: palette.gray600,
+  // Borders (subtle, not dominant)
+  border: palette.gray700,
+  borderLight: palette.gray800,
 
   // Primary actions
   primary: palette.coral,
@@ -108,8 +108,8 @@ export const darkColors = {
   accent3: palette.pink,
   accent4: palette.blue,
 
-  // Shadow color (for offset shadows)
-  shadow: palette.white,
+  // Shadow color (for soft shadows)
+  shadow: palette.black,
 
   // Semantic
   success: palette.success,

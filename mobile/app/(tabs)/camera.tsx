@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   scanFrame: {
     width: 280,
     height: 160,
-    borderWidth: 4,
+    borderWidth: 2,
     borderRadius: borderRadius.lg,
     marginTop: spacing['3xl'],
   },

@@ -175,7 +175,7 @@ function createStyles(colors: Colors) {
     },
     errorContainer: {
       backgroundColor: colors.error + "20",
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.error,
       borderRadius: borderRadius.md,
       padding: spacing.md,
@@ -195,7 +195,7 @@ function createStyles(colors: Colors) {
     },
     input: {
       backgroundColor: colors.background,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.border,
       borderRadius: borderRadius.md,
       padding: spacing.md,
@@ -211,7 +211,7 @@ function createStyles(colors: Colors) {
       flex: 1,
       padding: spacing.md,
       borderRadius: borderRadius.md,
-      borderWidth: 2,
+      borderWidth: 1,
       alignItems: "center",
     },
     saveButton: {

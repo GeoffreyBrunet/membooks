@@ -1,7 +1,7 @@
 /**
  * SeriesCard Component
  * Displays a series with progress bar and read status
- * Neo-Memphis style with visible borders and offset shadows
+ * Minimalist style with subtle borders and soft shadows
  */
 
 import { Pressable, Text, View, StyleSheet } from 'react-native';

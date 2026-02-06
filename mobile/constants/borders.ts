@@ -1,28 +1,28 @@
 /**
  * Border Styles
- * Neo-Memphis: visible, bold borders
+ * Minimalist: subtle, thin borders with soft radius
  */
 
 export const borderWidths = {
   none: 0,
-  thin: 1,
-  medium: 2,
-  thick: 3,
-  heavy: 4,
+  thin: 0.5,
+  medium: 1,
+  thick: 1.5,
+  heavy: 2,
 } as const;
 
 export const borderRadius = {
   none: 0,
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
+  sm: 6,
+  md: 12,
+  lg: 16,
+  xl: 20,
   full: 9999,
 } as const;
 
 // Pre-composed border styles for common use cases
 export const borders = {
-  // Standard visible border (Neo-Memphis default)
+  // Standard border
   default: {
     borderWidth: borderWidths.medium,
     borderRadius: borderRadius.md,
