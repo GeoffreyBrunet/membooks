@@ -41,7 +41,9 @@ export async function createCheckoutSession(): Promise<CheckoutResponse> {
       method: "POST",
       headers: {
         Authorization: `Bearer ${session.token}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ source: "mobile" }),
     });
 
     const result = await response.json();

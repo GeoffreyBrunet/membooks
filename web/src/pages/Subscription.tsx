@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -11,6 +12,20 @@ import {
 export function SubscriptionPage() {
   usePageTitle("Premium");
   const queryClient = useQueryClient();
+  const [checkoutMessage, setCheckoutMessage] = useState<{ type: "success" | "canceled"; text: string } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "true") {
+      setCheckoutMessage({ type: "success", text: "Payment successful! Your premium subscription is now active." });
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      window.history.replaceState({}, "", "/subscription");
+    } else if (params.get("canceled") === "true") {
+      setCheckoutMessage({ type: "canceled", text: "Payment canceled. You can try again whenever you're ready." });
+      window.history.replaceState({}, "", "/subscription");
+    }
+  }, [queryClient]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["subscription"],
@@ -87,6 +102,13 @@ export function SubscriptionPage() {
         <h1 className="font-title text-3xl">Premium</h1>
         <div className="w-20" />
       </div>
+
+      {/* Checkout result banner */}
+      {checkoutMessage && (
+        <div className={`p-4 border-2 rounded-lg mb-6 ${checkoutMessage.type === "success" ? "bg-green-50 border-green-500 text-green-700" : "bg-yellow-50 border-yellow-500 text-yellow-700"}`}>
+          {checkoutMessage.text}
+        </div>
+      )}
 
       {/* Current Status */}
       <div className="bg-white border-2 border-gray-900 rounded-xl p-6 neo-shadow-md mb-6">

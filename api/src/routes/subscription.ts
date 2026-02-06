@@ -24,6 +24,7 @@ function getStripe(): Stripe {
 
 const PREMIUM_PRICE_ID = process.env.STRIPE_PREMIUM_PRICE_ID || "";
 const APP_URL = process.env.APP_URL || "membooks://";
+const WEB_URL = process.env.WEB_URL || "https://membooks.com";
 
 export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   .use(
@@ -51,7 +52,7 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
   // Create checkout session for subscription
   .post(
     "/checkout",
-    async ({ headers, cookie, jwt, set }) => {
+    async ({ headers, cookie, jwt, set, body }) => {
       const cookieToken = cookie[COOKIE_NAME]?.value as string | undefined;
       const authHeader = headers.authorization;
       const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
@@ -103,6 +104,16 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
           .where(eq(users.id, user.id));
       }
 
+      // Determine redirect URLs based on source (web or mobile)
+      const source = (body as any)?.source;
+      const isWeb = source === "web";
+      const successUrl = isWeb
+        ? `${WEB_URL}/subscription?success=true&session_id={CHECKOUT_SESSION_ID}`
+        : `${APP_URL}subscription/success?session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = isWeb
+        ? `${WEB_URL}/subscription?canceled=true`
+        : `${APP_URL}subscription/cancel`;
+
       // Create checkout session
       const session = await getStripe().checkout.sessions.create({
         customer: customerId,
@@ -114,8 +125,8 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
             quantity: 1,
           },
         ],
-        success_url: `${APP_URL}subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${APP_URL}subscription/cancel`,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
         metadata: {
           userId: user.id,
         },
@@ -124,7 +135,7 @@ export const subscriptionRoutes = new Elysia({ prefix: "/subscription" })
       return { url: session.url };
     },
     {
-      detail: { tags: ["Subscription"], summary: "Create checkout session", description: "Create a Stripe checkout session for premium subscription. Requires Bearer token.", security: [{ bearerAuth: [] }] },
+      detail: { tags: ["Subscription"], summary: "Create checkout session", description: "Create a Stripe checkout session for premium subscription. Send source: 'web' or 'mobile' to control redirect URLs. Requires Bearer token.", security: [{ bearerAuth: [] }] },
     }
   )
   // Get current subscription status

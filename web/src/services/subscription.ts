@@ -48,6 +48,8 @@ export async function createCheckoutSession(): Promise<{
     const response = await fetch(`${API_URL}/subscription/checkout`, {
       method: "POST",
       credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "web" }),
     });
 
     const data = await response.json();
