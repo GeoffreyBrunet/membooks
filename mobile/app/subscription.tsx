@@ -28,7 +28,7 @@ import {
 } from "@/services/subscription";
 import { spacing, typography, borders, shadows } from "@/constants";
 
-const PREMIUM_PRICE = "5";
+const PREMIUM_PRICE = "3.99";
 const PREMIUM_CURRENCY = "€";
 
 interface SubscriptionInfo {
