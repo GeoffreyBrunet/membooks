@@ -83,8 +83,7 @@ export function SeriesCard({ series, ownedCount, readCount }: SeriesCardProps) {
             style={[
               styles.progressBarContainer,
               {
-                backgroundColor: colors.background,
-                borderColor: colors.border,
+                backgroundColor: colors.border,
               },
             ]}
           >

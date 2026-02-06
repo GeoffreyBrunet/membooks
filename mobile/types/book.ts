@@ -32,6 +32,7 @@ export interface Book {
   seriesId?: string;
   volumeNumber?: number;
   releaseDate?: string; // ISO date string (YYYY-MM-DD), null = already released
+  coverId?: number; // Open Library cover ID for thumbnail
 }
 
 export interface Series {

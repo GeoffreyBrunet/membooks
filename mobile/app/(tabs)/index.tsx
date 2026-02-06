@@ -101,12 +101,13 @@ export default function Home() {
   }
 
   return (
+    <View style={[styles.screenContainer, { backgroundColor: colors.background, paddingTop: insets.top }]}>
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={styles.container}
       contentContainerStyle={[
         styles.content,
         {
-          paddingTop: insets.top + spacing.lg,
+          paddingTop: spacing.lg,
           paddingBottom: insets.bottom + spacing.xl,
         },
       ]}
@@ -375,6 +376,7 @@ export default function Home() {
         </>
       )}
     </ScrollView>
+    </View>
   );
 }
 
@@ -387,6 +389,9 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...typography.body,
+  },
+  screenContainer: {
+    flex: 1,
   },
   container: {
     flex: 1,

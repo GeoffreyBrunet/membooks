@@ -61,6 +61,7 @@ export async function lookupISBN(isbn: string): Promise<Book | null> {
       categories,
       isRead: false,
       inWishlist: false,
+      coverId: bookData.covers?.[0],
     };
 
     return book;
