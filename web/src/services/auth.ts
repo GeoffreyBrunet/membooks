@@ -150,8 +150,3 @@ export async function deleteAccount(): Promise<{ success: boolean; error?: strin
     return { success: false, error: "Network error" };
   }
 }
-
-export async function isAuthenticated(): Promise<boolean> {
-  const result = await getProfile();
-  return result.success;
-}
