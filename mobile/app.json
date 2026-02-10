@@ -33,7 +33,6 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
         "android.permission.RECEIVE_BOOT_COMPLETED"
       ],
       "intentFilters": [
@@ -65,9 +64,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to scan book barcodes"
         }
       ],
       "expo-apple-authentication",
