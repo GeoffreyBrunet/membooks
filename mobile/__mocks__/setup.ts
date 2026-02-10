@@ -36,6 +36,7 @@ mock.module('react-native', () => {
     TextInput: (props: any) => React.createElement('TextInput', props),
     ScrollView: ({ children, ...props }: any) => React.createElement('ScrollView', props, children),
     ActivityIndicator: (props: any) => React.createElement('ActivityIndicator', props),
+    Image: (props: any) => React.createElement('Image', props),
     KeyboardAvoidingView: ({ children, ...props }: any) => React.createElement('View', props, children),
     Alert: {
       alert: mock(),
@@ -166,6 +167,7 @@ mock.module('expo-apple-authentication', () => ({
 mock.module('expo-web-browser', () => ({
   maybeCompleteAuthSession: () => ({ type: 'dismiss' }),
   openBrowserAsync: () => Promise.resolve({ type: 'dismiss' }),
+  openAuthSessionAsync: () => Promise.resolve({ type: 'dismiss' }),
   warmUpAsync: () => Promise.resolve(),
   coolDownAsync: () => Promise.resolve(),
 }));
