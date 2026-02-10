@@ -119,12 +119,12 @@ export default function SearchScreen() {
   );
 
   return (
+    <View style={[styles.screenContainer, { backgroundColor: colors.background, paddingTop: insets.top }]}>
     <View
       style={[
         styles.container,
         {
-          backgroundColor: colors.background,
-          paddingTop: insets.top + spacing.lg,
+          paddingTop: spacing.lg,
         },
       ]}
     >
@@ -319,10 +319,14 @@ export default function SearchScreen() {
         </ScrollView>
       )}
     </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     paddingHorizontal: spacing.screenPadding,

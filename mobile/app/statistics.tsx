@@ -18,7 +18,7 @@ import type { BookType, BookCategory } from '@/types/book';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CHART_SIZE = SCREEN_WIDTH * 0.5;
 
-// Colors for the charts - Neo-Memphis palette
+// Colors for the charts
 const TYPE_COLORS: Record<BookType, string> = {
   novel: '#FF6B6B',   // coral
   comic: '#4ECDC4',   // cyan
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    borderWidth: 2,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

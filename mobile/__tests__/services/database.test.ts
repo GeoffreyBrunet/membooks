@@ -222,6 +222,7 @@ describe('insertBook', () => {
         'series-1',
         3,
         '2025-06-01',
+        null,
       ]
     );
   });
@@ -240,7 +241,7 @@ describe('insertBook', () => {
 
     expect(mockRunAsync).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO books'),
-      ['book-simple', 'Simple', 'Author', 'novel', '["sliceOfLife"]', 1, 0, null, null, null]
+      ['book-simple', 'Simple', 'Author', 'novel', '["sliceOfLife"]', 1, 0, null, null, null, null]
     );
   });
 });

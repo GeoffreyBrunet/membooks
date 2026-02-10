@@ -1,6 +1,6 @@
 /**
  * Custom Tab Bar Component
- * Neo-Memphis style with visible borders and offset shadows
+ * Minimalist style with subtle indicators
  */
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import { spacing, borderWidths, borderRadius, typography } from '@/constants';
+import { spacing, typography } from '@/constants';
 
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home',
@@ -26,112 +26,97 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       style={[
         styles.container,
         {
-          backgroundColor: colors.background,
-          paddingBottom: Math.max(insets.bottom, spacing.md),
+          backgroundColor: colors.backgroundSecondary,
+          borderTopColor: colors.border,
+          paddingBottom: Math.max(insets.bottom, spacing.sm),
         },
       ]}
     >
-      <View
-        style={[
-          styles.tabBar,
-          {
-            backgroundColor: colors.backgroundSecondary,
-            borderTopColor: colors.border,
-          },
-        ]}
-      >
-        {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key];
-          const label = options.title ?? route.name;
-          const isFocused = state.index === index;
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label = options.title ?? route.name;
+        const isFocused = state.index === index;
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
-            }
-          };
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name, route.params);
+          }
+        };
 
-          const iconName = TAB_ICONS[route.name] ?? 'ellipse';
+        const iconName = TAB_ICONS[route.name] ?? 'ellipse';
 
-          return (
-            <Pressable
-              key={route.key}
-              onPress={onPress}
-              style={({ pressed }) => [
-                styles.tab,
-                pressed && styles.tabPressed,
+        return (
+          <Pressable
+            key={route.key}
+            onPress={onPress}
+            style={({ pressed }) => [
+              styles.tab,
+              pressed && styles.tabPressed,
+            ]}
+          >
+            <View
+              style={[
+                styles.iconContainer,
+                isFocused && {
+                  backgroundColor: colors.primary + '18',
+                },
               ]}
             >
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor: isFocused ? colors.primary : 'transparent',
-                    borderColor: isFocused ? colors.border : 'transparent',
-                  },
-                ]}
-              >
-                <Ionicons
-                  name={iconName}
-                  size={22}
-                  color={isFocused ? colors.primaryText : colors.textSecondary}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.label,
-                  {
-                    color: isFocused ? colors.text : colors.textSecondary,
-                  },
-                ]}
-              >
-                {label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+              <Ionicons
+                name={iconName}
+                size={isFocused ? 24 : 21}
+                color={isFocused ? colors.primary : colors.textMuted}
+              />
+            </View>
+            <Text
+              style={[
+                styles.label,
+                {
+                  color: isFocused ? colors.primary : colors.textMuted,
+                  fontWeight: isFocused ? '600' : '400',
+                },
+              ]}
+            >
+              {label}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: spacing.sm,
-  },
-  tabBar: {
     flexDirection: 'row',
-    borderTopWidth: borderWidths.medium,
-    borderTopLeftRadius: borderRadius.xl,
-    borderTopRightRadius: borderRadius.xl,
-    paddingVertical: spacing.md,
+    borderTopWidth: 0.5,
+    paddingTop: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: spacing.xs,
+    gap: 3,
   },
   tabPressed: {
-    opacity: 0.7,
+    opacity: 0.6,
   },
   iconContainer: {
-    width: 44,
+    width: 48,
     height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: borderWidths.thin,
-    borderRadius: borderRadius.sm,
-    marginBottom: 2,
   },
   label: {
     ...typography.labelSmall,
-    fontSize: 10,
+    fontSize: 11,
   },
 });

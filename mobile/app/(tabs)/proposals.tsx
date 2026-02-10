@@ -16,12 +16,12 @@ export default function ProposalsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
+    <View style={[styles.screenContainer, { backgroundColor: colors.background, paddingTop: insets.top }]}>
     <View
       style={[
         styles.container,
         {
-          backgroundColor: colors.background,
-          paddingTop: insets.top + spacing.lg,
+          paddingTop: spacing.lg,
           paddingBottom: insets.bottom,
         },
       ]}
@@ -51,10 +51,14 @@ export default function ProposalsScreen() {
         </View>
       </View>
     </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     paddingHorizontal: spacing.screenPadding,

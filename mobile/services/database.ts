@@ -82,6 +82,15 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_books_releaseDate ON books(releaseDate);
     `);
   }
+
+  // Check if coverId column exists
+  const updatedTableInfo = hasReleaseDate ? tableInfo : await database.getAllAsync<{ name: string }>("PRAGMA table_info(books)");
+  const hasCoverId = updatedTableInfo.some((col) => col.name === 'coverId');
+  if (!hasCoverId) {
+    await database.execAsync(`
+      ALTER TABLE books ADD COLUMN coverId INTEGER;
+    `);
+  }
 }
 
 /**
@@ -112,6 +121,7 @@ export async function getAllBooks(): Promise<Book[]> {
     seriesId: string | null;
     volumeNumber: number | null;
     releaseDate: string | null;
+    coverId: number | null;
   }>('SELECT * FROM books ORDER BY title');
 
   return rows.map((row) => ({
@@ -125,6 +135,7 @@ export async function getAllBooks(): Promise<Book[]> {
     seriesId: row.seriesId ?? undefined,
     volumeNumber: row.volumeNumber ?? undefined,
     releaseDate: row.releaseDate ?? undefined,
+    coverId: row.coverId ?? undefined,
   }));
 }
 
@@ -144,6 +155,7 @@ export async function getBookById(id: string): Promise<Book | null> {
     seriesId: string | null;
     volumeNumber: number | null;
     releaseDate: string | null;
+    coverId: number | null;
   }>('SELECT * FROM books WHERE id = ?', [id]);
 
   if (!row) return null;
@@ -159,6 +171,7 @@ export async function getBookById(id: string): Promise<Book | null> {
     seriesId: row.seriesId ?? undefined,
     volumeNumber: row.volumeNumber ?? undefined,
     releaseDate: row.releaseDate ?? undefined,
+    coverId: row.coverId ?? undefined,
   };
 }
 
@@ -168,8 +181,8 @@ export async function getBookById(id: string): Promise<Book | null> {
 export async function insertBook(book: Book): Promise<void> {
   const database = getDb();
   await database.runAsync(
-    `INSERT INTO books (id, title, author, bookType, categories, isRead, inWishlist, seriesId, volumeNumber, releaseDate)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO books (id, title, author, bookType, categories, isRead, inWishlist, seriesId, volumeNumber, releaseDate, coverId)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       book.id,
       book.title,
@@ -181,6 +194,7 @@ export async function insertBook(book: Book): Promise<void> {
       book.seriesId ?? null,
       book.volumeNumber ?? null,
       book.releaseDate ?? null,
+      book.coverId ?? null,
     ]
   );
 }
@@ -229,6 +243,10 @@ export async function updateBook(id: string, updates: Partial<Book>): Promise<vo
   if (updates.releaseDate !== undefined) {
     setClauses.push('releaseDate = ?');
     values.push(updates.releaseDate ?? null);
+  }
+  if (updates.coverId !== undefined) {
+    setClauses.push('coverId = ?');
+    values.push(updates.coverId ?? null);
   }
 
   if (setClauses.length === 0) return;

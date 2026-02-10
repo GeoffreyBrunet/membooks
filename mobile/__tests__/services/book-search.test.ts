@@ -66,6 +66,7 @@ describe('searchResultToBook', () => {
       categories: ['sf'],
       isRead: false,
       inWishlist: false,
+      coverId: 999,
     });
   });
 

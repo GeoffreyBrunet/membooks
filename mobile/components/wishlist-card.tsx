@@ -4,16 +4,16 @@
  */
 
 import { useState } from 'react';
-import { Pressable, Text, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Pressable, Text, View, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useBooks } from '@/contexts/books-context';
+import { getCoverUrl } from '@/services/book-search';
 import {
   spacing,
   borders,
   shadows,
   typography,
-  borderWidths,
   borderRadius,
 } from '@/constants';
 import type { Book } from '@/types/book';
@@ -27,6 +27,7 @@ export function WishlistCard({ book }: WishlistCardProps) {
   const colors = useThemeColors();
   const { moveToOwned, removeBook } = useBooks();
   const [isMoving, setIsMoving] = useState(false);
+  const coverUrl = getCoverUrl(book.coverId, 'S');
 
   const handleMoveToOwned = async () => {
     setIsMoving(true);
@@ -48,65 +49,77 @@ export function WishlistCard({ book }: WishlistCardProps) {
         {
           backgroundColor: colors.backgroundSecondary,
           borderColor: colors.border,
+          borderLeftColor: colors.accent3,
           shadowColor: colors.shadow,
         },
       ]}
     >
-      <View style={styles.info}>
-        <Text
-          style={[styles.title, { color: colors.text }]}
-          numberOfLines={2}
-        >
-          {book.title}
-        </Text>
-        <Text
-          style={[styles.author, { color: colors.textSecondary }]}
-          numberOfLines={1}
-        >
-          {book.author}
-        </Text>
-      </View>
-
-      <View style={styles.actions}>
-        <Pressable
-          onPress={handleMoveToOwned}
-          disabled={isMoving}
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.ownedButton,
-            {
-              backgroundColor: colors.primary,
-              borderColor: colors.border,
-            },
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          {isMoving ? (
-            <ActivityIndicator size="small" color={colors.primaryText} />
-          ) : (
-            <Text style={[styles.actionButtonText, { color: colors.primaryText }]}>
-              {t('wishlist.moveToOwned')}
+      <View style={styles.row}>
+        {coverUrl && (
+          <Image
+            source={{ uri: coverUrl }}
+            style={[styles.cover, { backgroundColor: colors.border }]}
+            resizeMode="cover"
+          />
+        )}
+        <View style={styles.infoColumn}>
+          <View style={styles.info}>
+            <Text
+              style={[styles.title, { color: colors.text }]}
+              numberOfLines={2}
+            >
+              {book.title}
             </Text>
-          )}
-        </Pressable>
+            <Text
+              style={[styles.author, { color: colors.textSecondary }]}
+              numberOfLines={1}
+            >
+              {book.author}
+            </Text>
+          </View>
 
-        <Pressable
-          onPress={handleRemove}
-          disabled={isMoving}
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.removeButton,
-            {
-              backgroundColor: colors.backgroundSecondary,
-              borderColor: colors.border,
-            },
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          <Text style={[styles.actionButtonText, { color: colors.textSecondary }]}>
-            {t('wishlist.remove')}
-          </Text>
-        </Pressable>
+          <View style={styles.actions}>
+            <Pressable
+              onPress={handleMoveToOwned}
+              disabled={isMoving}
+              style={({ pressed }) => [
+                styles.actionButton,
+                styles.ownedButton,
+                {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.border,
+                },
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              {isMoving ? (
+                <ActivityIndicator size="small" color={colors.primaryText} />
+              ) : (
+                <Text style={[styles.actionButtonText, { color: colors.primaryText }]}>
+                  {t('wishlist.moveToOwned')}
+                </Text>
+              )}
+            </Pressable>
+
+            <Pressable
+              onPress={handleRemove}
+              disabled={isMoving}
+              style={({ pressed }) => [
+                styles.actionButton,
+                styles.removeButton,
+                {
+                  backgroundColor: colors.backgroundSecondary,
+                  borderColor: colors.border,
+                },
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={[styles.actionButtonText, { color: colors.textSecondary }]}>
+                {t('wishlist.remove')}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -115,14 +128,28 @@ export function WishlistCard({ book }: WishlistCardProps) {
 const styles = StyleSheet.create({
   container: {
     padding: spacing.cardPadding,
+    borderLeftWidth: 3,
     ...borders.card,
     ...shadows.md,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  cover: {
+    width: 45,
+    height: 65,
+    borderRadius: borderRadius.sm,
+  },
+  infoColumn: {
+    flex: 1,
   },
   info: {
     marginBottom: spacing.md,
   },
   title: {
     ...typography.title,
+    fontWeight: 'bold',
     marginBottom: spacing.xs,
   },
   author: {
@@ -136,8 +163,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    borderWidth: borderWidths.medium,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },

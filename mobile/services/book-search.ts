@@ -92,6 +92,7 @@ export function searchResultToBook(result: SearchResult, inWishlist: boolean): B
     categories: result.categories,
     isRead: false,
     inWishlist,
+    coverId: result.coverId,
   };
 }
 

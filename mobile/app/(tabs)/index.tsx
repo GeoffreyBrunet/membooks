@@ -101,12 +101,13 @@ export default function Home() {
   }
 
   return (
+    <View style={[styles.screenContainer, { backgroundColor: colors.background, paddingTop: insets.top }]}>
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={styles.container}
       contentContainerStyle={[
         styles.content,
         {
-          paddingTop: insets.top + spacing.lg,
+          paddingTop: spacing.lg,
           paddingBottom: insets.bottom + spacing.xl,
         },
       ]}
@@ -126,7 +127,10 @@ export default function Home() {
                 <Text
                   style={[
                     styles.tabText,
-                    { color: isActive ? colors.text : colors.textSecondary },
+                    {
+                      color: isActive ? colors.text : colors.textMuted,
+                      fontWeight: isActive ? '700' : '500',
+                    },
                   ]}
                 >
                   {t(`home.tabs.${tab}`)}
@@ -145,10 +149,7 @@ export default function Home() {
           <Pressable
             style={[
               styles.headerButton,
-              {
-                backgroundColor: colors.accent1,
-                borderColor: colors.border,
-              },
+              { backgroundColor: colors.accent1 },
             ]}
             onPress={() => router.push('/statistics')}
           >
@@ -159,10 +160,7 @@ export default function Home() {
           <Pressable
             style={[
               styles.profileButton,
-              {
-                backgroundColor: colors.primary,
-                borderColor: colors.border,
-              },
+              { backgroundColor: colors.primary },
             ]}
             onPress={() => router.push('/profile')}
           >
@@ -225,13 +223,8 @@ export default function Home() {
                 ) : (
                   <BookCard book={item.data} />
                 )}
-                {/* Separator between items */}
                 {index < libraryItems.length - 1 && (
-                  <View style={styles.separatorContainer}>
-                    <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                    <View style={[styles.separatorDiamond, { backgroundColor: colors.accent1, borderColor: colors.border }]} />
-                    <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                  </View>
+                  <View style={[styles.separator, { backgroundColor: colors.border }]} />
                 )}
               </View>
             ))}
@@ -281,13 +274,8 @@ export default function Home() {
               {sortedWishlist.map((book, index) => (
                 <View key={book.id}>
                   <WishlistCard book={book} />
-                  {/* Separator between items */}
                   {index < sortedWishlist.length - 1 && (
-                    <View style={styles.separatorContainer}>
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                      <View style={[styles.separatorDiamond, { backgroundColor: colors.accent1, borderColor: colors.border }]} />
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                    </View>
+                    <View style={[styles.separator, { backgroundColor: colors.border }]} />
                   )}
                 </View>
               ))}
@@ -343,6 +331,7 @@ export default function Home() {
                       {
                         backgroundColor: colors.backgroundSecondary,
                         borderColor: colors.border,
+                        borderLeftColor: colors.accent4,
                         shadowColor: colors.shadow,
                       },
                     ]}
@@ -377,13 +366,8 @@ export default function Home() {
                       {book.author}
                     </Text>
                   </View>
-                  {/* Separator between items */}
                   {index < upcomingBooks.length - 1 && (
-                    <View style={styles.separatorContainer}>
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                      <View style={[styles.separatorDiamond, { backgroundColor: colors.secondary, borderColor: colors.border }]} />
-                      <View style={[styles.separatorLine, { backgroundColor: colors.border }]} />
-                    </View>
+                    <View style={[styles.separator, { backgroundColor: colors.border }]} />
                   )}
                 </View>
               ))}
@@ -392,6 +376,7 @@ export default function Home() {
         </>
       )}
     </ScrollView>
+    </View>
   );
 }
 
@@ -404,6 +389,9 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...typography.body,
+  },
+  screenContainer: {
+    flex: 1,
   },
   container: {
     flex: 1,
@@ -433,7 +421,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -441,7 +428,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -455,13 +441,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   tabText: {
-    ...typography.labelSmall,
+    ...typography.label,
   },
   tabUnderline: {
-    height: 2,
+    height: 3,
     marginTop: 4,
-    borderRadius: 1,
-    width: '60%',
+    borderRadius: 2,
+    width: '50%',
   },
   countBadge: {
     alignSelf: 'flex-start',
@@ -476,23 +462,12 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+    gap: spacing.md,
   },
-  separatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.lg,
-  },
-  separatorLine: {
-    flex: 1,
-    height: 2,
-  },
-  separatorDiamond: {
-    width: 10,
-    height: 10,
-    marginHorizontal: spacing.md,
-    borderWidth: 2,
-    transform: [{ rotate: '45deg' }],
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    marginTop: spacing.md,
+    marginHorizontal: spacing.lg,
   },
   placeholderContainer: {
     flex: 1,
@@ -526,6 +501,7 @@ const styles = StyleSheet.create({
   },
   upcomingCard: {
     padding: spacing.cardPadding,
+    borderLeftWidth: 3,
     ...borders.card,
     ...shadows.md,
   },
@@ -538,6 +514,7 @@ const styles = StyleSheet.create({
   },
   upcomingTitle: {
     ...typography.title,
+    fontWeight: 'bold',
     flex: 1,
   },
   upcomingAuthor: {
@@ -546,8 +523,7 @@ const styles = StyleSheet.create({
   releaseDateBadge: {
     paddingVertical: 2,
     paddingHorizontal: spacing.sm,
-    borderWidth: 2,
-    borderRadius: 4,
+    borderRadius: 6,
   },
   releaseDateText: {
     ...typography.labelSmall,
