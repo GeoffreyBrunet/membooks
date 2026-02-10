@@ -1,6 +1,6 @@
 # Membooks
 
-Application mobile de gestion de livres avec backend API.
+Application mobile de gestion de livres avec backend API et interface web.
 
 ## Structure du projet
 
@@ -8,21 +8,30 @@ Application mobile de gestion de livres avec backend API.
 membooks/
 ├── api/                  # Backend Elysia.js + Drizzle ORM
 │   ├── src/
-│   │   ├── db/           # Schéma et connexion PostgreSQL
-│   │   ├── routes/       # Routes API (auth, etc.)
-│   │   └── utils/        # Utilitaires (hash password)
+│   │   ├── db/           # Schema et connexion PostgreSQL
+│   │   ├── routes/       # Routes API (auth, subscription, notifications)
+│   │   └── utils/        # Utilitaires (hash password, logger, rate limiter)
 │   └── drizzle.config.ts
 │
 ├── mobile/               # App React Native (Expo)
 │   ├── app/              # Routes (Expo Router)
-│   ├── components/       # Composants réutilisables
-│   ├── services/         # Services API
-│   └── types/            # Types TypeScript
+│   ├── components/       # Composants
+│   ├── constants/        # Design system (colors, spacing, typography)
+│   ├── contexts/         # Auth, Books, Language, Theme
+│   ├── hooks/            # Hooks (notifications, OTA updates, theme)
+│   ├── services/         # Services API et base locale
+│   └── __tests__/        # Tests
 │
-└── scripts/              # Scripts de développement
+└── web/                  # Interface web React
+    ├── src/
+    │   ├── pages/        # Pages (Library, Search, Profile, etc.)
+    │   ├── services/     # Services API
+    │   ├── contexts/     # Auth, Theme
+    │   └── locales/      # i18n (en, fr)
+    └── __tests__/        # Tests
 ```
 
-## Prérequis
+## Prerequis
 
 - [Bun](https://bun.sh) >= 1.0
 - [PostgreSQL](https://www.postgresql.org/) >= 14
@@ -35,18 +44,20 @@ membooks/
 git clone <repo-url>
 cd membooks
 
-# Installer toutes les dépendances
-bun install:all
+# Installer les dependances de chaque sous-projet
+cd api && bun install && cd ..
+cd mobile && bun install && cd ..
+cd web && bun install && cd ..
 
-# Créer la base de données PostgreSQL
+# Creer la base de donnees PostgreSQL
 createdb membooks
 
 # Configurer les variables d'environnement
 cp api/.env.example api/.env
-# Éditer api/.env avec vos valeurs
+# Editer api/.env avec vos valeurs
 
-# Pousser le schéma vers la base de données
-bun db:push
+# Pousser le schema vers la base de donnees
+cd api && bun run db:push
 ```
 
 ## Configuration
@@ -65,79 +76,63 @@ PORT=3000
 EXPO_PUBLIC_API_URL=http://localhost:3000
 ```
 
-## Développement
+## Developpement
 
 ```bash
-# Lancer API + Mobile en parallèle
-bun dev
+# API (port 3000)
+cd api && bun run dev
 
-# Ou séparément :
-bun dev:api      # API uniquement (port 3000)
-bun dev:mobile   # Expo uniquement
+# Mobile (Expo)
+cd mobile && bunx expo start
+
+# Web (port 3001)
+cd web && bun run dev
 ```
 
-## Base de données
+## Base de donnees
 
 ```bash
-# Pousser les changements de schéma
-bun db:push
+cd api
+
+# Pousser les changements de schema
+bun run db:push
 
 # Ouvrir Drizzle Studio (interface graphique)
-bun db:studio
+bun run db:studio
 ```
 
 ## API Endpoints
 
 ### Authentification
 
-| Méthode | Endpoint | Description | Auth |
+| Methode | Endpoint | Description | Auth |
 |---------|----------|-------------|------|
 | POST | `/auth/register` | Inscription | Non |
 | POST | `/auth/login` | Connexion | Non |
 | GET | `/auth/me` | Profil utilisateur | JWT |
 | PUT | `/auth/me` | Modifier profil | JWT |
+| DELETE | `/auth/me` | Supprimer compte | JWT |
+| PUT | `/auth/password` | Changer mot de passe | JWT |
+| POST | `/auth/logout` | Deconnexion | Non |
 
-### Exemples
+### Notifications
 
-**Inscription**
-```bash
-curl -X POST http://localhost:3000/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","username":"user","password":"password123"}'
-```
+| Methode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/notifications/register-token` | Enregistrer un push token | JWT |
+| DELETE | `/notifications/token` | Supprimer un push token | JWT |
 
-**Connexion**
-```bash
-curl -X POST http://localhost:3000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password123"}'
-```
+### Swagger
 
-**Profil (avec token)**
-```bash
-curl http://localhost:3000/auth/me \
-  -H "Authorization: Bearer <token>"
-```
-
-## Schéma utilisateur
-
-| Champ | Type | Description |
-|-------|------|-------------|
-| id | UUID | Identifiant unique |
-| email | string | Email (unique) |
-| username | string | Pseudo (unique) |
-| password | string | Mot de passe (Argon2id) |
-| language | string | Langue (défaut: "en") |
-| is_premium | boolean | Compte premium |
-| created_at | timestamp | Date de création |
-| updated_at | timestamp | Date de modification |
+Documentation interactive disponible sur `/swagger` quand l'API tourne.
 
 ## Stack technique
 
 **Backend**
 - [Elysia.js](https://elysiajs.com/) - Framework web pour Bun
 - [Drizzle ORM](https://orm.drizzle.team/) - ORM TypeScript
-- [PostgreSQL](https://www.postgresql.org/) - Base de données
+- [PostgreSQL](https://www.postgresql.org/) - Base de donnees
+- [Stripe](https://stripe.com/) - Paiements
 - Argon2id - Hash des mots de passe
 - JWT - Authentification
 
@@ -145,9 +140,13 @@ curl http://localhost:3000/auth/me \
 - [Expo](https://expo.dev/) SDK 54
 - [React Native](https://reactnative.dev/) 0.81
 - [Expo Router](https://docs.expo.dev/router/introduction/) 6.0
+- Expo Notifications - Push notifications
+- expo-sqlite - Base locale
 - TypeScript
 
-## Palette de couleurs
-- Orange: #e38337
-- Rose: #ff9c90
-- Vert: #7dad98
+**Web**
+- [React](https://react.dev/) 19
+- [TanStack Router](https://tanstack.com/router) - Routing
+- [TanStack Query](https://tanstack.com/query) - Data fetching
+- [Tailwind CSS](https://tailwindcss.com/) v4
+- i18next - Internationalisation
