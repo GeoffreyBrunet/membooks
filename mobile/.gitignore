@@ -5,6 +5,11 @@
 expo-env.d.ts
 # @end expo-cli
 
+# Environment variables
+.env
+.env*.local
+!.env.example
+
 # Android signing (never commit keystores or credentials)
 *.jks
 *.keystore
