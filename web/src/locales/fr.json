@@ -1,0 +1,192 @@
+{
+  "auth": {
+    "email": "Email",
+    "emailPlaceholder": "votre@email.com",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Votre mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
+    "username": "Pseudo",
+    "usernamePlaceholder": "Choisissez un pseudo",
+    "country": "Pays",
+    "login": {
+      "subtitle": "Content de vous revoir !",
+      "button": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "registerLink": "S'inscrire"
+    },
+    "register": {
+      "subtitle": "Creez votre compte",
+      "button": "S'inscrire",
+      "hasAccount": "Deja un compte ?",
+      "loginLink": "Se connecter"
+    },
+    "errors": {
+      "fillAllFields": "Veuillez remplir tous les champs",
+      "usernameTooShort": "Le pseudo doit contenir au moins 3 caracteres",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caracteres",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "generic": "Une erreur s'est produite, veuillez reessayer",
+      "network_error": "Erreur reseau, verifiez votre connexion",
+      "Invalid credentials": "Email ou mot de passe incorrect",
+      "Email already exists": "Cet email est deja utilise",
+      "Username already exists": "Ce pseudo est deja pris",
+      "Invalid current password": "Le mot de passe actuel est incorrect"
+    }
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "retry": "Reessayer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "back": "Retour"
+  },
+  "home": {
+    "title": "Ma Bibliotheque",
+    "bookCount_one": "{{count}} livre",
+    "bookCount_other": "{{count}} livres",
+    "wishlistCount_one": "{{count}} livre",
+    "wishlistCount_other": "{{count}} livres",
+    "upcomingCount_one": "{{count}} livre",
+    "upcomingCount_other": "{{count}} livres",
+    "series": "Series",
+    "standaloneBooks": "Livres hors serie",
+    "tabs": {
+      "myBooks": "Mes Livres",
+      "wishlist": "Wishlist",
+      "releases": "A venir"
+    },
+    "emptyLibrary": "Votre bibliotheque est vide. Recherchez des livres a ajouter !",
+    "emptyWishlist": "Votre wishlist est vide. Recherchez des livres a ajouter !",
+    "emptyUpcoming": "Aucune sortie a venir. Ajoutez des livres avec une date de sortie future a votre wishlist !",
+    "comingSoon": "Bientot disponible"
+  },
+  "wishlist": {
+    "moveToOwned": "Je l'ai !",
+    "remove": "Supprimer"
+  },
+  "detail": {
+    "author": "Auteur",
+    "volume": "Tome {{number}}",
+    "ownedVolumes": "Tomes possedes",
+    "progress": "{{owned}} sur {{total}}",
+    "readProgress": "{{read}} lu(s)",
+    "removeFromLibrary": "Retirer de la bibliotheque",
+    "deleteTitle": "Supprimer le livre",
+    "deleteMessage": "Voulez-vous vraiment retirer \"{{title}}\" de votre bibliotheque ?"
+  },
+  "status": {
+    "read": "Lu",
+    "unread": "A lire"
+  },
+  "bookType": {
+    "novel": "Roman",
+    "comic": "BD",
+    "manga": "Manga",
+    "artbook": "Artbook",
+    "essay": "Essai"
+  },
+  "category": {
+    "sf": "S.F.",
+    "fantasy": "Fantasy",
+    "thriller": "Policier",
+    "romance": "Romance",
+    "horror": "Horreur",
+    "adventure": "Aventure",
+    "sliceOfLife": "Slice of Life",
+    "historical": "Historique",
+    "mystery": "Mystere",
+    "biography": "Biographie"
+  },
+  "profile": {
+    "title": "Profil",
+    "personalInfo": "Informations personnelles"
+  },
+  "statistics": {
+    "title": "Statistiques",
+    "totalBooks": "livres possedes",
+    "readingProgress": "Progression de lecture",
+    "byType": "Par Format",
+    "byGenre": "Par Genre",
+    "noBooks": "Ajoutez des livres pour voir vos statistiques !"
+  },
+  "subscription": {
+    "title": "Premium",
+    "premiumActive": "Vous etes Premium !",
+    "premiumInactive": "Devenir Premium",
+    "perMonth": "par mois",
+    "features": "Avantages Premium",
+    "feature1": "Collection de livres illimitee",
+    "feature2": "Statistiques et analyses avancees",
+    "feature3": "Synchronisation cloud multi-appareils",
+    "feature4": "Support prioritaire",
+    "subscribe": "S'abonner",
+    "cancel": "Annuler l'abonnement",
+    "reactivate": "Reactiver l'abonnement",
+    "cancelTitle": "Annuler l'abonnement",
+    "cancelMessage": "Etes-vous sur ? Vous garderez l'acces jusqu'a la fin de votre periode de facturation.",
+    "confirmCancel": "Oui, annuler",
+    "renewsOn": "Renouvellement le {{date}}",
+    "expiresOn": "Expire le {{date}}",
+    "termsInfo": "Annulez quand vous voulez. Aucun frais apres annulation.",
+    "manageSubscription": "Gerer l'abonnement",
+    "errors": {
+      "not_authenticated": "Veuillez vous connecter",
+      "network_error": "Erreur reseau, reessayez",
+      "Already premium": "Vous etes deja premium !"
+    }
+  },
+  "settings": {
+    "title": "Parametres",
+    "language": "Langue",
+    "languageEnglish": "Anglais",
+    "languageFrench": "Francais",
+    "country": "Pays",
+    "theme": "Theme",
+    "themeSystem": "Systeme",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "security": "Securite",
+    "changePassword": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "passwordChangedTitle": "Mot de passe modifie",
+    "passwordChangedMessage": "Votre mot de passe a ete mis a jour avec succes.",
+    "deleteAccount": "Supprimer le compte",
+    "deleteAccountTitle": "Supprimer le compte",
+    "deleteAccountMessage": "Etes-vous sur de vouloir supprimer votre compte ? Cette action est irreversible.",
+    "dangerZone": "Zone de danger",
+    "logout": "Deconnexion",
+    "logoutTitle": "Deconnexion",
+    "logoutMessage": "Etes-vous sur de vouloir vous deconnecter ?"
+  },
+  "nav": {
+    "home": "Accueil",
+    "search": "Recherche",
+    "statistics": "Statistiques",
+    "premium": "Premium",
+    "admin": "Admin",
+    "profile": "Profil"
+  },
+  "search": {
+    "placeholder": "Rechercher par titre ou auteur...",
+    "search": "Rechercher",
+    "searching": "Recherche en cours...",
+    "noResults": "Aucun resultat trouve",
+    "noSuggestions": "Aucune suggestion",
+    "alreadyInLibrary": "Deja dans la bibliotheque",
+    "inLibrary": "Dans la bibliotheque",
+    "addQuestion": "Ou voulez-vous ajouter ce livre ?",
+    "addToLibrary": "Ajouter a ma bibliotheque",
+    "addToWishlist": "Ajouter a la wishlist",
+    "addedToLibrary": "Ajoute a la bibliotheque !",
+    "addedToWishlist": "Ajoute a la wishlist !",
+    "bookAdded": "Livre ajoute !",
+    "otherByAuthor": "Autres livres de {{author}}"
+  }
+}

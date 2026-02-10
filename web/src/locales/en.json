@@ -1,0 +1,192 @@
+{
+  "auth": {
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "Your password",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "username": "Username",
+    "usernamePlaceholder": "Choose a username",
+    "country": "Country",
+    "login": {
+      "subtitle": "Welcome back!",
+      "button": "Login",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up"
+    },
+    "register": {
+      "subtitle": "Create your account",
+      "button": "Sign up",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login"
+    },
+    "errors": {
+      "fillAllFields": "Please fill in all fields",
+      "usernameTooShort": "Username must be at least 3 characters",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "generic": "An error occurred, please try again",
+      "network_error": "Network error, check your connection",
+      "Invalid credentials": "Invalid email or password",
+      "Email already exists": "This email is already registered",
+      "Username already exists": "This username is already taken",
+      "Invalid current password": "Current password is incorrect"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back"
+  },
+  "home": {
+    "title": "My Library",
+    "bookCount_one": "{{count}} book",
+    "bookCount_other": "{{count}} books",
+    "wishlistCount_one": "{{count}} book",
+    "wishlistCount_other": "{{count}} books",
+    "upcomingCount_one": "{{count}} book",
+    "upcomingCount_other": "{{count}} books",
+    "series": "Series",
+    "standaloneBooks": "Standalone Books",
+    "tabs": {
+      "myBooks": "My Books",
+      "wishlist": "Wishlist",
+      "releases": "Coming"
+    },
+    "emptyLibrary": "Your library is empty. Search for books to add!",
+    "emptyWishlist": "Your wishlist is empty. Search for books to add!",
+    "emptyUpcoming": "No upcoming releases. Add books with future release dates to your wishlist!",
+    "comingSoon": "Coming Soon"
+  },
+  "wishlist": {
+    "moveToOwned": "I got it!",
+    "remove": "Remove"
+  },
+  "detail": {
+    "author": "Author",
+    "volume": "Volume {{number}}",
+    "ownedVolumes": "Owned volumes",
+    "progress": "{{owned}} of {{total}}",
+    "readProgress": "{{read}} read",
+    "removeFromLibrary": "Remove from library",
+    "deleteTitle": "Remove book",
+    "deleteMessage": "Are you sure you want to remove \"{{title}}\" from your library?"
+  },
+  "status": {
+    "read": "Read",
+    "unread": "To read"
+  },
+  "bookType": {
+    "novel": "Novel",
+    "comic": "Comic",
+    "manga": "Manga",
+    "artbook": "Artbook",
+    "essay": "Essay"
+  },
+  "category": {
+    "sf": "Sci-Fi",
+    "fantasy": "Fantasy",
+    "thriller": "Thriller",
+    "romance": "Romance",
+    "horror": "Horror",
+    "adventure": "Adventure",
+    "sliceOfLife": "Slice of Life",
+    "historical": "Historical",
+    "mystery": "Mystery",
+    "biography": "Biography"
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "totalBooks": "books owned",
+    "readingProgress": "Reading Progress",
+    "byType": "By Format",
+    "byGenre": "By Genre",
+    "noBooks": "Add some books to see your statistics!"
+  },
+  "subscription": {
+    "title": "Premium",
+    "premiumActive": "You're Premium!",
+    "premiumInactive": "Become Premium",
+    "perMonth": "per month",
+    "features": "Premium Features",
+    "feature1": "Unlimited book collection",
+    "feature2": "Advanced statistics and insights",
+    "feature3": "Cloud sync across devices",
+    "feature4": "Priority support",
+    "subscribe": "Subscribe Now",
+    "cancel": "Cancel Subscription",
+    "reactivate": "Reactivate Subscription",
+    "cancelTitle": "Cancel Subscription",
+    "cancelMessage": "Are you sure? You'll keep access until the end of your billing period.",
+    "confirmCancel": "Yes, Cancel",
+    "renewsOn": "Renews on {{date}}",
+    "expiresOn": "Expires on {{date}}",
+    "termsInfo": "Cancel anytime. You won't be charged after cancellation.",
+    "manageSubscription": "Manage Subscription",
+    "errors": {
+      "not_authenticated": "Please log in first",
+      "network_error": "Network error, please try again",
+      "Already premium": "You're already premium!"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageEnglish": "English",
+    "languageFrench": "French",
+    "country": "Country",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "security": "Security",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "passwordChangedTitle": "Password changed",
+    "passwordChangedMessage": "Your password has been updated successfully.",
+    "deleteAccount": "Delete account",
+    "deleteAccountTitle": "Delete account",
+    "deleteAccountMessage": "Are you sure you want to delete your account? This action cannot be undone.",
+    "dangerZone": "Danger zone",
+    "logout": "Logout",
+    "logoutTitle": "Logout",
+    "logoutMessage": "Are you sure you want to logout?"
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "statistics": "Statistics",
+    "premium": "Premium",
+    "admin": "Admin",
+    "profile": "Profile"
+  },
+  "search": {
+    "placeholder": "Search by title or author...",
+    "search": "Search",
+    "searching": "Searching...",
+    "noResults": "No results found",
+    "noSuggestions": "No suggestions",
+    "alreadyInLibrary": "Already in library",
+    "inLibrary": "In library",
+    "addQuestion": "Where do you want to add this book?",
+    "addToLibrary": "Add to my library",
+    "addToWishlist": "Add to wishlist",
+    "addedToLibrary": "Added to library!",
+    "addedToWishlist": "Added to wishlist!",
+    "bookAdded": "Book added!",
+    "otherByAuthor": "Other books by {{author}}"
+  }
+}
