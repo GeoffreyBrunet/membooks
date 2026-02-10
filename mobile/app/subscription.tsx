@@ -66,14 +66,15 @@ export default function SubscriptionScreen() {
     const result = await createCheckoutSession();
 
     if (result.success && result.url) {
-      // Open Stripe Checkout in browser
-      const browserResult = await WebBrowser.openBrowserAsync(result.url);
+      // Open Stripe Checkout — openAuthSessionAsync intercepts the deep link redirect
+      await WebBrowser.openAuthSessionAsync(
+        result.url,
+        "membooks://subscription/success"
+      );
 
-      // Refresh status when browser closes
-      if (browserResult.type === "cancel" || browserResult.type === "dismiss") {
-        await loadSubscriptionStatus();
-        await refreshProfile();
-      }
+      // Refresh status when browser closes (success, cancel, or dismiss)
+      await loadSubscriptionStatus();
+      await refreshProfile();
     } else {
       Alert.alert(t("common.error"), t(`subscription.errors.${result.error}`) || t("common.error"));
     }
