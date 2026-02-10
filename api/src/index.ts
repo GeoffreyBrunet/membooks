@@ -104,6 +104,39 @@ const app = new Elysia()
   .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }), {
     detail: { tags: ["General"], summary: "Health check", description: "Returns the current health status and server timestamp." },
   })
+  .get("/.well-known/apple-app-site-association", ({ set }) => {
+    set.headers["content-type"] = "application/json";
+    return {
+      applinks: {
+        apps: [],
+        details: [
+          {
+            appID: `${process.env.APPLE_TEAM_ID || "TEAM_ID"}.com.membooks.app`,
+            paths: ["/subscription/*"],
+          },
+        ],
+      },
+    };
+  }, {
+    detail: { tags: ["General"], summary: "Apple App Site Association", description: "Returns AASA file for iOS universal links." },
+  })
+  .get("/.well-known/assetlinks.json", ({ set }) => {
+    set.headers["content-type"] = "application/json";
+    return [
+      {
+        relation: ["delegate_permission/common.handle_all_urls"],
+        target: {
+          namespace: "android_app",
+          package_name: "com.membooks.app",
+          sha256_cert_fingerprints: [
+            process.env.ANDROID_SHA256_FINGERPRINT || "SHA256_FINGERPRINT",
+          ],
+        },
+      },
+    ];
+  }, {
+    detail: { tags: ["General"], summary: "Android Asset Links", description: "Returns Digital Asset Links for Android app links." },
+  })
   .use(authRoutes)
   .use(subscriptionRoutes)
   .use(webhookRoutes)
