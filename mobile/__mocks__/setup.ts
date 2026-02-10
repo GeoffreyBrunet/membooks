@@ -179,6 +179,40 @@ mock.module('expo-updates', () => ({
   reloadAsync: mock(() => Promise.resolve()),
 }));
 
+// Mock expo-notifications
+mock.module('expo-notifications', () => ({
+  setNotificationHandler: mock(),
+  getPermissionsAsync: mock(() => Promise.resolve({ status: 'granted' })),
+  requestPermissionsAsync: mock(() => Promise.resolve({ status: 'granted' })),
+  getExpoPushTokenAsync: mock(() => Promise.resolve({ data: 'ExponentPushToken[mock]' })),
+  addNotificationReceivedListener: mock(() => ({ remove: mock() })),
+  addNotificationResponseReceivedListener: mock(() => ({ remove: mock() })),
+  AndroidImportance: { MAX: 5, HIGH: 4, DEFAULT: 3, LOW: 2, MIN: 1 },
+  setNotificationChannelAsync: mock(() => Promise.resolve()),
+}));
+
+// Mock expo-device
+mock.module('expo-device', () => ({
+  isDevice: true,
+  brand: 'Apple',
+  modelName: 'iPhone 14',
+  osName: 'iOS',
+  osVersion: '17.0',
+}));
+
+// Mock expo-constants
+mock.module('expo-constants', () => ({
+  default: {
+    expoConfig: {
+      extra: {
+        eas: {
+          projectId: 'mock-project-id',
+        },
+      },
+    },
+  },
+}));
+
 // Mock react-native-safe-area-context
 mock.module('react-native-safe-area-context', () => {
   const React = require('react');

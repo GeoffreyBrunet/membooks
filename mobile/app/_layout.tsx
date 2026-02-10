@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { useThemeColors } from "@/hooks/use-theme-colors";
 import { useOTAUpdates } from "@/hooks/use-ota-updates";
+import { useNotifications } from "@/hooks/use-notifications";
 import "@/lib/i18n";
 
 function RootLayoutNav() {
@@ -17,6 +18,9 @@ function RootLayoutNav() {
 
   // Check for OTA updates on launch
   useOTAUpdates();
+
+  // Register push notifications
+  useNotifications();
 
   useEffect(() => {
     if (isLoading) return;
