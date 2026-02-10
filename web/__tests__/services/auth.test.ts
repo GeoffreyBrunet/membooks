@@ -7,7 +7,6 @@ import {
   updateProfile,
   changePassword,
   deleteAccount,
-  isAuthenticated,
 } from "../../src/services/auth";
 
 function mockFetch(response: Partial<Response>) {
@@ -266,18 +265,3 @@ describe("deleteAccount", () => {
   });
 });
 
-// --- isAuthenticated ---
-
-describe("isAuthenticated", () => {
-  it("returns true when getProfile succeeds", async () => {
-    mockFetch({ ok: true, json: () => Promise.resolve({ user: { id: "1" } }) });
-    const result = await isAuthenticated();
-    expect(result).toBe(true);
-  });
-
-  it("returns false when getProfile fails", async () => {
-    mockFetch({ ok: false, status: 401, json: () => Promise.resolve({ error: "Unauthorized" }) });
-    const result = await isAuthenticated();
-    expect(result).toBe(false);
-  });
-});
