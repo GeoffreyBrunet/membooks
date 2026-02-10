@@ -5,6 +5,7 @@ import { swagger } from "@elysiajs/swagger";
 import { authRoutes } from "./routes/auth";
 import { subscriptionRoutes, webhookRoutes } from "./routes/subscription";
 import { adminRoutes } from "./routes/admin";
+import { notificationRoutes } from "./routes/notifications";
 import { logger } from "./utils/logger";
 
 const allowedOrigins = process.env.CORS_ORIGINS
@@ -141,6 +142,7 @@ const app = new Elysia()
   .use(subscriptionRoutes)
   .use(webhookRoutes)
   .use(adminRoutes)
+  .use(notificationRoutes)
   .listen(process.env.PORT || 3000);
 
 logger.info("server started", {
